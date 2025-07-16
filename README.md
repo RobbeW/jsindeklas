@@ -3,7 +3,7 @@
 Auteur: Robbe Wulgaert · [aiindeklas.be](www.aiindeklas.be) / [robbewulgaert.be](www.robbewulgaert.be)
 © 2025 Robbe Wulgaert
 
-Demo: klik hier of download de volledige code en draai lokaal. 
+Demo: [klik hier](https://robbew.github.io/jsindeklas/) of download de volledige code en draai lokaal. 
 
 ## 🎯 Doel
 
