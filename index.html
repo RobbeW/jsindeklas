@@ -8,46 +8,316 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; background: #fff; color: #23272e; font-family: 'Roboto', Arial, Helvetica, sans-serif; min-height: 100vh; }
-    body { display: flex; flex-direction: column; min-height: 100vh; }
-    .topbar { width: 100%; box-sizing: border-box; background: #fff; border-bottom: 1.5px solid #eee; padding: 0.8rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-    .main-layout { display: flex; flex-direction: row; flex: 1 1 auto; max-width: 1400px; margin: 0 auto; padding: 2rem 1rem 1rem 1rem; box-sizing: border-box; gap: 2rem; width: 100%; }
-    .editor-pane { flex: 0 0 420px; min-width: 340px; max-width: 500px; background: #f7f8fa; border-radius: 18px; padding: 1.7rem 1.4rem 1.2rem 1.4rem; display: flex; flex-direction: column; gap: 1.4rem; box-shadow: 0 3px 24px rgba(82,0,255,0.06); }
-    .canvas-pane { flex: 1 1 0; background: #f7f8fa; border-radius: 18px; padding: 1.7rem 1.4rem 1.2rem 1.4rem; display: flex; flex-direction: column; align-items: center; box-shadow: 0 3px 24px rgba(82,0,255,0.06); min-width: 220px; }
-    .editor-label, .console-label, .canvas-label { font-weight: 900; font-size: 1.14em; color: #5200FF; margin-bottom: 0.5rem; }
-    #code-editor { height: 320px; border-radius: 8px; overflow: hidden; border: 1.5px solid #5200FF; background: #fff; }
-    .run-btn { background: #3dffd0; color: #23272e; border: none; border-radius: 6px; padding: 0.5rem 1rem; font-size: 1.1em; font-weight: 700; cursor: pointer; margin-bottom: 0.7rem; transition: background 0.2s; width: 140px; align-self: flex-start; }
-    .run-btn:hover { background: #5ffff0; }
-    #console-output { background: #161820; color: #fff; min-height: 60px; border-radius: 8px; padding: 0.65rem 1rem; font-family: monospace; font-size: 1em; white-space: pre-line; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-    .canvas-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    #coords { font-family: monospace; color: #23272e; font-size: 1em; }
-    #turtlecanvas { background: #fff; border: 2px solid #5200FF; border-radius: 12px; box-shadow: 0 2px 12px rgba(82,0,255,0.08); display: block; margin: 0 auto; width: 500px; height: 500px; max-width: 90vw; max-height: 60vw; }
-    #imagecanvas { display: none; }
-    .help-btn { position: fixed; right: 32px; bottom: 32px; z-index: 1500; background: #5200FF; color: #fff; font-size: 2em; border: none; border-radius: 50%; width: 54px; height: 54px; cursor: pointer; box-shadow: 0 2px 10px rgba(82,0,255,0.11); transition: background 0.2s; }
-    .help-btn:hover { background: #3700b3; }
-    .help-modal { display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.52); z-index: 2000; align-items: center; justify-content: center; }
-    .help-modal[style*="flex"], .help-modal.active { display: flex !important; }
-    .help-content { background: #fff; color: #23272e; border-radius: 14px; padding: 2.6rem 2.2rem 1.7rem 2.2rem; gap: 2.6rem; width: 900px; max-width: 98vw; box-shadow: 0 6px 40px rgba(82,0,255,0.17); position: relative; display: flex; gap: 2.2rem; flex-direction: row; }
-    .help-content { background: #fff; color: #23272e; border-radius: 14px; padding: 2.6rem 2.2rem 1.7rem 2.2rem; gap: 2.6rem; width: 900px; max-width: 98vw; box-shadow: 0 6px 40px rgba(82,0,255,0.17); position: relative; display: flex; gap: 2.2rem; flex-direction: row; }
-    .help-left { width: 44%; min-width: 200px; max-height: 60vh; overflow-y: auto; }
-    .help-right { width: 52%; min-width: 170px; max-height: 60vh; overflow-y: auto; }
-    .help-content h2 { color: #5200FF; font-weight: 900; margin-top: 0; }
-    .help-content ul { padding-left: 1.3em; font-size: 1.05em; line-height: 1.5; }
-    .help-content code { background: #f2f0fd; padding: 2px 6px; border-radius: 5px; font-size: 1em; }
-    .close-help { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.1em; cursor: pointer; color: #23272e; font-weight: 700; }
-    .toolbar button { border: none; border-radius: 6px; padding: 0.4rem 1rem; font-size: 1em; cursor: pointer; font-weight: 700; margin-left: 0.5rem; }
-    #toggle-theme { background: #3dffd0; color: #23272e; }
-    #toggle-theme:hover { background: #65ffe0; }
-    #export-pdf { background: #5200FF; color: #fff; }
-    #export-pdf:hover { background: #3700b3; }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #23272e;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  transition: background 0.25s, color 0.25s;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: background 0.25s, color 0.25s;
+}
+
+.topbar,
+.editor-pane,
+.canvas-pane,
+.main-layout,
+.modal-content,
+.modal,
+.help-content,
+.toolbar button,
+.exercise-btn,
+.menu-tab,
+#code-editor,
+#console-output,
+.course-menu,
+.help-modal,
+.swatch,
+.label,
+.close-menu,
+.modal-content input[type="text"],
+#modal-ok,
+.run-btn,
+#export-pdf,
+#toggle-theme,
+.exercise-btn.current,
+.exercise-btn.completed
+{
+  transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.topbar {
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff;
+  border-bottom: 1.5px solid #eee;
+  padding: 0.8rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  min-height: 0; /* Ensure flex children can shrink */
+  overflow: hidden;
+  background: #f3f5f8;
+}
+
+.editor-pane {
+  flex: 0 0 420px;  /* Start at 420px, grows only if JS changes it */
+  min-width: 220px;
+  max-width: none;
+  background: #f7f8fa;
+  border-radius: 18px 0 0 18px;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  transition: background 0.2s;
+  overflow: auto;
+}
+
+.canvas-pane {
+  flex: 1 1 0;
+  min-width: 220px;
+  background: #f7f8fa;
+  border-radius: 0 18px 18px 0;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+
+
+#turtlecanvas, #imagecanvas {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+}
+
+
+.editor-label,
+.console-label,
+.canvas-label {
+  font-weight: 900;
+  font-size: 1.14em;
+  color: #5200FF;
+  margin-bottom: 0.5rem;
+}
+
+#code-editor {
+  height: 320px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid #5200FF;
+  background: #fff;
+}
+
+.run-btn {
+  background: #3dffd0;
+  color: #23272e;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 1.1em;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 0.7rem;
+  width: 140px;
+  align-self: flex-start;
+}
+
+.run-btn:hover {
+  background: #5ffff0;
+}
+
+#console-output {
+  background: #161820;
+  color: #fff;
+  min-height: 60px;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-family: monospace;
+  font-size: 1em;
+  white-space: pre-line;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.canvas-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+#coords {
+  font-family: monospace;
+  color: #23272e;
+  font-size: 1em;
+}
+
+#turtlecanvas {
+  background: #fff;
+  border: 2px solid #5200FF;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(82,0,255,0.08);
+  display: block;
+  margin: 0 auto;
+  width: 500px;
+  height: 500px;
+  max-width: 90vw;
+  max-height: 60vw;
+}
+
+#imagecanvas {
+  display: none;
+}
+
+.help-btn {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 1500;
+  background: #5200FF;
+  color: #fff;
+  font-size: 2em;
+  border: none;
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(82,0,255,0.11);
+}
+
+.help-btn:hover {
+  background: #3700b3;
+}
+
+.help-modal {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.52);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-modal[style*="flex"], .help-modal.active {
+  display: flex !important;
+}
+
+.help-content {
+  background: #fff;
+  color: #23272e;
+  border-radius: 14px;
+  padding: 2.6rem 2.2rem 1.7rem 2.2rem;
+  gap: 2.6rem;
+  width: 900px;
+  max-width: 98vw;
+  box-shadow: 0 6px 40px rgba(82,0,255,0.17);
+  position: relative;
+  display: flex;
+  gap: 2.2rem;
+  flex-direction: row;
+}
+
+.help-left {
+  width: 44%;
+  min-width: 200px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.help-right {
+  width: 52%;
+  min-width: 170px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.help-content h2 {
+  color: #5200FF;
+  font-weight: 900;
+  margin-top: 0;
+}
+
+.help-content ul {
+  padding-left: 1.3em;
+  font-size: 1.05em;
+  line-height: 1.5;
+}
+
+.help-content code {
+  background: #f2f0fd;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 1em;
+}
+
+.close-help {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+  color: #23272e;
+  font-weight: 700;
+}
+
+.toolbar button {
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 700;
+  margin-left: 0.5rem;
+}
+
+#toggle-theme {
+  background: #3dffd0;
+  color: #23272e;
+}
+
+#toggle-theme:hover {
+  background: #65ffe0;
+}
+
+#export-pdf {
+  background: #5200FF;
+  color: #fff;
+}
+
+#export-pdf:hover {
+  background: #3700b3;
+}
+
 .color-swatches {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px 14px; /* More gap */
+  gap: 18px 14px;
   min-width: 320px;
   max-width: 98vw;
   justify-content: flex-start;
 }
+
 .swatch-container {
   display: flex;
   flex-direction: column;
@@ -55,6 +325,7 @@
   width: 130px;
   margin-bottom: 10px;
 }
+
 .swatch {
   width: 110px;
   height: 40px;
@@ -62,24 +333,30 @@
   border: 1.2px solid #eee;
   margin-bottom: 6px;
 }
+
 .label {
   color: #23272e;
   font-size: 1em;
   font-weight: 500;
   line-height: 1.23;
   text-align: center;
-  word-break: break-all; /* Handles very long color names */
+  word-break: break-all;
   max-width: 130px;
   overflow-wrap: break-word;
 }
-body.dark .label { color: #fff; }
-body.dark .swatch { border: 1.2px solid #444; }
 
+body.dark .label {
+  color: #fff;
+}
 
+body.dark .swatch {
+  border: 1.2px solid #444;
+}
 
 .course-menu {
   position: fixed;
-  top: 0; right: -340px;
+  top: 0;
+  right: -340px;
   width: 320px;
   height: 100vh;
   background: #5200FF;
@@ -89,13 +366,15 @@ body.dark .swatch { border: 1.2px solid #444; }
   border-radius: 16px 0 0 16px;
   display: flex;
   flex-direction: column;
-  transition: right 0.33s cubic-bezier(.4,.2,.2,1);
+  transition: right 0.33s cubic-bezier(.4,.2,.2,1), background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
   font-family: 'Roboto', Arial, sans-serif;
   max-width: 95vw;
 }
+
 .course-menu.open {
   right: 0;
 }
+
 .menu-header {
   display: flex;
   align-items: center;
@@ -103,11 +382,13 @@ body.dark .swatch { border: 1.2px solid #444; }
   padding: 1.4em 1.1em 1em 1.3em;
   border-bottom: 1.5px solid #fff3;
 }
+
 .menu-title {
   font-size: 1.32em;
   font-weight: 900;
   letter-spacing: 1px;
 }
+
 .close-menu {
   background: none;
   border: none;
@@ -119,15 +400,19 @@ body.dark .swatch { border: 1.2px solid #444; }
   margin-left: 8px;
   border-radius: 50%;
   line-height: 1;
-  transition: background 0.13s;
 }
-.close-menu:hover { background: #fff2; }
+
+.close-menu:hover {
+  background: #fff2;
+}
+
 .menu-content {
   flex: 1 1 auto;
   overflow-y: auto;
   padding: 1.3em 1.3em 1em 1.3em;
   font-size: 1.07em;
 }
+
 .menu-content h3 {
   margin-top: 0.3em;
   margin-bottom: 1em;
@@ -136,22 +421,30 @@ body.dark .swatch { border: 1.2px solid #444; }
   letter-spacing: 1px;
   color: #fff;
 }
+
 .chapter-list {
   padding-left: 0.5em;
   margin-bottom: 1.9em;
 }
+
 .chapter-list li {
   margin: 0.65em 0;
   list-style: none;
   font-size: 1em;
 }
-.chapter-list strong { color: #3dffd0; font-weight: bold; }
+
+.chapter-list strong {
+  color: #3dffd0;
+  font-weight: bold;
+}
+
 .menu-footer {
   border-top: 1.3px solid #fff2;
   margin-top: 2em;
   padding-top: 1.2em;
   text-align: left;
 }
+
 .contact-link {
   color: #fff;
   text-decoration: underline;
@@ -159,7 +452,10 @@ body.dark .swatch { border: 1.2px solid #444; }
   font-size: 1.01em;
   transition: color 0.2s;
 }
-.contact-link:hover { color: #3dffd0; }
+
+.contact-link:hover {
+  color: #3dffd0;
+}
 
 .menu-tab {
   position: fixed;
@@ -175,11 +471,15 @@ body.dark .swatch { border: 1.2px solid #444; }
   padding: 1.06em 1.35em 1.06em 1.15em;
   cursor: pointer;
   z-index: 3010;
-  transition: background 0.18s;
   letter-spacing: 1px;
   writing-mode: vertical-lr;
 }
-.menu-tab:hover { background: #3dffd0; color: #23272e; }
+
+.menu-tab:hover {
+  background: #3dffd0;
+  color: #23272e;
+}
+
 .menu-chapter-item.active {
   background: #fff2;
   color: #3dffd0;
@@ -187,8 +487,7 @@ body.dark .swatch { border: 1.2px solid #444; }
   border-radius: 8px;
 }
 
-
-@media (max-width: 480px) {
+@media (max-width: 1000px) {
   .course-menu { width: 99vw; right: -99vw; border-radius: 0; }
   .course-menu.open { right: 0; }
   .menu-tab { font-size: 1em; padding: 0.7em 1em 0.7em 0.8em; }
@@ -198,68 +497,186 @@ body.dark .swatch { border: 1.2px solid #444; }
   .label { font-size: 0.88em; max-width: 80px; }
 }
 
-
-    .splitter {
-      width: 8px;
-      background: linear-gradient(to right, #eee 0%, #ddd 100%);
-      cursor: col-resize;
-      position: relative;
-      z-index: 10;
-      border-radius: 7px;
-      margin: 0 0.5rem;
-      transition: background 0.18s;
-      min-height: 300px;
-      align-self: stretch;
-      
-    }
-.splitter:hover,
+.splitter {
+  width: 8px;
+  min-width: 8px;
+  cursor: col-resize;
+  background: linear-gradient(to right, #eee 0%, #ddd 100%);
+  z-index: 10;
+  transition: background 0.18s;
+  margin: 0;
+  border-radius: 7px;
+  height: 100%;
+}
 .splitter.dragging {
   background: linear-gradient(to right, #b7b7ff 0%, #5200FF 100%);
 }
+
+
+.exercise-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #5200FF;
+  color: #fff;
+  font-size: 1.11em;
+  font-weight: bold;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 1px 6px rgba(82,0,255,0.08);
+  opacity: 0.7;
+  position: relative;
+}
+
+.exercise-btn.current {
+  background: #fff;
+  color: #5200FF;
+  border: 2px solid #5200FF;
+  box-shadow: 0 0 0 3px #ece6fa;
+  transform: scale(1.13);
+  opacity: 1;
+  z-index: 2;
+}
+
+.exercise-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.exercise-btn:hover:not(.current) {
+  opacity: 1;
+  background: #3dffd0;
+  color: #23272e;
+  border: 1.5px solid #5200FF;
+}
+
+@media (max-width: 700px) {
+  .exercise-progress { flex-wrap: wrap; gap: 0.32em;}
+  .exercise-btn { width: 26px; height: 26px; font-size: 1em;}
+}
+
+.exercise-btn.completed {
+  background: #3dffd0 !important;
+  color: #23272e !important;
+  border: 2px solid #60ffa2 !important;
+  opacity: 1 !important;
+}
+
 .exercise-btn.eval-success {
-  background: #3dffd0 !important;   /* Your brand green */
+  background: #3dffd0 !important;
   color: #23272e !important;
 }
+
 .exercise-btn.eval-fail {
-  background: #ff1744 !important;   /* Red */
+  background: #ff1744 !important;
   color: #fff !important;
 }
 
-
-    @media (max-width: 980px) {
-      .main-layout { flex-direction: column; gap: 2.2rem; max-width: 99vw; }
-      .editor-pane, .canvas-pane { width: 98vw !important; min-width: 0 !important; max-width: none !important; padding: 1rem 0.5rem !important; }
-      #turtlecanvas { width: 95vw; height: 60vw; }
-      .help-content { flex-direction: column; width: 99vw; }
-    }
-    @media (max-width: 640px) {
-      .topbar, .toolbar { flex-direction: column; gap: 1em; }
-      .help-content { width: 99vw; }
-      #turtlecanvas { height: 60vw; }
-    }
-    
-    body.dark { background: #161820; color: #fff; }
-    body.dark .splitter {
-  background: linear-gradient(to right, #23272e 0%, #5200FF 100%);
-}
-body.dark .splitter:hover,
-body.dark .splitter.dragging {
-  background: linear-gradient(to right, #5200FF 0%, #3dffd0 100%);
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
 }
 
-    body.dark .editor-pane, body.dark .canvas-pane { background: #23272e; color: #fff; }
-    body.dark #code-editor { background: #23272e; color: #fff; }
-    body.dark .help-content { background: #23272e; color: #3dffd0; }
-    body.dark #console-output { background: #23272e; color: #fff; }
-    body.dark .swatch { border: 1.1px solid #444; }
-    body.dark .editor-label, body.dark .console-label, body.dark .canvas-label { color: #fff !important; }
-    body.dark #opdracht, body.dark #opdracht-tekst, body.dark .opdracht { color: #fff !important; }
-    body.dark .topbar { background: #23272e !important; border-bottom: 1.5px solid #333; }
-    body.dark .toolbar button { color: #23272e; }
-    body.dark .toolbar button#toggle-theme { background: #b7ffef; }
-    body.dark #export-pdf { background: #3dffd0; color: #23272e; }
-    body.dark #saved-toast {background: #23272e !important; color: #3dffd0 !important;}
-    body.dark .help-content h2 {
+.modal-content {
+  background: #fff;
+  padding: 2em;
+  border-radius: 12px;
+  min-width: 320px;
+  max-width: 94vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  position: relative;
+  font-size: 1.09em;
+}
+
+.modal-content label {
+  display: block;
+  margin: 0.7em 0 0.2em;
+  font-weight: 500;
+}
+
+.modal-content input[type="text"] {
+  width: 100%;
+  padding: 0.5em;
+  font-size: 1em;
+  margin-bottom: 0.7em;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  color: #23272e;
+}
+
+#modal-ok {
+  width: 100%;
+  padding: 0.9em 0;
+  font-size: 1.07em;
+  background: #3dffd0;
+  color: #23272e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.6em;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #222;
+  cursor: pointer;
+  z-index: 11;
+}
+
+body.dark {
+  background: #161820;
+  color: #fff;
+}
+
+body.dark .editor-pane,
+body.dark .canvas-pane {
+  background: #23272e;
+  color: #fff;
+}
+
+body.dark #code-editor {
+  background: #23272e;
+  color: #fff;
+}
+
+body.dark .topbar {
+  background: #23272e !important;
+  border-bottom: 1.5px solid #333;
+}
+
+body.dark .console-label,
+body.dark .editor-label,
+body.dark .canvas-label {
+  color: #fff !important;
+}
+
+body.dark #console-output {
+  background: #23272e;
+  color: #fff;
+}
+
+body.dark .help-content {
+  background: #23272e;
+  color: #3dffd0;
+}
+
+body.dark .help-content h2 {
   color: #3dffd0;
 }
 
@@ -286,20 +703,132 @@ body.dark .help-content [style*="color: #000"] {
   color: #fff !important;
 }
 
-    .exercise-progress { display: flex; align-items: center; justify-content: flex-start; gap: 0.65em; margin: 1.2em 0 1.8em 0; padding-left: 4px; }
-    .exercise-btn { width: 32px; height: 32px; border-radius: 50%; background: #5200FF; color: #fff; font-size: 1.11em; font-weight: bold; border: none; outline: none; cursor: pointer; transition: background 0.18s, box-shadow 0.18s, transform 0.12s; box-shadow: 0 1px 6px rgba(82,0,255,0.08); opacity: 0.7; position: relative; }
-    .exercise-btn.current { background: #fff; color: #5200FF; border: 2px solid #5200FF; box-shadow: 0 0 0 3px #ece6fa; transform: scale(1.13); opacity: 1; z-index: 2; }
-    .exercise-btn:disabled { opacity: 0.32; cursor: not-allowed; }
-    .exercise-btn:hover:not(.current) { opacity: 1; background: #3dffd0; color: #23272e; border: 1.5px solid #5200FF; }
-    @media (max-width: 700px) { .exercise-progress { flex-wrap: wrap; gap: 0.32em;} .exercise-btn { width: 26px; height: 26px; font-size: 1em;} }
-.exercise-btn.completed {
-  background: #3dffd0 !important;
-  color: #23272e !important;
-  border: 2px solid #60ffa2 !important;
-  opacity: 1 !important;
+body.dark .modal-content {
+  background: #23272e;
+  color: #fff;
 }
 
-  </style>
+body.dark .modal {
+  background: rgba(20,24,32,0.7);
+}
+
+body.dark .modal-close {
+  color: #3dffd0;
+}
+
+body.dark .modal-content input[type="text"] {
+  background: #161820;
+  color: #fff;
+  border: 1px solid #3dffd0;
+}
+
+body.dark #modal-ok {
+  background: #3dffd0;
+  color: #23272e;
+}
+
+body.dark .swatch {
+  border: 1.1px solid #444;
+}
+
+body.dark #opdracht,
+body.dark #opdracht-tekst,
+body.dark .opdracht {
+  color: #fff !important;
+}
+
+body.dark .toolbar button {
+  color: #23272e;
+}
+
+body.dark .toolbar button#toggle-theme {
+  background: #b7ffef;
+}
+
+body.dark #export-pdf {
+  background: #3dffd0;
+  color: #23272e;
+}
+
+body.dark #saved-toast {
+  background: #23272e !important;
+  color: #3dffd0 !important;
+}
+
+body.dark .splitter {
+  background: linear-gradient(to right, #23272e 0%, #5200FF 100%);
+}
+
+body.dark .splitter:hover,
+body.dark .splitter.dragging {
+  background: linear-gradient(to right, #5200FF 0%, #3dffd0 100%);
+}
+
+@media (max-width: 980px) {
+  .main-layout {
+    flex-direction: column;
+    gap: 3.5rem;
+    max-width: 99vw;
+  }
+  .editor-pane,
+  .canvas-pane {
+    width: 98vw !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 1rem 0.5rem !important;
+  }
+  #turtlecanvas {
+    width: 95vw;
+    height: 60vw;
+  }
+  .help-content {
+    flex-direction: column;
+    width: 99vw;
+  }
+}
+@media (max-width: 640px) {
+  .topbar, .toolbar {
+    flex-direction: column;
+    gap: 1em;
+  }
+  .help-content {
+    width: 99vw;
+  }
+  #turtlecanvas {
+    height: 60vw;
+  }
+}
+.exercise-progress {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65em;
+  margin: 1.2em 0 1.8em 0;
+  padding-left: 4px;
+}
+#modal-actions {
+  margin-top: 1.5em;
+  text-align: right;
+}
+@media (min-width: 1500px) {
+  .main-layout {
+    max-width: 1800px;
+    padding-left: 5vw;
+    padding-right: 5vw;
+    gap: 3rem;
+  }
+  .editor-pane, .canvas-pane {
+    min-width: 360px;
+  }
+  .editor-pane {
+    max-width: 600px;
+  }
+  .canvas-pane {
+    max-width: 1300px;
+  }
+}
+</style>
+
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
@@ -336,7 +865,7 @@ body.dark .help-content [style*="color: #000"] {
 <button id="menu-tab" class="menu-tab" title="Toon menu">Menu</button>
 
 
-<main class="main-layout">
+<main class="main-layout" id="main-layout">
   <!-- Editor Pane (left) -->
   <section class="editor-pane" id="editor-pane">
     <div class="editor-label">Code-editor</div>
@@ -406,7 +935,24 @@ body.dark .help-content [style*="color: #000"] {
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/mode/javascript/javascript.min.js"></script>
   <script src="rgbcolor.js"></script>
   <script src="library.js"></script>
-  <script>
+  
+<div id="pdf-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="modal-close" id="close-pdf-modal">&times;</span>
+    <h3>PDF Exporteren</h3>
+    <label for="modal-naam">Naam:</label>
+    <input id="modal-naam" type="text" required autocomplete="off">
+    <label for="modal-klas">Klas:</label>
+    <input id="modal-klas" type="text" required autocomplete="off">
+    <label for="modal-oefening">Oefeningstitel:</label>
+    <input id="modal-oefening" type="text" placeholder="(Laat leeg voor automatische titel)" autocomplete="off">
+    <button id="modal-ok">Exporteren</button>
+  </div>
+</div>
+
+  
+<script>
+  let dragging = false;
   let capturedOutput = "";
   document.addEventListener("DOMContentLoaded", function () {
   const menu = document.getElementById('course-menu');
@@ -430,47 +976,62 @@ body.dark .help-content [style*="color: #000"] {
 
     // ---- DRAGGABLE SPLITTER ----
 document.addEventListener("DOMContentLoaded", function () {
-  const splitter = document.querySelector('.splitter');
-  const editorPane = document.querySelector('.editor-pane');
-  const canvasPane = document.querySelector('.canvas-pane');
-  const mainLayout = document.querySelector('.main-layout');
+  const splitter = document.getElementById('splitter');
+  const editorPane = document.getElementById('editor-pane');
+  const canvasPane = document.getElementById('canvas-pane');
+  const mainLayout = document.getElementById('main-layout');
   let dragging = false;
 
   splitter.addEventListener('mousedown', function (e) {
+    if (window.innerWidth < 980) return; // Geen drag op smalle schermen
     dragging = true;
     splitter.classList.add('dragging');
-    document.body.style.userSelect = 'none'; // Prevent text selection
+    document.body.style.userSelect = 'none';
   });
 
   document.addEventListener('mousemove', function (e) {
-    if (!dragging) return;
-
-    // Get the bounding rectangle of main layout
+    if (!dragging || window.innerWidth < 980) return;
     const rect = mainLayout.getBoundingClientRect();
-    // Clamp min/max width (customize as needed)
-    const splitterWidth = splitter.offsetWidth; // get this dynamically
-    const minEditorWidth = 250;
+    const minEditorWidth = 220;
     const minCanvasWidth = 220;
+    const splitterWidth = splitter.offsetWidth;
     const totalWidth = rect.width;
-    const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
     let newEditorWidth = e.clientX - rect.left;
+    const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
     newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
+    // Set both flex and width for maximum browser compatibility
     editorPane.style.flex = `0 0 ${newEditorWidth}px`;
-    editorPane.style.maxWidth = `${newEditorWidth}px`;
-    editorPane.style.minWidth = `${newEditorWidth}px`;
-
-    // Optional: set canvasPane to flex-grow so it always fills the rest
-    canvasPane.style.flex = `1 1 0`;
+    editorPane.style.width = `${newEditorWidth}px`;
+    canvasPane.style.flex = '1 1 0';
+    canvasPane.style.width = '';
   });
 
-  document.addEventListener('mouseup', function (e) {
+  document.addEventListener('mouseup', function () {
     if (dragging) {
       dragging = false;
       splitter.classList.remove('dragging');
       document.body.style.userSelect = '';
     }
   });
+
+  // Reset widths on window resize if below 980px
+  window.addEventListener('resize', function () {
+    if (window.innerWidth < 980) {
+      editorPane.style.flex = '';
+      editorPane.style.width = '';
+      canvasPane.style.flex = '';
+      canvasPane.style.width = '';
+      splitter.style.display = 'none';
+    } else {
+      splitter.style.display = 'block';
+    }
+  });
 });
+
+
+
+
+
 
     // --------- DATA VOOR OEFENINGEN DATA --------------
 // exercises.js
@@ -1930,17 +2491,38 @@ document.getElementById('run-code').onclick = function() {
     };
 
 // Export naar PDF
-document.getElementById('export-pdf').onclick = async function() {
-  const naam = prompt("Vul je naam in:");
-  if (!naam) return;
-  const klas = prompt("Vul je klas in:");
-  if (!klas) return;
+document.getElementById('export-pdf').onclick = function() {
+  // Show the modal dialog
+  document.getElementById('pdf-modal').style.display = 'flex';
+  document.getElementById('modal-naam').value = '';
+  document.getElementById('modal-klas').value = '';
+  document.getElementById('modal-oefening').value = '';
+  document.getElementById('modal-naam').focus();
+};
 
-  let oefening = prompt('Vul de naam van de oefening in (laat leeg voor automatische titel):');
-if (!oefening || !oefening.trim()) {
-  oefening = chapters[currentChapterIdx].exercises[currentExerciseIdx].title || "(geen titel)";
-}
+// Close modal logic (X button or click outside)
+document.getElementById('close-pdf-modal').onclick = function() {
+  document.getElementById('pdf-modal').style.display = 'none';
+};
+document.getElementById('pdf-modal').onclick = function(e) {
+  if (e.target === this) this.style.display = 'none';
+};
 
+// Handle modal OK button: generate PDF
+document.getElementById('modal-ok').onclick = async function() {
+  const naam = document.getElementById('modal-naam').value.trim();
+  const klas = document.getElementById('modal-klas').value.trim();
+  let oefening = document.getElementById('modal-oefening').value.trim();
+  if (!naam || !klas) {
+    alert("Gelieve je naam en klas in te vullen.");
+    return;
+  }
+  if (!oefening) {
+    oefening = chapters[currentChapterIdx].exercises[currentExerciseIdx].title || "(geen titel)";
+  }
+  document.getElementById('pdf-modal').style.display = 'none';
+
+  // --- PDF GENERATION LOGIC (from your code) ---
   const opdrachtTekst = document.getElementById('opdracht-tekst').textContent;
   const code = editor.getValue();
   const consoleText = document.getElementById('console-output').textContent;
@@ -2074,9 +2656,10 @@ if (!oefening || !oefening.trim()) {
 
   // SAVE FILE
   function sanitize(s) { return s.replace(/[^a-zA-Z0-9_\-]/g, "_"); }
-  const fname = `js-klass-${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
+  const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
   pdf.save(fname);
 };
+
 
 
     // Live coördinaten
@@ -2230,9 +2813,54 @@ function showToast(message, success) {
   }, 4000);
 }
 
+function customPrompt(question, callback) {
+  const modal = document.getElementById('custom-modal');
+  document.getElementById('modal-body').innerHTML = `<label>${question}</label><br><input type="text" id="modal-input" style="width:100%;margin-top:1em;">`;
+  document.getElementById('modal-actions').innerHTML =
+    `<button id="modal-ok">OK</button>`;
+  modal.style.display = 'flex';
+
+  // Close met X
+  document.getElementById('modal-close').onclick = () => modal.style.display = 'none';
+
+  // Bevestig
+  document.getElementById('modal-ok').onclick = function() {
+    const val = document.getElementById('modal-input').value;
+    modal.style.display = 'none';
+    callback(val);
+  };
+  // Enter = OK
+  document.getElementById('modal-input').onkeydown = function(e) {
+    if (e.key === "Enter") document.getElementById('modal-ok').click();
+  };
+  document.getElementById('modal-input').focus();
+}
+
+function customConfirm(question, callback) {
+  const modal = document.getElementById('custom-modal');
+  document.getElementById('modal-body').innerHTML = `<p>${question}</p>`;
+  document.getElementById('modal-actions').innerHTML =
+    `<button id="modal-yes">Ja</button> <button id="modal-no">Nee</button>`;
+  modal.style.display = 'flex';
+  document.getElementById('modal-close').onclick = () => { modal.style.display = 'none'; callback(false); };
+  document.getElementById('modal-no').onclick = () => { modal.style.display = 'none'; callback(false); };
+  document.getElementById('modal-yes').onclick = () => { modal.style.display = 'none'; callback(true); };
+}
+
+  document.getElementById('close-pdf-modal').onclick = function() {
+    document.getElementById('pdf-modal').style.display = 'none';
+  };
+    
+document.getElementById('export-pdf').onclick = function() {
+  document.getElementById('pdf-modal').style.display = 'flex';
+  document.getElementById('modal-naam').value = '';
+  document.getElementById('modal-klas').value = '';
+  document.getElementById('modal-oefening').value = '';
+  document.getElementById('modal-naam').focus();
+};
 
 
-
-  </script>
+</script>
+  
 </body>
 </html>
