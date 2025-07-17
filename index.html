@@ -5,6 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <title>JavaScript in de Klas</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
   <style>
@@ -352,6 +353,20 @@ body.dark .label {
 body.dark .swatch {
   border: 1.2px solid #444;
 }
+.main-layout {
+  background: #f3f5f8;
+}
+
+body.dark .main-layout {
+  background: #23272e;
+}
+    
+body.dark #console-output {
+  background: #fff !important;
+  color: #23272e !important; 
+  border-color: #3dffd0 !important; 
+}
+
 
 .course-menu {
   position: fixed;
@@ -2492,7 +2507,6 @@ document.getElementById('run-code').onclick = function() {
 
 // Export naar PDF
 document.getElementById('export-pdf').onclick = function() {
-  // Show the modal dialog
   document.getElementById('pdf-modal').style.display = 'flex';
   document.getElementById('modal-naam').value = '';
   document.getElementById('modal-klas').value = '';
@@ -2507,8 +2521,12 @@ document.getElementById('close-pdf-modal').onclick = function() {
 document.getElementById('pdf-modal').onclick = function(e) {
   if (e.target === this) this.style.display = 'none';
 };
-
-// Handle modal OK button: generate PDF
+// Brand colours voor de opmaak van de PDF: 
+  const COLOR_PURPLE = [82, 0, 255];    // #5200FF
+  const COLOR_GREEN = [61, 255, 208];   // #3DFFD0
+  const COLOR_WHITE = [255, 255, 255];  // #FFFFFF
+  
+// Maak een PDF nadat de gebruiker op OK drukt in de modal: 
 document.getElementById('modal-ok').onclick = async function() {
   const naam = document.getElementById('modal-naam').value.trim();
   const klas = document.getElementById('modal-klas').value.trim();
@@ -2522,10 +2540,11 @@ document.getElementById('modal-ok').onclick = async function() {
   }
   document.getElementById('pdf-modal').style.display = 'none';
 
-  // --- PDF GENERATION LOGIC (from your code) ---
-  const opdrachtTekst = document.getElementById('opdracht-tekst').textContent;
-  const code = editor.getValue();
-  const consoleText = document.getElementById('console-output').textContent;
+  // Data for evaluation/status
+  const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+  const evalStatus = localStorage.getItem(evalKey);
+  const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+  const expectedOutput = exercise.evalOutput || "";
 
   // Canvas capture
   const canvas = document.getElementById('turtlecanvas');
@@ -2534,18 +2553,19 @@ document.getElementById('modal-ok').onclick = async function() {
     scale: 2
   }).then(cnv => cnv.toDataURL('image/png'));
 
-  // PDF SETUP
+  // PDF setup
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'pt',
-    format: 'a4'
-  });
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const pageHeight = pdf.internal.pageSize.height;
   const margin = 36, contentWidth = 520;
   let y = margin;
 
-  // Helper: nieuwe pagina of bladzijde als er overflow dreigt:
+  // Font en stijlen tekst:
+  function setBodyFont()   { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12); }
+  function setHeaderFont() { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); }
+  function setLabelFont()  { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13); }
+  function setCodeFont()   { pdf.setFont('courier', 'normal'); pdf.setFontSize(10); }
+
   function ensureRoom(heightNeeded) {
     if (y + heightNeeded > pageHeight - margin) {
       pdf.addPage();
@@ -2553,113 +2573,147 @@ document.getElementById('modal-ok').onclick = async function() {
     }
   }
 
-  // HEADER
-  pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(18);
-  pdf.text('JavaScript in de Klas – Oefening', margin, y);
-  y += 28;
+  function addMultilineSection(label, contentLines, color=COLOR_PURPLE, code=false) {
+    pdf.setTextColor(...color); setLabelFont();
+    pdf.text(label, margin, y); y += 16;
+    if (code) { setCodeFont(); }
+    else      { setBodyFont(); }
+    pdf.setTextColor(0, 0, 0); // body text = black
+    const lineHeight = code ? 13 : 14;
+    for (let i = 0; i < contentLines.length; ) {
+      let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
+      if (linesFit < 1) { pdf.addPage(); y = margin; continue; }
+      let linesThisPage = contentLines.slice(i, i + linesFit);
+      pdf.text(linesThisPage, margin, y);
+      i += linesFit;
+      y += linesThisPage.length * lineHeight;
+      if (i < contentLines.length) { pdf.addPage(); y = margin; }
+    }
+    y += 10;
+  }
 
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(13);
-  pdf.text(`Naam: ${naam}`, margin, y);
-  y += 18;
-  pdf.text(`Klas: ${klas}`, margin, y);
-  y += 18;
-  pdf.text(`Oefening: ${oefening}`, margin, y);
-  y += 30;
+  // Header
+  pdf.setTextColor(...COLOR_PURPLE); setHeaderFont();
+  pdf.text('JavaScript in de Klas – Oefening', margin, y); y += 28;
+  pdf.setTextColor(0, 0, 0); setBodyFont();
+  pdf.text(`Naam: ${naam}`, margin, y); y += 18;
+  pdf.text(`Klas: ${klas}`, margin, y); y += 18;
+  pdf.text(`Oefening: ${oefening}`, margin, y); y += 30;
 
-  // OPDRACHT
-  pdf.setFont('helvetica', 'bold'); pdf.setFontSize(14);
-  pdf.text("Opdracht:", margin, y);
-  y += 20;
-
-  pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12);
+  // Opdracht
+  let opdrachtTekst = document.getElementById('opdracht-tekst').textContent;
   let opdrachtLines = pdf.splitTextToSize(opdrachtTekst, contentWidth);
-  ensureRoom(opdrachtLines.length * 14 + 20);
-  pdf.text(opdrachtLines, margin, y);
-  y += opdrachtLines.length * 14 + 18;
+  pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+  pdf.text("Opdracht:", margin, y); y += 20;
+  pdf.setTextColor(0, 0, 0); setBodyFont();
+  pdf.text(opdrachtLines, margin, y); y += opdrachtLines.length * 14 + 18;
 
-  // CODE
-  pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13);
-  pdf.text("Code:", margin, y);
-  y += 18;
-
-  pdf.setFont('courier', 'normal'); pdf.setFontSize(10);
+  // Code
+  let code = editor.getValue();
   let codeLines = pdf.splitTextToSize(code, contentWidth);
+  addMultilineSection("Code:", codeLines, COLOR_PURPLE, true);
 
-  // --- WRAP CODE ACROSS MULTIPLE PAGES ---
-  const lineHeight = 13;
-  for (let i = 0; i < codeLines.length; ) {
-    let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
-    if (linesFit < 1) { pdf.addPage(); y = margin; continue; }
-    let linesThisPage = codeLines.slice(i, i + linesFit);
-    pdf.text(linesThisPage, margin, y);
-    i += linesFit;
-    y += linesThisPage.length * lineHeight;
-    if (i < codeLines.length) { pdf.addPage(); y = margin; }
-  }
-  y += 10;
-
-  // CONSOLE OUTPUT
-  pdf.setFont('helvetica', 'bold'); pdf.setFontSize(12);
-  ensureRoom(32);
-  pdf.text("Console-uitvoer:", margin, y);
-  y += 16;
-  pdf.setFont('courier', 'normal'); pdf.setFontSize(10);
+  // Output
+  let consoleText = document.getElementById('console-output').textContent;
   let outputLines = pdf.splitTextToSize(consoleText || "(geen uitvoer)", contentWidth);
+  addMultilineSection("Console-uitvoer:", outputLines, COLOR_PURPLE, true);
 
-  for (let i = 0; i < outputLines.length; ) {
-    let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
-    if (linesFit < 1) { pdf.addPage(); y = margin; continue; }
-    let linesThisPage = outputLines.slice(i, i + linesFit);
-    pdf.text(linesThisPage, margin, y);
-    i += linesFit;
-    y += linesThisPage.length * lineHeight;
-    if (i < outputLines.length) { pdf.addPage(); y = margin; }
+  // Status oefening printen: 
+  pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+  pdf.text("Status oefening:", margin, y); y += 16;
+  pdf.setTextColor(0, 0, 0); setBodyFont();
+  let statusText;
+  if (evalStatus === "success") statusText = "Oefening correct";
+  else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
+  else statusText = "Niet uitgevoerd";
+  pdf.text(statusText, margin, y); y += 20;
+
+  // Correctiesleutel indien beschikbaar: 
+  if (expectedOutput && expectedOutput.length > 0) {
+    let expectedLines = pdf.splitTextToSize(expectedOutput, contentWidth);
+    addMultilineSection("Verwachte uitvoer:", expectedLines, COLOR_PURPLE, true);
   }
-  y += 10;
 
-  // CANVAS IMAGE (always add on new page if not enough room)
+  // Canvas: 
   const imgHeight = 210, imgWidth = 210;
   ensureRoom(imgHeight + 40);
-  pdf.setFont('helvetica', 'bold'); pdf.setFontSize(12);
-  pdf.text("Canvas:", margin, y);
-  y += 10;
-  pdf.addImage(canvasImg, 'PNG', margin, y, imgWidth, imgHeight);
-  y += imgHeight + 20;
+  pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+  pdf.text("Canvas:", margin, y); y += 10;
+  pdf.addImage(canvasImg, 'PNG', margin, y, imgWidth, imgHeight); y += imgHeight + 20;
 
-  // Feedbacktabel voor de docent
-  ensureRoom(180);
-  pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13);
-  pdf.text("Beoordeling & Feedback leerkracht:", margin, y);
-  y += 18;
-  pdf.setFont('helvetica', 'normal'); pdf.setFontSize(11);
-  const startX = margin, col1 = 170, col2 = 250, col3 = 450, rowH = 28;
-  pdf.setDrawColor(120); pdf.setLineWidth(0.8);
-  pdf.rect(startX, y, 520, rowH * 6, 'S'); // table outline
-  pdf.text("Criterium", startX + 8, y + 18);
-  pdf.text("Score", col1, y + 18);
-  pdf.text("Feedback", col2, y + 18);
-  pdf.line(startX, y + rowH, startX + 520, y + rowH);
-  pdf.line(col1 - 10, y, col1 - 10, y + rowH * 6);
-  pdf.line(col2 - 10, y, col2 - 10, y + rowH * 6);
-  const criteria = [
-    "Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"
-  ];
-  for (let i = 0; i < criteria.length; i++) {
-    let rowY = y + rowH * (i + 1);
-    pdf.text(criteria[i], startX + 8, rowY + 18);
-    pdf.line(startX, rowY, startX + 520, rowY);
-  }
-  pdf.text("Algemene feedback:", startX + 8, y + rowH * 6 + 18);
-  pdf.line(startX, y + rowH * 6, startX + 520, y + rowH * 6);
+// Feedback:
+ensureRoom(250); // More space for larger rows
+pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+pdf.text("Beoordeling & Feedback leerkracht:", margin, y); y += 18;
 
-  // SAVE FILE
+// Table layout constants
+const tableWidth = 520;
+const criteriumColWidth = 130;
+const scoreColWidth = 54;
+const feedbackColWidth = tableWidth - criteriumColWidth - scoreColWidth; // 336
+const startX = margin;
+const col1 = startX + criteriumColWidth;
+const col2 = col1 + scoreColWidth;
+const headerH = 28;
+const rowH = 44; // Taller rows
+
+// Draw table outline
+pdf.setDrawColor(...COLOR_PURPLE); 
+pdf.setLineWidth(0.8);
+pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, 'S');
+
+// Draw header background (purple rectangle)
+pdf.setFillColor(...COLOR_PURPLE);
+pdf.rect(startX, y, tableWidth, headerH, 'F'); // Fill only header row
+
+// Table headers: bold & white
+pdf.setTextColor(255, 255, 255);
+pdf.setFont('helvetica', 'bold');
+pdf.setFontSize(13);
+pdf.text("Criterium", startX + 8, y + 19);
+pdf.text("Score", col1 + 12, y + 19);
+pdf.text("Feedback", col2 + 12, y + 19);
+
+// Vertical lines
+pdf.setDrawColor(...COLOR_PURPLE);
+pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+
+// Horizontal lines and row labels
+pdf.setFont('helvetica', 'normal');
+pdf.setFontSize(12);
+const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+for (let i = 0; i < criteria.length; i++) {
+  const rowY = y + headerH + i * rowH;
+  // Row line
+  pdf.line(startX, rowY, startX + tableWidth, rowY);
+  // Row label (criterium)
+  pdf.setTextColor(...COLOR_PURPLE);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text(criteria[i], startX + 8, rowY + 26);
+  
+}
+y += headerH + 5 * rowH + 20; // plaats tussen de tabel en alg. feedback
+
+// "Algemene feedback" bold and purple
+pdf.setTextColor(...COLOR_PURPLE);
+pdf.setFont('helvetica', 'bold');
+pdf.setFontSize(13);
+pdf.text("Algemene feedback:", startX + 8, y);
+
+// Reset text color/font for any further text
+pdf.setTextColor(0, 0, 0);
+pdf.setFont('helvetica', 'normal');
+pdf.setFontSize(12);
+
+
+
+
+  // Bestand opslaan: 
   function sanitize(s) { return s.replace(/[^a-zA-Z0-9_\-]/g, "_"); }
   const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
   pdf.save(fname);
 };
-
 
 
     // Live coördinaten
