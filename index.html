@@ -913,9 +913,9 @@ body.dark .splitter.dragging {
         <h2>Formularium</h2>
         <ul>
           <li><code>console.log("tekst")</code> - print tekst naar de console</li>
-          <li><code>if (voorwaarde) { ... }</code> - ALS-functie</li>
-          <li><code>else if (voorwaarde) { ... }</code> - ANDERS ALS-functie</li>
-          <li><code>else { ... }</code> - ANDERS-functie</li>
+          <li><code>if (voorwaarde) { ... }</code> - ALS-Statement</li>
+          <li><code>else if (voorwaarde) { ... }</code> - ANDERS ALS-Statement</li>
+          <li><code>else { ... }</code> - ANDERS-Statement</li>
           <li><code>for (var teller = start; teller kleiner dan eind; teller++){...}</code> - begrensde herhaling</li>
           <li><code>while (voorwaarde) { ... }</code> - voorwaardelijke herhaling</li>
           <li><code>prompt (vraag in string) { ... }</code> - vraag stellen aan user, <b>buiten SEB</b></li>
@@ -1403,10 +1403,10 @@ const chapters = [
         evalOutput: "Het getal 4 is een even getal."
       },
       {
-        title: "2. De Else-Functie",
+        title: "2. Else Statement",
         starterCode: [
           "// Pas onderstaande code aan zodat je even of oven getallen kan vinden.",
-          "// Gebruik hiervoor slechts 1 if-functie en 1 else-functie.",
+          "// Gebruik hiervoor slechts 1 if-statement en 1 else-statement.",
           " ",
           "// Pas daarna de code aan zodat je oneven getallen kan opsporen.",
           " ",
@@ -1418,7 +1418,7 @@ const chapters = [
         evalOutput: "Het getal 7 is een oneven getal."
       },
       {
-        title: "3. De Else If-Functie",
+        title: "3. Else If Statement",
         starterCode: [
           "// In de vorige oefening maakten we een algoritme dat",
           "// even of oneven getallen kan opsporen. Maar wat met het getal 0?",
@@ -1450,7 +1450,7 @@ const chapters = [
           "// * Vrachtwagen: 19.20 euro.", 
           " ",
           "// Schrijf een algoritme en code waarmee je kan bepalen hoeveel moet worden betaald;",
-          "// Maak gebruik van de IF, ELSE en ELSE IF-functies;",
+          "// Maak gebruik van de IF, ELSE en ELSE IF-statements;",
           "var type = 'Auto met elektrische motor';",
           "if ... ",
         ].join('\n'), 
@@ -1491,7 +1491,7 @@ const chapters = [
         title: "7. Hittegolf",
         starterCode: [
           "// Pas onderstaande code aan zodat je even of oven getallen kan vinden.",
-          "// Gebruik hiervoor slechts 1 if-functie en 1 else-functie.",
+          "// Gebruik hiervoor slechts 1 if-statement en 1 else-statement.",
           " ",
           "// Pas daarna de code aan zodat je oneven getallen kan opsporen.",
           " ",
@@ -1537,7 +1537,7 @@ const chapters = [
         evalOutput: "Het plein moet sluiten."
       },
       {
-        title: "10. Herhalingsoefening If-Functie",
+        title: "10. Herhalingsoefening If-Statement",
         starterCode: [
           "// Schrijf een algoritme dat: ",
           "// * De gebruiker vraagt naar zijn/haar/hun leeftijd.",
@@ -1548,7 +1548,7 @@ const chapters = [
         evalOutput: "De toegangsprijs is 4.5 euro."
       },
       {
-        title: "11. Herhalingsoefening Else-Functie",
+        title: "11. Herhalingsoefening Else-Statement",
         starterCode: [
           "// Schrijf een programma dat de gebruiker vraagt om zijn/haar/hun leeftijd in te voeren.",
           "// Vervolgens controleert of hij/zij oud genoeg is om te stemmen.",
@@ -1558,7 +1558,7 @@ const chapters = [
         evalOutput: "Je bent oud genoeg om te stemmen!"
       },
       {
-        title: "12. Herhalingsoefening Else If-Functie",
+        title: "12. Herhalingsoefening Else If-Statement",
         starterCode: [
           "// Schrijf een algoritme dat:",
           "// * De gebruiker vraagt om twee getallen (getal1 en getal2) in te voeren en ",
@@ -1880,7 +1880,7 @@ const chapters = [
   starterCode: [
     "// Vraag 5 temperaturen op, tel telkens wanneer de temp. > 25°C.",
     "// Toon 'Alarm: hittegolf!' als alle 5 temperaturen > 25, anders 'Geen hittegolf.'",
-    "// Je zal twee IF-functies moeten gebruiken.",
+    "// Je zal twee IF-Statements moeten gebruiken.",
     "",
     "var alarmTeller = 0;",
     "for(var i = 1; i <= 5; i++){",
@@ -2928,7 +2928,7 @@ document.getElementById('export-pdf').onclick = function() {
   document.getElementById('modal-naam').focus();
 };
 
-// --- 1. Modalgebaseerde ask()-functie ---
+// --- 1. Modalgebaseerde ask()-functie want SEB Compatibility ---
   // Hiermee kan je: var naam = ask("Vraag?");
   window.ask = function(boodschap) {
     return new Promise((resolve) => {
