@@ -918,6 +918,8 @@ body.dark .splitter.dragging {
           <li><code>else { ... }</code> - ANDERS-functie</li>
           <li><code>for (var teller = start; teller kleiner dan eind; teller++){...}</code> - begrensde herhaling</li>
           <li><code>while (voorwaarde) { ... }</code> - voorwaardelijke herhaling</li>
+          <li><code>prompt (vraag in string) { ... }</code> - vraag stellen aan user, <b>buiten SEB</b></li>
+          <li><code>ask (vraag in string) { ... }</code> - vraag stellen aan user, <b>binnen SEB</b></li>
           <li><code>moveForward(afstand)</code> – vooruit bewegen</li>
           <li><code>moveBackward(afstand)</code> – achteruit bewegen</li>
           <li><code>turnRight(hoek)</code> – draai naar rechts (graden)</li>
@@ -962,6 +964,17 @@ body.dark .splitter.dragging {
     <label for="modal-oefening">Oefeningstitel:</label>
     <input id="modal-oefening" type="text" placeholder="(Laat leeg voor automatische titel)" autocomplete="off">
     <button id="modal-ok">Exporteren</button>
+  </div>
+</div>
+  
+<!-- modal voor prompt naar ask want SEB compat. -->
+<div id="ask-modal" style="display:none; position:fixed; z-index:1000; inset:0; background:rgba(0,0,0,0.35); justify-content:center; align-items:center;">
+  <div style="background:white; padding:2rem; border-radius:1rem; box-shadow:0 2px 16px #5200ff77; min-width:280px;">
+    <div id="ask-modal-msg" style="margin-bottom:1em; font-size:1.1em;"></div>
+    <input id="ask-modal-input" type="text" style="width:100%; padding:0.5em; font-size:1em; margin-bottom:1em;" autocomplete="off"/>
+    <div style="text-align:right">
+      <button id="ask-modal-ok" style="background:#5200FF; color:white; border:none; padding:0.5em 1em; border-radius:0.5em; font-weight:bold;">OK</button>
+    </div>
   </div>
 </div>
 
@@ -1770,15 +1783,15 @@ const chapters = [
   title: "2. Verzamel dorpen van Fred",
   starterCode: [
     "// Vraag 5 keer een dorp aan de gebruiker en voeg toe aan een lijst.",
-    "// Toon op het einde: Dag mama, ik ben nog steeds op reis ...",
-    "// De vijf dorpen: Bomal, Locronan, Rochefort-en-Terre, Saint-Céneri-le-Gérei, Montrésor, Pesmes", 
+    "// Toon op het einde: Dag mama, ik ben nog steeds op reis. Ik bezocht: ...",
+    "// De vijf dorpen zijn: Bomal, Durbuy, Mormont, Manhay, Spa, Stoumont", 
     "",
     "var lijst_tussenstops = 'Bomal';",
     "for(var teller = 0; teller < 5; teller++){",
     "  var tussenstop = prompt('Voer een tussenstop in');",
     "  ...",
   ].join('\n'), 
-  evalOutput: "Dag mama, ik ben nog steeds op reis in Frankrijk. Afgelopen dagen passeerde ik in: Bomal, Locronan, Rochefort-en-Terre, Saint-Céneri-le-Gérei, Montrésor, Pesmes"
+  evalOutput: "Dag mama, ik ben nog steeds op reis. Ik bezocht: Bomal, Durbuy, Mormont, Manhay, Spa, Stoumont"
 
 },
 {
@@ -2418,24 +2431,25 @@ document.addEventListener("DOMContentLoaded", function() {
 })();
 
 // Uitvoeren knop
-document.getElementById('run-code').onclick = function() {
+document.getElementById('run-code').onclick = async function() {
   clearConsole();
-  capturedOutput = ""; 
+  capturedOutput = "";
   try {
     if (window.resetTurtle) window.resetTurtle();
     if (window.clearCanvas) window.clearCanvas();
     const code = editor.getValue();
-    // Save to localStorage on run
     const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
     localStorage.setItem(key, code);
     isDirty = false;
-    showSavedToast(); 
-    new Function(code)();
+    showSavedToast();
+    // Belangrijk: wacht op alle ask-prompts!
+    await runStudentCode(code);
   } catch (e) {
     let uitleg = translateError(e.message);
     appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
   }
-  // Evaluate output and update progress state
+  // Dit gebeurt NA alle prompts en uitvoer!
+  console.log("DEBUG OUTPUT: [" + capturedOutput + "]");
   const isCorrect = evaluateExercise();
   const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
   if (isCorrect === true) {
@@ -2443,11 +2457,12 @@ document.getElementById('run-code').onclick = function() {
   } else if (isCorrect === false) {
     localStorage.setItem(evalKey, "fail");
   } else {
-    localStorage.removeItem(evalKey); // Remove key if not evaluatable
+    localStorage.removeItem(evalKey);
   }
   renderExerciseProgress();
   showEvalFeedback(isCorrect);
 };
+
 
 
 
@@ -2912,6 +2927,91 @@ document.getElementById('export-pdf').onclick = function() {
   document.getElementById('modal-oefening').value = '';
   document.getElementById('modal-naam').focus();
 };
+
+// --- 1. Modalgebaseerde ask()-functie ---
+  // Hiermee kan je: var naam = ask("Vraag?");
+  window.ask = function(boodschap) {
+    return new Promise((resolve) => {
+      // Haal modal-onderdelen op
+      const modal = document.getElementById('ask-modal');
+      const msgDiv = document.getElementById('ask-modal-msg');
+      const input = document.getElementById('ask-modal-input');
+      const okBtn = document.getElementById('ask-modal-ok');
+
+      // Toon de boodschap en maak inputveld leeg
+      msgDiv.textContent = boodschap;
+      input.value = '';
+      modal.style.display = 'flex';
+      input.focus();
+
+      // Sluit modal en verwijder event listeners
+      function cleanup() {
+        modal.style.display = 'none';
+        okBtn.removeEventListener('click', onOk);
+        input.removeEventListener('keydown', onEnter);
+      }
+
+      // Afhandelen bij OK-knop
+      function onOk() {
+        cleanup();
+        resolve(input.value); // Geef de waarde terug aan de code
+      }
+
+      // Afhandelen bij Enter-toets
+      function onEnter(e) {
+        if (e.key === 'Enter') onOk();
+      }
+
+      okBtn.addEventListener('click', onOk);
+      input.addEventListener('keydown', onEnter);
+    });
+  };
+
+  // --- 2. Studentencode uitvoeren met ondersteuning voor ask() ---
+window.runStudentCode = function(studentCode) {
+  // Zet elke "ask(" om naar "await ask("
+  const omgezet = studentCode.replace(/ask\s*\(/g, 'await ask(');
+  // Maak een async functie zodat await werkt
+  const wrapper = `
+    return (async function __student_main__() {
+      ${omgezet}
+    })();
+  `;
+  // Geef een Promise terug zodat je kan wachten tot klaar
+  return new Function('ask', 'console', wrapper)(window.ask, window.console);
+};
+  
+  // --- 3. Koppel de Run-knop aan runStudentCode (ipv new Function) ---
+  document.getElementById('run-code').onclick = async function() {
+  clearConsole();
+  capturedOutput = "";
+  try {
+    if (window.resetTurtle) window.resetTurtle();
+    if (window.clearCanvas) window.clearCanvas();
+    const code = editor.getValue();
+    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    localStorage.setItem(key, code);
+    isDirty = false;
+    showSavedToast();
+    // Belangrijk: wacht op alle ask-prompts!
+    await runStudentCode(code);
+  } catch (e) {
+    let uitleg = translateError(e.message);
+    appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
+  }
+    // Evaluatie en feedback zoals voorheen
+    const isCorrect = evaluateExercise();
+    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+    if (isCorrect === true) {
+      localStorage.setItem(evalKey, "success");
+    } else if (isCorrect === false) {
+      localStorage.setItem(evalKey, "fail");
+    } else {
+      localStorage.removeItem(evalKey); // verwijder bij niet-evalueerbaar
+    }
+    renderExerciseProgress();
+    showEvalFeedback(isCorrect);
+  };
 
 
 </script>
