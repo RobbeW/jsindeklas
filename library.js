@@ -1,5 +1,5 @@
 // Auteur: Robbe Wulgaert / aiindeklas.be
-// Copyright 2024 - Gebruik vrij voor educatie
+// Copyright 2025 - Gebruik vrij voor educatie
 
 (function() {
   // --- Settings ---
@@ -30,6 +30,56 @@
     if(Array.isArray(rgb)) return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
     return rgb;
   }
+  
+  // modal ter vervanging van prompt voor gebruik binnen SEB: 
+// Modal-gestuurde ask()-functie
+window.ask = function(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('ask-modal');
+    const msgDiv = document.getElementById('ask-modal-msg');
+    const input = document.getElementById('ask-modal-input');
+    const okBtn = document.getElementById('ask-modal-ok');
+
+    msgDiv.textContent = message;
+    input.value = '';
+    modal.style.display = 'flex';
+    input.focus();
+
+    function cleanup() {
+      modal.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      input.removeEventListener('keydown', onEnter);
+    }
+    function onOk() {
+      cleanup();
+      resolve(input.value);
+    }
+    function onEnter(e) {
+      if (e.key === 'Enter') onOk();
+    }
+
+    okBtn.addEventListener('click', onOk);
+    input.addEventListener('keydown', onEnter);
+  });
+};
+
+// Asynchrone runner, zorgt dat alle await's werken
+window.runStudentCode = async function(studentCode) {
+  // Vervang alle ask( door await ask(
+  const transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
+  // Wrap in async functie en wacht op volledige uitvoer
+  const wrapper = `
+    return (async function() {
+      ${transformed}
+    })();
+  `;
+  // Gebruik Function-constructor om ask en console te injecteren
+  return new Function('ask', 'console', wrapper)(window.ask, window.console);
+};
+
+
+
+  
   function centerX(x) { return Math.round(CANVAS_SIZE/2 + x); }
   function centerY(y) { return Math.round(CANVAS_SIZE/2 - y); }
 
@@ -226,6 +276,7 @@
     turtle.visible = false;
     redrawAll();
   };
+  
 
   // Tekst schrijven op canvas op turtle positie
   window.writeText = function(text) {
