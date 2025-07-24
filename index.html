@@ -977,6 +977,15 @@ body.dark .splitter.dragging {
     </div>
   </div>
 </div>
+<!-- modal om een warning te geven bij switch exercise while dirty -->
+<div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.3); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:white; border-radius:12px; max-width:350px; padding:24px; text-align:center; box-shadow:0 4px 20px #0002;">
+    <div id="confirm-modal-msg" style="margin-bottom:24px; font-size:18px; color:#5200FF; font-weight:bold;"></div>
+    <button id="confirm-modal-ok" style="margin:0 12px 0 0; padding:8px 20px;">OK</button>
+    <button id="confirm-modal-cancel" style="padding:8px 20px;">Annuleren</button>
+  </div>
+</div>
+
 
   
 <script>
@@ -2378,14 +2387,14 @@ function confirmSwitch(callback) {
     callback();
     return;
   }
-  const proceed = confirm(
-    "Je hebt niet-opgeslagen wijzigingen in je code. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
-  );
-  if (proceed) {
-    callback();
-  }
-  // If the user cancels, nothing happens
+  window.confirmModal(
+    "Je hebt jouw code nog niet uitgevoerd of opgeslagen. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
+  ).then((proceed) => {
+    if (proceed) callback();
+    // else: doe niets
+  });
 }
+
 
 
 
@@ -2663,9 +2672,9 @@ pdf.text("Beoordeling & Feedback leerkracht:", margin, y); y += 18;
 
 // Table layout constants
 const tableWidth = 520;
-const criteriumColWidth = 130;
+const criteriumColWidth = 160;
 const scoreColWidth = 54;
-const feedbackColWidth = tableWidth - criteriumColWidth - scoreColWidth; // 336
+const feedbackColWidth = tableWidth - criteriumColWidth - scoreColWidth;
 const startX = margin;
 const col1 = startX + criteriumColWidth;
 const col2 = col1 + scoreColWidth;
@@ -2777,8 +2786,11 @@ document.addEventListener('click', e => {
   }
 });
  
-document.getElementById('reset-progress').onclick = function() {
-  if (confirm("Weet je zeker dat je alle voortgang en opgeslagen code wilt wissen?")) {
+document.getElementById('reset-progress').onclick = async function() {
+  const proceed = await window.confirmModal(
+    "Weet je zeker dat je alle voortgang en opgeslagen code wilt wissen?"
+  );
+  if (proceed) {
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith("jsprog-")) localStorage.removeItem(key);
     });
@@ -2786,6 +2798,7 @@ document.getElementById('reset-progress').onclick = function() {
     loadExercise();
   }
 };
+
 // Functie om de error messages beter te maken voor de leerlingen: 
 function translateError(message) {
   if (message.includes("Unexpected identifier")) {
