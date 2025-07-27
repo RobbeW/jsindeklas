@@ -3,14 +3,30 @@
 
 (function() {
   // --- Settings ---
-  const CANVAS_SIZE = 500;
-  const TURTLE_SIZE = 16;
+  const CANVAS_SIZE = 1000;
+  const TURTLE_SIZE = 32;
+  let zoom = 1.0;          
+  let panX = 0;            
+  let panY = 0;            
+  
+  
 
   // --- Canvas & Contexts ---
   let turtleCanvas = document.getElementById('turtlecanvas');
   let turtleCtx = turtleCanvas.getContext('2d');
   let imageCanvas = document.getElementById('imagecanvas');
   let imageCtx = imageCanvas.getContext('2d');
+
+  turtleCanvas.width = CANVAS_SIZE;
+  turtleCanvas.height = CANVAS_SIZE;
+  imageCanvas.width = CANVAS_SIZE;
+  imageCanvas.height = CANVAS_SIZE;
+  
+  let bounds = {
+  minX: 0, maxX: 0,
+  minY: 0, maxY: 0,
+  initialized: false
+  };
 
   // --- Turtle State ---
   let turtle = {
@@ -92,23 +108,31 @@ window.runStudentCode = async function(studentCode) {
     turtleCtx.translate(px, py);
     turtleCtx.rotate(-degToRad(angle));
     turtleCtx.beginPath();
-    turtleCtx.moveTo(0, 0);
-    turtleCtx.lineTo(-TURTLE_SIZE/2, TURTLE_SIZE);
-    turtleCtx.lineTo(TURTLE_SIZE/2, TURTLE_SIZE);
+    turtleCtx.moveTo( TURTLE_SIZE,           0);
+    turtleCtx.lineTo(-TURTLE_SIZE/2,  TURTLE_SIZE/2);
+    turtleCtx.lineTo(-TURTLE_SIZE/2, -TURTLE_SIZE/2);
     turtleCtx.closePath();
-    turtleCtx.fillStyle = "#32b43a";
-    turtleCtx.shadowColor = "#333";
-    turtleCtx.shadowBlur = 4;
+    turtleCtx.fillStyle = "#5200FF";
+    turtleCtx.shadowColor = "#3700B3";
+    turtleCtx.shadowBlur = 6;
     turtleCtx.fill();
     turtleCtx.restore();
   }
 
   function redrawAll() {
-    // Draw persistent lines
-    turtleCtx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
-    turtleCtx.drawImage(imageCanvas, 0,0);
-    drawTurtle();
-  }
+  // Clear en reset
+  turtleCtx.save();
+  turtleCtx.setTransform(1, 0, 0, 1, 0, 0); 
+  turtleCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  
+  turtleCtx.setTransform(zoom, 0, 0, zoom, CANVAS_SIZE/2*(1-zoom)+panX, CANVAS_SIZE/2*(1-zoom)+panY);
+
+  turtleCtx.drawImage(imageCanvas, 0, 0);
+  drawTurtle(); // This will use the current transform!
+  turtleCtx.restore();
+}
+
+
 
   function drawLine(x0, y0, x1, y1, colour, width) {
     imageCtx.save();
@@ -137,26 +161,33 @@ window.runStudentCode = async function(studentCode) {
     turtle.visible = true;
     clearImageCanvas();
     redrawAll();
+    bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0, initialized: false };
   };
 
   // Only clear drawing, keep turtle state
   window.clearCanvas = function() {
     clearImageCanvas();
     redrawAll();
+    bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0, initialized: false };
   };
 
   // Beweeg vooruit
   window.moveForward = function(distance) {
-    let rad = degToRad(turtle.angle);
-    let x2 = turtle.x + distance * Math.cos(rad);
-    let y2 = turtle.y + distance * Math.sin(rad);
-    if (turtle.penDown) {
-      drawLine(turtle.x, turtle.y, x2, y2, turtle.penColour, turtle.lineWidth);
-    }
-    turtle.x = x2;
-    turtle.y = y2;
-    redrawAll();
-  };
+  let rad = degToRad(turtle.angle);
+  let x1 = turtle.x;
+  let y1 = turtle.y;
+  let x2 = turtle.x + distance * Math.cos(rad);
+  let y2 = turtle.y + distance * Math.sin(rad);
+  if (turtle.penDown) {
+    drawLine(x1, y1, x2, y2, turtle.penColour, turtle.lineWidth);
+    updateBounds(x1, y1);  // both endpoints
+    updateBounds(x2, y2);
+  }
+  turtle.x = x2;
+  turtle.y = y2;
+  redrawAll();
+};
+
 
   // Beweeg achteruit
   window.moveBackward = function(distance) {
@@ -165,19 +196,20 @@ window.runStudentCode = async function(studentCode) {
 
   // Rechtsom draaien (graden)
   window.turnRight = function(angle) {
-    turtle.angle = (turtle.angle + angle) % 360;
+    turtle.angle = (turtle.angle - angle + 360) % 360;
     redrawAll();
   };
 
   // Linksom draaien (graden)
   window.turnLeft = function(angle) {
-    turtle.angle = (turtle.angle - angle + 360) % 360;
+    turtle.angle = (turtle.angle + angle) % 360;
     redrawAll();
   };
 
   // Pen omhoog
   window.penUp = function() {
     turtle.penDown = false;
+    updateBounds(); 
   };
 
   // Pen omlaag
@@ -216,13 +248,15 @@ window.runStudentCode = async function(studentCode) {
 
   // Ga naar absolute positie
   window.goTo = function(x, y) {
-    if (turtle.penDown) {
-      drawLine(turtle.x, turtle.y, x, y, turtle.penColour, turtle.lineWidth);
-    }
-    turtle.x = x;
-    turtle.y = y;
-    redrawAll();
-  };
+  if (turtle.penDown) {
+    drawLine(turtle.x, turtle.y, x, y, turtle.penColour, turtle.lineWidth);
+    updateBounds(turtle.x, turtle.y);
+    updateBounds(x, y);
+  }
+  turtle.x = x;
+  turtle.y = y;
+  redrawAll();
+};
 
   // Toon raster (rasterafstand in pixels)
   window.showGrid = function(stapgrootte=50) {
@@ -280,19 +314,17 @@ window.runStudentCode = async function(studentCode) {
 
   // Tekst schrijven op canvas op turtle positie
   window.writeText = function(text) {
-    imageCtx.save();
-    imageCtx.font = "bold 20px Roboto, sans-serif";
-    imageCtx.fillStyle = kleurToStyle(turtle.penColour);
-    imageCtx.textAlign = "center";
-    imageCtx.textBaseline = "middle";
-    imageCtx.fillText(
-      text,
-      centerX(turtle.x),
-      centerY(turtle.y)
-    );
-    imageCtx.restore();
-    redrawAll();
-  };
+  imageCtx.save();
+  imageCtx.font = "bold 20px Roboto, sans-serif";
+  imageCtx.fillStyle = kleurToStyle(turtle.penColour);
+  imageCtx.textAlign = "center";
+  imageCtx.textBaseline = "middle";
+  imageCtx.fillText(text, centerX(turtle.x), centerY(turtle.y));
+  imageCtx.restore();
+  redrawAll();
+  updateBounds(turtle.x, turtle.y);
+};
+
 
   // Initialiseren bij laden
   window.addEventListener('DOMContentLoaded', function() {
@@ -310,5 +342,67 @@ window.runStudentCode = async function(studentCode) {
   ].forEach(fn=>{
     if (!window[fn]) window[fn]=function(){};
   });
+  
+function zoomIn() {
+  zoom *= 1.25;
+  redrawAll(); 
+}
+function zoomOut() {
+  zoom /= 1.25;
+  redrawAll();
+}
+
+
+
+
+window.pan = function(dx, dy) {
+  panX += dx;
+  panY += dy;
+  redrawAll();
+};
+
+  function updateBounds(x, y) {
+  if (!bounds.initialized) {
+    bounds.minX = bounds.maxX = x;
+    bounds.minY = bounds.maxY = y;
+    bounds.initialized = true;
+  } else {
+    if (x < bounds.minX) bounds.minX = x;
+    if (x > bounds.maxX) bounds.maxX = x;
+    if (y < bounds.minY) bounds.minY = y;
+    if (y > bounds.maxY) bounds.maxY = y;
+  }
+}
+  
+  function fitToDrawing() {
+  if (!bounds.initialized) return; // nothing drawn yet
+
+  const margin = 20; // pixels around the drawing
+
+  const drawWidth = Math.max(1, bounds.maxX - bounds.minX);
+  const drawHeight = Math.max(1, bounds.maxY - bounds.minY);
+
+  // Compute scaling factors for both axes
+  const scaleX = (CANVAS_SIZE - 2*margin) / drawWidth;
+  const scaleY = (CANVAS_SIZE - 2*margin) / drawHeight;
+  // Choose the smaller scale to fit both dimensions
+  zoom = Math.min(scaleX, scaleY);
+
+  // Center the drawing
+  const centerXOfDrawing = (bounds.minX + bounds.maxX) / 2;
+  const centerYOfDrawing = (bounds.minY + bounds.maxY) / 2;
+  panX = CANVAS_SIZE/2 - zoom * centerXOfDrawing;
+  panY = CANVAS_SIZE/2 - zoom * centerYOfDrawing;
+
+  redrawAll();
+}
+
+
+window.CANVAS_SIZE = CANVAS_SIZE;
+window.panX = panX;
+window.panY = panY;
+window.zoom = zoom;
+window.zoomOut = zoomOut;
+window.zoomIn = zoomIn;
 
 })();
