@@ -1304,6 +1304,7 @@ body.dark .help-content h2 {
   <script src="rgbcolor.js"></script>
   <script src="library.js"></script>
   
+  
 <div id="pdf-modal" class="modal" style="display:none;">
   <div class="modal-content">
     <span class="modal-close" id="close-pdf-modal">&times;</span>
@@ -2091,7 +2092,7 @@ const chapters = [
     starterCode: [
       "// Vraag aan de gebruiker hoe lang de zijde moet zijn en teken een vierkant.",
       "showGrid(50);",
-      "var zijde = parseInt(prompt('Hoe lang is de zijde?'));",
+      "var zijde = parseInt(ask('Hoe lang is de zijde?'));",
       "// Vul hieronder jouw code in"
     ].join('\n')
   },
@@ -2154,7 +2155,7 @@ const chapters = [
     "",
     "var lijst_tussenstops = 'Bomal';",
     "for(var teller = 0; teller < 5; teller++){",
-    "  var tussenstop = prompt('Voer een tussenstop in');",
+    "  var tussenstop = ask('Voer een tussenstop in');",
     "  ...",
   ].join('\n'), 
   evalOutput: "Dag mama, ik ben nog steeds op reis. Ik bezocht: Bomal, Durbuy, Mormont, Manhay, Spa, Stoumont"
@@ -2169,7 +2170,7 @@ const chapters = [
     "",
     "var totaal = 0;",
     "for(var i = 1; i <= 5; i++){",
-    "  var afstand = parseFloat(prompt('Geef de afstand van rit ' + i + ' in km:'));",
+    "  var afstand = parseFloat(ask('Geef de afstand van rit ' + i + ' in km:'));",
     "...",
     "console.log('De totale afstand die ik heb afgelegd is: ... km.');",
   ].join('\n'),
@@ -2250,7 +2251,7 @@ const chapters = [
     "",
     "var alarmTeller = 0;",
     "for(var i = 1; i <= 5; i++){",
-    "  var temp = parseFloat(prompt('Geef temperatuur ' + i + ' in °C:'));",
+    "  var temp = parseFloat(ask('Geef temperatuur ' + i + ' in °C:'));",
     "  ...",
   ].join('\n'), 
   evalOutput: "Alarm: hittegolf!"
@@ -2263,7 +2264,7 @@ const chapters = [
     "",
     "var som = 0;",
     "for(var i = 1; i <= 6; i++){",
-    "  var score = parseFloat(prompt('Geef score ' + i + ' (op 100):'));",
+    "  var score = parseFloat(ask('Geef score ' + i + ' (op 100):'));",
     "  ...",
   ].join('\n'), 
   evalOutput: "Het gemiddelde is 75.67"
@@ -2603,9 +2604,103 @@ const chapters = [
 
     // -------------------- END EXERCISES -------------------------
 // === STATE ===
-let currentChapterIdx = 0;   // Which chapter is active?
-let currentExerciseIdx = 0;  // Which exercise in the chapter?
+let currentChapterIdx = 0;   // Welk hoofdstuk is actief?
+let currentExerciseIdx = 0;  // Welke oefening binnen dat hoofdstuk is actief? 
 
+// === METRICS: Pogingen + Tijd aan de Oefening ===============================
+// Alles per oefening bewaren in localStorage, net zoals de code/voortgang.
+
+let _workTimer = { running:false, lastStart:0, intervalId:null }; // interne timerstatus
+
+// Hulpfunctie om consistente keys te maken per oefening:
+function exKey(suffix){ 
+  return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
+}
+
+// -- Pogingen tellen --
+function getPogingen(){ 
+  return parseInt(localStorage.getItem(exKey('pogingen')) || '0', 10); 
+}
+function incPogingen(){ 
+  const n = getPogingen() + 1;
+  localStorage.setItem(exKey('pogingen'), String(n));
+  return n;
+}
+
+// -- Werktijd (in milliseconden) --
+function getWerkTijdMs(){ 
+  return parseInt(localStorage.getItem(exKey('werkTijdMs')) || '0', 10); 
+}
+function setWerkTijdMs(ms){ 
+  localStorage.setItem(exKey('werkTijdMs'), String(ms)); 
+}
+function addWerkTijd(ms){ 
+  setWerkTijdMs(getWerkTijdMs() + ms); 
+}
+
+// Timer besturen: start/stop en UI updaten
+function startWerkTimer(){
+  // Start zodra de leerling effectief iets wijzigt (zie editor.on('change') hook)
+  if (_workTimer.running) return;
+  _workTimer.running = true;
+  _workTimer.lastStart = Date.now();
+  _workTimer.intervalId = setInterval(updateMetricsUI, 1000); // UI elke seconde bijwerken
+}
+
+function stopWerkTimer(){
+  if(!_workTimer.running) return;
+  const nu = Date.now();
+  addWerkTijd(nu - _workTimer.lastStart); // cumuleren in localStorage
+  _workTimer.running = false;
+  _workTimer.lastStart = 0;
+  clearInterval(_workTimer.intervalId);
+  _workTimer.intervalId = null;
+  updateMetricsUI(); // eindstand tonen
+}
+
+function resetWerkTimerState(){
+  // Oproepen bij oefening wisselen; laat de opgeslagen tijd gewoon staan
+  _workTimer.running = false;
+  _workTimer.lastStart = 0;
+  if (_workTimer.intervalId) clearInterval(_workTimer.intervalId);
+  _workTimer.intervalId = null;
+}
+
+// Formatter voor het scherm/PDF
+function formatDuur(ms){
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return (m > 0 ? `${m}m ` : '') + `${r}s`;
+}
+
+// Klein UI-label rechts van "Canvas" toevoegen/actualiseren
+let metricsEl = null;
+function ensureMetricsEl(){
+  if (metricsEl) return metricsEl;
+  const header = document.querySelector('.canvas-header');
+  metricsEl = document.createElement('span');
+  metricsEl.id = 'metrics';
+  metricsEl.style.fontFamily = 'monospace';
+  metricsEl.style.marginLeft = '12px';
+  header && header.appendChild(metricsEl);
+  return metricsEl;
+}
+
+function updateMetricsUI(){
+  const el = ensureMetricsEl();
+  const basisMs = getWerkTijdMs();
+  const liveMs  = _workTimer.running ? (Date.now() - _workTimer.lastStart) : 0;
+  el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
+}
+
+// Pauzeer bij focusverlies/tabwissel (geen spooktijd optellen)
+window.addEventListener('blur', stopWerkTimer);
+window.addEventListener('beforeunload', stopWerkTimer);
+// Pauzeer ook bij tab-verbergen (sommige browsers sturen geen 'blur')
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopWerkTimer();
+});
 // === ELEMENTS ===
 const opdrachtTekst = document.getElementById('opdracht-tekst');
 const progressBar = document.getElementById('exercise-progress');
@@ -2689,6 +2784,9 @@ function loadExercise() {
   if (window.resetTurtle) window.resetTurtle();
   if (window.clearCanvas) window.clearCanvas();
   isDirty = false;
+  stopWerkTimer();
+  resetWerkTimerState();
+  updateMetricsUI();
 }
 function showSavedToast() {
   // Geen meerdere pop-ups!
@@ -2821,6 +2919,8 @@ document.addEventListener("DOMContentLoaded", function() {
   isDirty = true;
   const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
   localStorage.setItem(key, editor.getValue());
+  startWerkTimer();          // Nederlands: start de werktijd-timer bij eerste wijziging
+  updateMetricsUI();         // Nederlands: toon actuele pogingen+tijd
 });
 
 
@@ -2841,43 +2941,6 @@ document.addEventListener("DOMContentLoaded", function() {
     appendToConsole(str);
   };
 })();
-
-// Uitvoeren knop
-document.getElementById('run-code').onclick = async function() {
-  clearConsole();
-  capturedOutput = "";
-  try {
-    if (window.resetTurtle) window.resetTurtle();
-    if (window.clearCanvas) window.clearCanvas();
-    const code = editor.getValue();
-    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-    localStorage.setItem(key, code);
-    isDirty = false;
-    showSavedToast();
-    // Belangrijk: wacht op alle ask-prompts!
-    await runStudentCode(code);
-  } catch (e) {
-    let uitleg = translateError(e.message);
-    appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
-  }
-  // Dit gebeurt NA alle prompts en uitvoer!
-  console.log("DEBUG OUTPUT: [" + capturedOutput + "]");
-  const isCorrect = evaluateExercise();
-  const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
-  if (isCorrect === true) {
-    localStorage.setItem(evalKey, "success");
-  } else if (isCorrect === false) {
-    localStorage.setItem(evalKey, "fail");
-  } else {
-    localStorage.removeItem(evalKey);
-  }
-  renderExerciseProgress();
-  showEvalFeedback(isCorrect);
-};
-
-
-
-
 
     // Help modal tonen/verbergen
     const helpModal = document.getElementById('help-modal');
@@ -3045,15 +3108,41 @@ document.getElementById('modal-ok').onclick = async function() {
   let outputLines = pdf.splitTextToSize(consoleText || "(geen uitvoer)", contentWidth);
   addMultilineSection("Console-uitvoer:", outputLines, COLOR_PURPLE, true);
 
-  // Status oefening printen: 
-  pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
-  pdf.text("Status oefening:", margin, y); y += 16;
-  pdf.setTextColor(0, 0, 0); setBodyFont();
-  let statusText;
-  if (evalStatus === "success") statusText = "Oefening correct";
-  else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
-  else statusText = "Niet uitgevoerd";
-  pdf.text(statusText, margin, y); y += 20;
+// Status oefening + metacognitieve metrics (pogingen & tijd)
+pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+pdf.text("Status oefening:", margin, y); y += 16;
+
+pdf.setTextColor(0, 0, 0); setBodyFont();
+
+// 1) Status-tekst zoals vroeger
+let statusText;
+if (evalStatus === "success") statusText = "Oefening correct";
+else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
+else statusText = "Niet uitgevoerd";
+pdf.text(statusText, margin, y); y += 16;
+
+// 2) Waarden rechtstreeks uit je helpers of, als fallback, uit localStorage
+//    (NL: zo blijft het werken als je functienamen ooit wijzigt)
+const pogingen = (typeof getPogingen === 'function')
+  ? getPogingen()
+  : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
+
+const tijdMs = (typeof getWerkTijdMs === 'function')
+  ? getWerkTijdMs()
+  : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
+
+// 3) Gebruik dezelfde formatter als in de UI indien beschikbaar
+function _fmt(ms){
+  if (typeof formatDuur === 'function') return formatDuur(ms);
+  const s = Math.max(0, Math.floor((ms || 0)/1000));
+  const m = Math.floor(s/60), r = s % 60;
+  return (m > 0 ? `${m}m ` : '') + `${r}s`;
+}
+
+// 4) Extra regels in het rapport
+pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
+pdf.text(`Tijd besteed: ${_fmt(tijdMs)}`, margin, y); y += 24;
+
 
   // Correctiesleutel indien beschikbaar: 
   if (expectedOutput && expectedOutput.length > 0) {
@@ -3143,20 +3232,55 @@ pdf.setFontSize(12);
 };
 
 
-    // Live coördinaten
-    const coordsSpan = document.getElementById('coords');
-    const turtlecanvas = document.getElementById('turtlecanvas');
-    turtlecanvas.addEventListener("mousemove", function (event) {
-      const rect = turtlecanvas.getBoundingClientRect();
-      const px = event.clientX - rect.left; 
-      const py = event.clientY - rect.top;
-      const x = (px - CANVAS_SIZE/2 - panX) / zoom;
-      const y = (CANVAS_SIZE/2 - py - panY) / zoom;
-      coordsSpan.textContent = `X:${Math.round(x)} Y:${Math.round(y)}`;
-    });
-    turtlecanvas.addEventListener("mouseleave", function () {
-      coordsSpan.textContent = "";
-    });
+// === Coördinaten correct berekenen (border + CSS-schaal + zoom/pan) ===
+(function () {
+  const coordsSpan = document.getElementById('coords');
+  const canvas = document.getElementById('turtlecanvas');
+
+  // Hulpfunctie: lees daadwerkelijke border-diktes
+  function getBorderSizes(el) {
+    const s = getComputedStyle(el);
+    return {
+      left:   parseFloat(s.borderLeftWidth)   || 0,
+      right:  parseFloat(s.borderRightWidth)  || 0,
+      top:    parseFloat(s.borderTopWidth)    || 0,
+      bottom: parseFloat(s.borderBottomWidth) || 0
+    };
+  }
+
+  canvas.addEventListener("mousemove", function (event) {
+    const rect = canvas.getBoundingClientRect();
+    const b = getBorderSizes(canvas);
+
+    // 1) Cursorpositie in CSS-pixels binnen de CONTENT (border aftrekken)
+    const cssX = event.clientX - rect.left - b.left;
+    const cssY = event.clientY - rect.top  - b.top;
+
+    // 2) Schaal CSS-pixels → canvas-pixels (interne bitmap)
+    const contentCssWidth  = rect.width  - b.left - b.right;
+    const contentCssHeight = rect.height - b.top  - b.bottom;
+    const scaleX = canvas.width  / contentCssWidth;
+    const scaleY = canvas.height / contentCssHeight;
+
+    const cx = cssX * scaleX;  // canvas-px
+    const cy = cssY * scaleY;  // canvas-px
+
+    // 3) Canvas-px → wereldcoördinaten (0,0 in midden; Y omhoog positief)
+    const centerX = canvas.width  / 2;
+    const centerY = canvas.height / 2;
+
+    // Let op: panX/panY en zoom komen uit jouw globale staat
+    const worldX = (cx - centerX - panX) / zoom;
+    const worldY = (centerY - cy - panY) / zoom;
+
+    // 4) Toon afgeronde waarden
+    coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
+  });
+
+  canvas.addEventListener("mouseleave", function () {
+    coordsSpan.textContent = "";
+  });
+})();
 
  
 
@@ -3230,45 +3354,219 @@ function translateError(message) {
   if (message.includes("Invalid or unexpected token")) {
     return "Er staat een teken in je code dat JavaScript niet herkent. Dit kan een typefout zijn, een vergeten haakje, puntkomma of een vreemd teken.";
   }
+  if (message.includes("Lus zonder accolades")) {
+  return "Je gebruikt een lus zonder { }. Zet je lus-inhoud tussen accolades: { ... }";
+  }
+if (message.includes("mogelijk oneindige lus")) {
+  return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
+}
   // Standaard: originele Engelse boodschap
   return message;
 }
 
 // Evalueren van oefeningen en console uitvoer checken:
-function evaluateExercise() {
-  const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-  if (!exercise.evalOutput) return null; // Geen evaluatie mogelijk
+// --- Opties voor normalisatie van tekst ---
+const _DEFAULT_NORM_OPTS = {
+  caseInsensitive: true,   // hoofdletter-ongevoelig vergelijken
+  trim: true,              // randspaties verwijderen
+  collapseSpaces: true,    // meerdere spaties → één spatie
+  removePunctuation: false,// standaard interpunctie behouden
+  decimalCommaToDot: true  // "12,34" → "12.34" (handig voor Benelux)
+};
 
-  // Trim trailing whitespace voor nette vergelijking
-  let user = capturedOutput.trim();
-  let expected = exercise.evalOutput.trim();
+// Regels die we negeren uit de console (bv. debug)
+const _IGNORE_LINE_PATTERNS = [
+  /^debug output:/i,
+  /^\s*opgeslagen!$/i
+];
 
-  // Vergelijk exact, eventueel met kleine foutmarge voor whitespace
-  return user === expected;
+// --- Helpers ---
+function _shouldIgnoreLine(line) {
+  return _IGNORE_LINE_PATTERNS.some(rx => rx.test(line));
 }
+
+function _normalizeText(s, opts = _DEFAULT_NORM_OPTS) {
+  let t = s ?? "";
+  if (opts.decimalCommaToDot) {
+    // Vervang komma-decimaalvorm in getallen (12,34 → 12.34)
+    t = t.replace(/(\d),(\d)/g, '$1.$2');
+  }
+  if (opts.trim) t = t.trim();
+  if (opts.collapseSpaces) t = t.replace(/\s+/g, ' ');
+  if (opts.removePunctuation) t = t.replace(/[.,;:!?…–—\-]/g, '');
+  if (opts.caseInsensitive) t = t.toLowerCase();
+  return t;
+}
+
+function _extractNumbers(s) {
+  // Herken ook "12,34" als 12.34
+  const norm = (s ?? "").replace(/(\d),(\d)/g, '$1.$2');
+  const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
+  return matches.map(parseFloat);
+}
+
+function _nearlyEqual(a, b, eps = 0.01) {
+  return Math.abs(a - b) <= eps;
+}
+
+// Vergelijk regel-voor-regel met toleranties op getallen.
+// Geeft { ok:boolean, info:string } terug.
+function _looseCompare(expectedRaw, userRaw, opts = {}) {
+  const linesE = (expectedRaw ?? '')
+    .split(/\r?\n/)
+    .map(l => l.replace(/\u00A0/g, ' ')) // NBSP → spatie
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  const linesU = (userRaw ?? '')
+    .split(/\r?\n/)
+    .map(l => l.replace(/\u00A0/g, ' '))
+    .map(l => l.trim())
+    .filter(l => l.length > 0 && !_shouldIgnoreLine(l));
+
+  if (linesE.length !== linesU.length) {
+    return { ok: false, info: `Regelaantal wijkt af (verwacht ${linesE.length}, gekregen ${linesU.length}).` };
+  }
+
+  for (let i = 0; i < linesE.length; i++) {
+    const e = linesE[i];
+    const u = linesU[i];
+
+    const numsE = _extractNumbers(e);
+    const numsU = _extractNumbers(u);
+
+    // Als beide regels getallen bevatten met gelijke telling → vergelijk numeriek + resttekst
+    if (numsE.length > 0 && numsE.length === numsU.length) {
+      const tol = opts.tolerance ?? 0.01;
+      for (let j = 0; j < numsE.length; j++) {
+        if (!_nearlyEqual(numsE[j], numsU[j], tol)) {
+          return { ok: false, info: `Getal op regel ${i + 1} wijkt af (verwacht ${numsE[j]}, kreeg ${numsU[j]}).` };
+        }
+      }
+      // Vergelijk niet-numerieke delen losser
+      const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
+      const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
+      if (eText !== uText) {
+        return { ok: false, info: `Tekst op regel ${i + 1} wijkt af (we negeren spaties/case/komma-punt).` };
+      }
+    } else {
+      // Geen getallen: losse tekstvergelijking
+      const eN = _normalizeText(e, opts);
+      const uN = _normalizeText(u, opts);
+      if (eN !== uN) {
+        return { ok: false, info: `Regel ${i + 1} wijkt af.` };
+      }
+    }
+  }
+  return { ok: true, info: 'Uitvoer komt overeen.' };
+}
+
+// --- Optionele per-oefening evaluatiemodi ---
+// Voorbeeld in een oefening:
+// eval: { type: 'numbers', expected: [826.80, 292.32, 54.4], tolerance: 0.1 }
+// eval: { type: 'regex', pattern: "de\\s+toegangsprijs\\s+is\\s+\\d+(?:[.,]\\d+)?\\s+euro\\.?$", flags: "i" }
+// eval: { type: 'contains', substrings: ["goedemorgen", "mevr.", "deleye"] }
+
+function _evalByMode(exercise, userRaw) {
+  const cfg = exercise.eval;
+  if (!cfg || !cfg.type) return null;
+
+  const raw = (userRaw ?? '').replace(/(\d),(\d)/g, '$1.$2');
+
+  if (cfg.type === 'numbers') {
+    const numsU = _extractNumbers(raw);
+    const numsE = (cfg.expected || []).map(Number);
+    const tol = cfg.tolerance ?? 0.01;
+
+    if (cfg.orderInsensitive) {
+      const a = [...numsU].sort((x,y)=>x-y);
+      const b = [...numsE].sort((x,y)=>x-y);
+      if (a.length !== b.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${b.length}, kreeg ${a.length}).` };
+      for (let i=0;i<a.length;i++) if (!_nearlyEqual(a[i], b[i], tol)) {
+        return { ok:false, info:`Getallen wijken af (tolerantie ${tol}).` };
+      }
+      return { ok:true, info:'Getallen kloppen (volgorde genegeerd).' };
+    } else {
+      if (numsU.length !== numsE.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${numsE.length}, kreeg ${numsU.length}).` };
+      for (let i=0;i<numsE.length;i++) if (!_nearlyEqual(numsU[i], numsE[i], tol)) {
+        return { ok:false, info:`Getal #${i+1} wijkt af (verwacht ${numsE[i]}, kreeg ${numsU[i]}).` };
+      }
+      return { ok:true, info:'Getallen kloppen (op volgorde).' };
+    }
+  }
+
+  if (cfg.type === 'regex') {
+    const re = new RegExp(cfg.pattern, cfg.flags || 'i'); // standaard case-insensitive
+    const ok = re.test(raw.trim());
+    return { ok, info: ok ? 'Patroon komt overeen.' : 'Tekst voldoet niet aan het patroon.' };
+  }
+
+  if (cfg.type === 'contains') {
+    const hay = raw.toLowerCase();
+    const missing = (cfg.substrings || []).filter(s => !hay.includes(String(s).toLowerCase()));
+    if (missing.length === 0) return { ok:true, info:'Alle vereiste woorden/fragmenten aanwezig.' };
+    return { ok:false, info:`Ontbreekt: ${missing.join(', ')}` };
+  }
+
+  return null;
+}
+
+// ============= Hoofdfunctie =============
+function evaluateExercise() {
+  const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+
+  // Geen sleutel → niet evalueerbaar
+  if (!ex || (!ex.evalOutput && !ex.eval)) {
+    window._lastEvalInfo = 'Geen evaluatiesleutel voor deze oefening.';
+    return null;
+  }
+
+  // Ruwe uitvoer ophalen (we normaliseren later)
+  const userRaw = (typeof capturedOutput === 'string') ? capturedOutput : String(capturedOutput || '');
+
+  // 1) Per-oefening modus heeft voorrang (indien aanwezig)
+  const modeRes = _evalByMode(ex, userRaw);
+  if (modeRes) {
+    window._lastEvalInfo = modeRes.info;
+    return modeRes.ok;
+  }
+
+  // 2) Standaard: losse line-by-line vergelijking met getal-tolerantie
+  const loose = _looseCompare(ex.evalOutput || '', userRaw, {
+    ..._DEFAULT_NORM_OPTS,
+    tolerance: 0.01,        // pas aan indien nodig
+    removePunctuation: false
+  });
+
+  window._lastEvalInfo = loose.info;
+  return loose.ok;
+}
+  
+  
 // Toast indicator na de output checker: 
 function showEvalFeedback(isCorrect) {
-  // Zoek de juiste knop in de progressBar (de huidige oefening)
   const progressBtns = document.querySelectorAll('.exercise-btn');
   if (!progressBtns[currentExerciseIdx]) return;
 
   if (isCorrect === null) {
-    // Geen eval mogelijk, verwijder kleur
     progressBtns[currentExerciseIdx].style.background = '';
     progressBtns[currentExerciseIdx].style.color = '';
     return;
   }
 
+  const extraInfo = window._lastEvalInfo || '';
+  const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+
   if (isCorrect) {
-    progressBtns[currentExerciseIdx].style.background = '#3dffd0'; // jouw groene merk-kleur
+    progressBtns[currentExerciseIdx].style.background = '#3dffd0';
     progressBtns[currentExerciseIdx].style.color = '#23272e';
-    showToast("✅ Goed gedaan! Je output klopt met het verwachte resultaat.", true);
+    // 🇳🇱 duidelijke feedback
+    showToast("✅ Goed gedaan! " + (extraInfo || "Je output is correct."), true);
   } else {
-    progressBtns[currentExerciseIdx].style.background = '#ff1744'; // rood
+    progressBtns[currentExerciseIdx].style.background = '#ff1744';
     progressBtns[currentExerciseIdx].style.color = '#fff';
-    // Toon verwachte output in de toast
-    const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-    showToast("❌ Niet helemaal goed. Verwachte uitvoer:\n\n" + exercise.evalOutput, false);
+    const expected = exercise.evalOutput ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput) : "";
+    showToast("❌ Niet helemaal goed. " + (extraInfo || "") + expected, false);
   }
 }
 // Voeg toe aan je script
@@ -3346,7 +3644,7 @@ document.getElementById('export-pdf').onclick = function() {
   document.getElementById('modal-naam').focus();
 };
 
-// --- 1. Modalgebaseerde ask()-functie want SEB Compatibility ---
+// --- Modalgebaseerde ask()-functie want SEB Compatibility ---
   // Hiermee kan je: var naam = ask("Vraag?");
   window.ask = function(boodschap) {
     return new Promise((resolve) => {
@@ -3384,40 +3682,127 @@ document.getElementById('export-pdf').onclick = function() {
       input.addEventListener('keydown', onEnter);
     });
   };
+  
+// --- Loop guard instrumentation (iteration + time budget) ---
+function applyLoopGuard(source, options = {}) {
+  const MAX_ITERS = options.maxIters ?? 200000;  // stop after N iterations
+  const MAX_MS    = options.maxMs   ?? 2000;     // or after N milliseconds
 
-  // --- 2. Studentencode uitvoeren met ondersteuning voor ask() ---
+  // Optional escape hatch per exercise:
+  // if the student puts /* @no-guard */ at the top, skip guarding
+  if (/^\s*\/\*\s*@no-guard\s*\*\//.test(source)) return source;
+
+  // EDU: to keep instrumentation simple + robust, require braces on loop bodies.
+  // This avoids tricky single-statement loops like: while (x<10) moveForward(1);
+  const bracelessLoop = /(for|while)\s*\([^)]*\)\s*(?!\{)/;
+  if (bracelessLoop.test(source)) {
+    throw new Error("Lus zonder accolades gedetecteerd. Gebruik { } rond de code in je for/while-lus.");
+  }
+
+  // Prelude defines __tick() which enforces the limits
+  const prelude = `
+    const __GUARD_MAX_ITERS = ${MAX_ITERS};
+    const __GUARD_MAX_MS = ${MAX_MS};
+    let __guard_iters = 0;
+    const __guard_start = Date.now();
+    function __tick() {
+      __guard_iters++;
+      // check time every ~1000 ticks
+      if ((__guard_iters & 1023) === 0) {
+        if (Date.now() - __guard_start > __GUARD_MAX_MS) {
+          throw new Error("Tijdslimiet overschreden (mogelijk oneindige lus).");
+        }
+      }
+      if (__guard_iters > __GUARD_MAX_ITERS) {
+        throw new Error("Te veel iteraties (mogelijk oneindige lus).");
+      }
+    }
+  `;
+
+  // We inject __tick in:
+  //  - while(...) { ... }    => call in condition + at body start
+  //  - for(init;cond;step) { => call in condition + at body start
+  //  - for(;;) {             => body start
+  //  - do { ... } while(...); => call at body start
+  let code = source;
+
+  // do { ... } while(...);
+  code = code.replace(/do\s*\{/g, match => `${match} __tick(); `);
+
+  // while (...) {
+  code = code.replace(
+    /while\s*\(([^)]*)\)\s*\{/g,
+    (m, cond) => `while ((__tick(), (${cond}))) { __tick(); `
+  );
+
+  // for (init; cond; step) {
+  code = code.replace(
+    /for\s*\(([^;]*);([^;]*);([^\)]*)\)\s*\{/g,
+    (m, init, cond, step) => `for (${init}; (__tick(), (${cond})); ${step}) { __tick(); `
+  );
+
+  // for (;;){ ... } – condless forms
+  code = code.replace(/for\s*\(\s*;\s*;\s*\)\s*\{/g, 'for (;;){ __tick(); ');
+
+  return prelude + "\n" + code;
+}
+
+
+  // --- Studentencode uitvoeren met ondersteuning voor ask() ---
 window.runStudentCode = function(studentCode) {
-  // Zet elke "ask(" om naar "await ask("
-  const omgezet = studentCode.replace(/ask\s*\(/g, 'await ask(');
-  // Maak een async functie zodat await werkt
+  
+  let transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
+
+  // Bescherming voor infinite loops: 
+  transformed = applyLoopGuard(transformed, {
+    maxIters: 200000,  // tweak if needed
+    maxMs:    2000     // tweak if needed
+  });
+
+  
   const wrapper = `
     return (async function __student_main__() {
-      ${omgezet}
+      ${transformed}
     })();
   `;
-  // Geef een Promise terug zodat je kan wachten tot klaar
   return new Function('ask', 'console', wrapper)(window.ask, window.console);
 };
   
-  // --- 3. Koppel de Run-knop aan runStudentCode (ipv new Function) ---
-  document.getElementById('run-code').onclick = async function() {
+// --- 3. Koppel de Run-knop aan runStudentCode (ipv new Function) ---
+document.getElementById('run-code').onclick = async function() {
+  // ▼ NIEUW: poging registreren + timer pauzeren terwijl code runt
+  // (Timer start vanzelf opnieuw zodra de leerling weer typt in de editor.)
+  if (isDirty && typeof incPogingen === 'function') incPogingen();   // NL: tel één poging erbij
+  if (typeof stopWerkTimer === 'function') stopWerkTimer(); // NL: pauzeer teltijd tijdens run
+  if (typeof updateMetricsUI === 'function') updateMetricsUI(); // NL: toon actuele stand
+
   clearConsole();
   capturedOutput = "";
+
   try {
+    // NL: canvas resetten voor een schone run
     if (window.resetTurtle) window.resetTurtle();
     if (window.clearCanvas) window.clearCanvas();
+
+    // NL: code bewaren (auto-save) en “dirty”-vlag clearen
     const code = editor.getValue();
     const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
     localStorage.setItem(key, code);
     isDirty = false;
     showSavedToast();
-    // Belangrijk: wacht op alle ask-prompts!
+
+    // NL: wacht op alle ask()-prompts (async)
     await runStudentCode(code);
+
   } catch (e) {
+    // NL: foutboodschap begrijpelijk maken voor leerlingen
     let uitleg = translateError(e.message);
     appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
-  }
-    // Evaluatie en feedback zoals voorheen
+  } finally {
+    // ▼ NIEUW: UI bijwerken; timer blijft gepauzeerd tot er weer getypt wordt
+    if (typeof updateMetricsUI === 'function') updateMetricsUI();
+
+    // NL: evaluatie + voortgangsfeedback zoals voorheen
     const isCorrect = evaluateExercise();
     const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
     if (isCorrect === true) {
@@ -3425,11 +3810,13 @@ window.runStudentCode = function(studentCode) {
     } else if (isCorrect === false) {
       localStorage.setItem(evalKey, "fail");
     } else {
-      localStorage.removeItem(evalKey); // verwijder bij niet-evalueerbaar
+      localStorage.removeItem(evalKey); // NL: niet-evalueerbare oefening
     }
     renderExerciseProgress();
     showEvalFeedback(isCorrect);
-  };
+  }
+};
+
 
 
 </script>
