@@ -46,6 +46,18 @@
     if(Array.isArray(rgb)) return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
     return rgb;
   }
+
+    // --- Rounding helper for students ---
+  // round(waarde, decimalen) -> number
+  window.round = function(value, decimals = 0) {
+    let num = Number(value);
+    if (isNaN(num)) return NaN;
+
+    decimals = Math.max(0, Math.min(10, Number(decimals) || 0));
+
+    const factor = Math.pow(10, decimals);
+    return Math.round(num * factor) / factor;
+  };
   
   // modal ter vervanging van prompt voor gebruik binnen SEB: 
 // Modal-gestuurde ask()-functie
@@ -338,7 +350,7 @@ window.runStudentCode = async function(studentCode) {
   [
     'resetTurtle','clearCanvas','moveForward','moveBackward','turnRight',
     'turnLeft','penUp','penDown','setPenColour','setLineWidth','goTo',
-    'showGrid','setTurtleAngle','showTurtle','hideTurtle','writeText','randomColour'
+    'showGrid','setTurtleAngle','showTurtle','hideTurtle','writeText','randomColour', 'round'
   ].forEach(fn=>{
     if (!window[fn]) window[fn]=function(){};
   });
