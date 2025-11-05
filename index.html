@@ -3122,7 +3122,7 @@ else statusText = "Niet uitgevoerd";
 pdf.text(statusText, margin, y); y += 16;
 
 // 2) Waarden rechtstreeks uit je helpers of, als fallback, uit localStorage
-//    (NL: zo blijft het werken als je functienamen ooit wijzigt)
+//    (Zo blijft het werken als je functienamen ooit wijzigt)
 const pogingen = (typeof getPogingen === 'function')
   ? getPogingen()
   : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
@@ -3772,37 +3772,37 @@ window.runStudentCode = function(studentCode) {
 document.getElementById('run-code').onclick = async function() {
   // ▼ NIEUW: poging registreren + timer pauzeren terwijl code runt
   // (Timer start vanzelf opnieuw zodra de leerling weer typt in de editor.)
-  if (isDirty && typeof incPogingen === 'function') incPogingen();   // NL: tel één poging erbij
-  if (typeof stopWerkTimer === 'function') stopWerkTimer(); // NL: pauzeer teltijd tijdens run
-  if (typeof updateMetricsUI === 'function') updateMetricsUI(); // NL: toon actuele stand
+  if (isDirty && typeof incPogingen === 'function') incPogingen();   
+  if (typeof stopWerkTimer === 'function') stopWerkTimer(); 
+  if (typeof updateMetricsUI === 'function') updateMetricsUI(); 
 
   clearConsole();
   capturedOutput = "";
 
   try {
-    // NL: canvas resetten voor een schone run
+
     if (window.resetTurtle) window.resetTurtle();
     if (window.clearCanvas) window.clearCanvas();
 
-    // NL: code bewaren (auto-save) en “dirty”-vlag clearen
+
     const code = editor.getValue();
     const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
     localStorage.setItem(key, code);
     isDirty = false;
     showSavedToast();
 
-    // NL: wacht op alle ask()-prompts (async)
+
     await runStudentCode(code);
 
   } catch (e) {
-    // NL: foutboodschap begrijpelijk maken voor leerlingen
+
     let uitleg = translateError(e.message);
     appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
   } finally {
-    // ▼ NIEUW: UI bijwerken; timer blijft gepauzeerd tot er weer getypt wordt
+
     if (typeof updateMetricsUI === 'function') updateMetricsUI();
 
-    // NL: evaluatie + voortgangsfeedback zoals voorheen
+
     const isCorrect = evaluateExercise();
     const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
     if (isCorrect === true) {
@@ -3810,7 +3810,7 @@ document.getElementById('run-code').onclick = async function() {
     } else if (isCorrect === false) {
       localStorage.setItem(evalKey, "fail");
     } else {
-      localStorage.removeItem(evalKey); // NL: niet-evalueerbare oefening
+      localStorage.removeItem(evalKey); 
     }
     renderExerciseProgress();
     showEvalFeedback(isCorrect);
