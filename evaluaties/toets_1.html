@@ -1145,6 +1145,30 @@ body.dark .help-content h2 {
   color: var(--brand-white) !important;
 }
 
+/* Speciale stijlen voor confirm-modal knoppen */
+.modal-btn-primary {
+  background: var(--brand-purple);
+  color: var(--brand-white);
+}
+
+.modal-btn-secondary {
+  background: var(--brand-white);
+  color: var(--brand-purple);
+  border: 1.5px solid var(--brand-purple);
+}
+
+body.dark .modal-btn-primary {
+  background: var(--brand-purple) !important;
+  color: var(--brand-white) !important;
+  border: none !important;
+}
+
+body.dark .modal-btn-secondary {
+  background: var(--brand-white) !important;
+  color: var(--brand-purple) !important;
+  border: 1.5px solid var(--brand-purple) !important;
+}
+
 /* VERBERG MENU IN EXAM-MODE */
 #course-menu,
 #menu-tab {
@@ -1313,7 +1337,7 @@ body.dark .help-content h2 {
       <div id="confirm-modal-msg" class="modal-message modal-message-warning"></div>
       <div class="modal-actions">
         <button id="confirm-modal-ok" class="modal-btn modal-btn-primary">OK</button>
-        <button id="confirm-modal-cancel" class="modal-btn">Annuleren</button>
+        <button id="confirm-modal-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
       </div>
     </div>
   </div>
@@ -1396,83 +1420,110 @@ body.dark .help-content h2 {
     });
   });
 
-  // --------- DATA VOOR OEFENINGEN: ENKEL TEKSTOPDRACHTEN --------------
-  const chapters = [
-    {
-      title: "JavaScript: Toets 1",
-      exercises: [
-        {
-          title: "1. Brandstofmeter",
-          starterCode: [
-            "// In de tank zit 45 liter brandstof.",
-            "// Fred tankt 20 liter bij.",
-            "// 1. Maak variabelen voor de beginhoeveelheid en de bijgetankte hoeveelheid.",
-            "// 2. Bereken het totaal in een nieuwe variabele.",
-            "// 3. Toon het antwoord in deze zin in de console:",
-            "//    Er staat nu ... liter brandstof in de tank.",
-            "",
-            "// Schrijf hieronder je code."
-          ].join('\n'),
-          evalOutput: "Er staat nu 65 liter brandstof in de tank."
-        },
-        {
-          title: "2. Dagbudget op reis",
-          starterCode: [
-            "// Fred heeft een dagbudget van 75 euro.",
-            "// Hij koopt drie dingen: 8.5 euro, 12.75 euro en 15 euro.",
-            "// 1. Bereken het totaal dat hij uitgeeft.",
-            "// 2. Bereken hoeveel geld hij overhoudt.",
-            "// 3. Toon het antwoord in deze zin in de console:",
-            "//    Fred heeft nog ... euro over van zijn dagbudget.",
-            "",
-            "// Schrijf hieronder je code."
-          ].join('\n'),
-          evalOutput: "Fred heeft nog 38.75 euro over van zijn dagbudget."
-        },
-        {
-          title: "3. Gemiddelde temperatuur",
-          starterCode: [
-            "// De temperaturen van vandaag (in °C) zijn: 12, 15, 18 en 17.",
-            "// 1. Bewaar de vier waarden in aparte variabelen of in een array.",
-            "// 2. Bereken de gemiddelde temperatuur.",
-            "// 3. Toon het antwoord in deze zin in de console:",
-            "//    De gemiddelde temperatuur vandaag is ... graden.",
-            "",
-            "// Schrijf hieronder je code."
-          ].join('\n'),
-          evalOutput: "De gemiddelde temperatuur vandaag is 15.5 graden."
-        },
-        {
-          title: "4. Gemiddelde snelheid",
-          starterCode: [
-            "// Fred rijdt 150 kilometer in 2.5 uur.",
-            "// 1. Bereken zijn gemiddelde snelheid in km/u.",
-            "// 2. Toon het antwoord via deze zin in de console:",
-            "//    De gemiddelde snelheid van Fred is ... km/u.",
-            "",
-            "// Schrijf hieronder je code."
-          ].join('\n'),
-          evalOutput: "De gemiddelde snelheid van Fred is 60 km/u."
-        },
-        {
-          title: "5. Tegelpad rond de tentplaats",
-          starterCode: [
-            "// Een rechthoekige tentplaats is 6 m lang en 4 m breed.",
-            "// Rond de tentplaats komt een tegelpad van 1 m breed.",
-            "// 1. Bereken de oppervlakte van het hele rechthoekige gebied",
-            "//    (tentplaats + pad).",
-            "// 2. Trek de oppervlakte van de tentplaats zelf af.",
-            "// 3. Toon exact deze zin in de console:",
-            "//    De oppervlakte van het tegelpad is ... vierkante meter.",
-            "",
-            "// Schrijf hieronder je code."
-          ].join('\n'),
-          evalOutput: "De oppervlakte van het tegelpad is 24 vierkante meter."
-        }
-      ]
-    }
-  ];
-  // --------- EINDE DATA VOOR OEFENINGEN -------------------------------
+// --------- DATA VOOR OEFENINGEN --------------
+const chapters = [
+  {
+    title: "JavaScript: Toets 1",
+    exercises: [
+      {
+        title: "1. Brandstofmeter",
+        starterCode: [
+          "// In de tank zit 45 liter brandstof.",
+          "// Fred tankt 20 liter bij.",
+          "// 1. Maak variabelen voor de beginhoeveelheid en de bijgetankte hoeveelheid.",
+          "// 2. Bereken het totaal in een nieuwe variabele.",
+          "// 3. Toon het antwoord in deze zin in de console:",
+          "//    Er staat nu ... liter brandstof in de tank.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Er staat nu 65 liter brandstof in de tank."
+      },
+      {
+        title: "2. Dagbudget op reis",
+        starterCode: [
+          "// Fred heeft een dagbudget van 75 euro.",
+          "// Hij koopt drie dingen: 8.5 euro, 12.75 euro en 15 euro.",
+          "// 1. Bereken het totaal dat hij uitgeeft.",
+          "// 2. Bereken hoeveel geld hij overhoudt.",
+          "// 3. Toon het antwoord in deze zin in de console:",
+          "//    Fred heeft nog ... euro over van zijn dagbudget.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Fred heeft nog 38.75 euro over van zijn dagbudget."
+      },
+      {
+        title: "3. Gemiddelde temperatuur",
+        starterCode: [
+          "// De temperaturen van vandaag (in °C) zijn: 12, 15, 18 en 17.",
+          "// 1. Bewaar de vier waarden in aparte variabelen.",
+          "// 2. Bereken de gemiddelde temperatuur.",
+          "// 3. Toon het antwoord in deze zin in de console:",
+          "//    De gemiddelde temperatuur vandaag is ... graden.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De gemiddelde temperatuur vandaag is 15.5 graden."
+      },
+      {
+        title: "4. Gemiddelde snelheid",
+        starterCode: [
+          "// Fred rijdt 150 kilometer in 2.5 uur.",
+          "// 1. Bereken zijn gemiddelde snelheid in km/u.",
+          "// 2. Toon het antwoord via deze zin in de console:",
+          "//    De gemiddelde snelheid van Fred is ... km/u.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De gemiddelde snelheid van Fred is 60 km/u."
+      },
+      {
+        title: "5. Tegelpad rond de tentplaats",
+        starterCode: [
+          "// Een rechthoekige tentplaats is 6 m lang en 4 m breed.",
+          "// Rond de tentplaats komt een tegelpad van 1 m breed.",
+          "// 1. Bereken de totale lengte en breedte van tentplaats + pad.",
+          "// 2. Bereken de oppervlakte van het hele rechthoekige gebied.",
+          "// 3. Trek de oppervlakte van de tentplaats zelf af.",
+          "// 4. Toon exact deze zin in de console:",
+          "//    De oppervlakte van het tegelpad is ... vierkante meter.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De oppervlakte van het tegelpad is 24 vierkante meter."
+      },
+      {
+        title: "6. Volume van een aquarium",
+        starterCode: [
+          "// Een aquarium is 120 cm lang, 40 cm breed en 50 cm hoog.",
+          "// 1. Bereken de inhoud in kubieke centimeter.",
+          "// 2. Zet dit om naar liter (1 liter = 1000 cm^3).",
+          "// 3. Toon exact deze zin in de console:",
+          "//    Het aquarium kan ... liter water bevatten.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het aquarium kan 240 liter water bevatten."
+      },
+      {
+        title: "7. Volume van een opslagkist",
+        starterCode: [
+          "// Een rechthoekige opslagkist is 2.58 m lang, 1.234 m breed en 0.85 m hoog.",
+          "// 1. Bereken het volume van de kist in kubieke meter.",
+          "// 2. Rond af op twee cijfers na de komma.",          
+          "// 3. Toon exact deze zin in de console:",
+          "//    De opslagkist heeft een volume van ... kubieke meter.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De opslagkist heeft een volume van 2.71 kubieke meter."
+      }
+    ]
+  }
+];
+// --------- EINDE DATA VOOR OEFENINGEN -------------------------------
+
 
   </script>
 
@@ -1698,12 +1749,27 @@ body.dark .help-content h2 {
     });
   }
 
-  window.confirmModal = function(message) {
+  function goToNextExercise() {
+    const exercises = chapters[currentChapterIdx].exercises;
+    if (currentExerciseIdx < exercises.length - 1) {
+      switchExercise(currentExerciseIdx + 1);
+    } else {
+      showToast("Je hebt alle oefeningen van dit hoofdstuk afgewerkt.", true);
+    }
+  }
+
+  window.confirmModal = function(message, options = {}) {
     return new Promise((resolve) => {
       const modal = document.getElementById('confirm-modal');
       const msgDiv = document.getElementById('confirm-modal-msg');
       const okBtn = document.getElementById('confirm-modal-ok');
       const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+      const okLabel = options.okLabel || "OK";
+      const cancelLabel = options.cancelLabel || "Annuleren";
+
+      okBtn.textContent = okLabel;
+      cancelBtn.textContent = cancelLabel;
 
       msgDiv.textContent = message;
       modal.style.display = "flex";
@@ -2203,7 +2269,7 @@ body.dark .help-content h2 {
     return Math.abs(a - b) <= eps;
   }
 
-  function _looseCompare(expectedRaw, userRaw, opts = {}) {
+  function _looseCompare(expectedRaw, userRaw, opts = _DEFAULT_NORM_OPTS) {
     const linesE = (expectedRaw ?? '')
       .split(/\r?\n/)
       .map(l => l.replace(/\u00A0/g, ' '))
@@ -2339,14 +2405,20 @@ body.dark .help-content h2 {
 
       if (typeof window.confirmModal === 'function') {
         window.confirmModal(
-          "✅ Goed gedaan! Je uitvoer is correct.\n\nWil je je oplossing nu exporteren naar PDF?"
+          "Goed gedaan! Je uitvoer is correct.\n\nWat wil je doen?",
+          {
+            okLabel: "Exporteren naar PDF",
+            cancelLabel: "Ga naar de volgende oefening"
+          }
         ).then(goExport => {
-          if (goExport && typeof openPdfModal === 'function') {
-            openPdfModal();
+          if (goExport) {
+            if (typeof openPdfModal === 'function') openPdfModal();
+          } else {
+            goToNextExercise();
           }
         });
       } else {
-        showToast("✅ Goed gedaan! " + (extraInfo || "Je output is correct."), true);
+        showToast("Goed gedaan! " + (extraInfo || "Je output is correct."), true);
       }
 
     } else {
