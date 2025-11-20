@@ -1438,326 +1438,71 @@ document.addEventListener("DOMContentLoaded", function () {
 // exercises.js
 
 const chapters = [
-  {
-    title: "Hoofdstuk 1: Hello, World!",
-    exercises: [
-      {
-        title: "1. Hello, World!",
+        {
+        title: "1. Brandstofmeter",
         starterCode: [
-          "// De eerste geschreven voorbeelden dateren uit 1978, uit het boek The C Programming Language.",
-          "// Het eerste stuk code dat de lezer leerde, was om ‘hello world’ op het scherm te laten verschijnen.",
-          "// En zo geschiedde! In vele andere handboeken, cursussen, programmeertalen zou deze regel code,",
-          "// de ‘hello world’-opdracht, de allereerste oefening zijn. Een traditie!",
-          "// ",
-          "// Opgave: ", 
-          "// Noteer de Javascript-code om Hello, World! op het scherm te laten verschijnen.",
-          "// Gebruik hiervoor de console.log()-functie.",
-        ].join('\n'), 
-        evalOutput: "Hello, World!"
+          "// Fred huurt een auto en kijkt naar de brandstofmeter.",
+          "// In de tank zit nog 45 liter. Hij tankt er 20 liter bij.",
+          "// In de code hieronder loopt iets mis met de datatypes.",
+          "// Pas de code aan zodat de berekening klopt.",
+          "var tank_inhoud = '45';",
+          "var bijgetankt = '20';",
+          "var nieuwe_inhoud = tank_inhoud + bijgetankt;",
+          "console.log('Er staat nu ' + nieuwe_inhoud + ' liter brandstof in de tank.');"
+        ].join('\n'),
+        evalOutput: "Er staat nu 65 liter brandstof in de tank."
       },
       {
-        title: "2. Voornaam + Achternaam",
+        title: "2. Dagbudget op reis",
         starterCode: [
-          "// Schrijf een coderegel die jouw voornaam op het scherm laat verschijnen;",
-          "// Schrijf een coderegel die jouw familienaam op het scherm laat verschijnen;",
-        ].join('\n')
+          "// Fred plant een daguitstap en heeft een dagbudget van 75 euro.",
+          "// Hij betaalt 8.5 euro voor ontbijt, 12.75 euro voor lunch en 15 euro voor een museumticket.",
+          "// Bereken hoeveel geld Fred nog over heeft op het einde van de dag.",
+          "// Gebruik leesbare variabelen voor budget en uitgaven.",
+          "// Print jouw resultaat naar het scherm in volgend formaat:",
+          "// Fred heeft nog ..... euro over van zijn dagbudget."
+        ].join('\n'),
+        evalOutput: "Fred heeft nog 38.75 euro over van zijn dagbudget."
       },
       {
-        title: "3. Datatype String",
+        title: "3. Gemiddelde temperatuur",
         starterCode: [
-          "// Gebruik de correcte aanhalingstekens",
-          "// om volgende zinnen op het scherm te schrijven:",
-          "// De kat krabt de krollen van de trap.",
-          '// Robbe zei tegen vader "Zou je dat nou wel doen?"',
-          "// Isaura's nieuwe auto.",
-        ].join('\n'), 
-        evalOutput: "De kat krabt de krollen van de trap.\n"+'Robbe zei tegen vader "Zou je dat nou wel doen?"\n'+"Isaura's nieuwe auto."
+          "// Tijdens een dagreis noteert Fred vier temperaturen:",
+          "// 's ochtends 12 graden, rond de middag 15 graden, in de namiddag 18 graden en 's avonds 17 graden.",
+          "// Maak voor elke meting een variabele met een leesbare naam.",
+          "// Bereken daarna de gemiddelde temperatuur van die dag.",
+          "// Print jouw resultaat naar het scherm in volgend formaat:",
+          "// De gemiddelde temperatuur vandaag is ... graden."
+        ].join('\n'),
+        evalOutput: "De gemiddelde temperatuur vandaag is 15.5 graden."
+      },
+      {
+        title: "4. Gemiddelde snelheid",
+        starterCode: [
+          "// Fred rijdt met de auto naar een volgende camping.",
+          "// Hij legt 150 kilometer af in 2.5 uur.",
+          "// Bereken de gemiddelde snelheid in kilometer per uur.",
+          "// Gebruik leesbare variabelen en een tussenstap voor de gemiddelde snelheid.",
+          "// Print jouw resultaat naar het scherm in volgend formaat:",
+          "// De gemiddelde snelheid van Fred is ... km/u."
+        ].join('\n'),
+        evalOutput: "De gemiddelde snelheid van Fred is 60 km/u."
+      },
+      {
+        title: "5. Tegelpad rond de tentplaats",
+        starterCode: [
+          "// Op de camping krijgt Fred een rechthoekige tentplaats van 6 meter bij 4 meter.",
+          "// Rond de tentplaats laat hij een tegelpad leggen van 1 meter breed rondom.",
+          "// Je krijgt dus een kleine rechthoek (de tentplaats) en een grotere rechthoek (tentplaats + pad).",
+          "// Bereken eerst de oppervlakte van de grote rechthoek.",
+          "// Bereken vervolgens de oppervlakte van de tentplaats.",
+          "// Trek beide van elkaar af om de oppervlakte van enkel het tegelpad te vinden.",
+          "// Print jouw resultaat naar het scherm in volgend formaat:",
+          "// De oppervlakte van het tegelpad is ... vierkante meter."
+        ].join('\n'),
+        evalOutput: "De oppervlakte van het tegelpad is 24 vierkante meter."
+      },
 
-      },
-      {
-        title: "4. Concateneren Met Strings",
-        starterCode: [
-          "// Gebruik vier variabelen en het datatype string.",
-          "// Gebruik de console.log-functie en concateneren om", 
-          "// volgende zin naar het scherm te printen:", 
-          "// Helmut Lotti, geboren in Gent, woont in de Dorpstraat 13, Sint-Amandsberg.", 
-          "// Let op voor het leesteken!",
-          "var voornaam = ...;",
-          "var familienaam = ...;",
-          "var geboorteplaats = ...;",
-          "var adres = ...;",
-          "console.log(...);",
-        ].join('\n'), 
-        evalOutput: "Helmut Lotti, geboren in Gent, woont in de Dorpstraat 13, Sint-Amandsberg."
-
-      },
-      {
-        title: "5. Goedemorgen, Robot!",
-        starterCode: [
-          "// Bedenk zelf leesbare variabelen om volgende zin",
-          "// op het scherm te laten verschijnen:", 
-          "// Goedemorgen mevr. Deleye, vandaag heeft u op de planning: vergadering met regionaal manager Sufyan Y.", 
-          "// var ...",
-          "// var ...",
-          "// ...",
-          "// console.log(...);",
-        ].join('\n'), 
-          evalOutput: "Goedemorgen mevr. Deleye, vandaag heeft u op de planning: vergadering met regionaal manager Sufyan Y."
-
-      },
-      {
-        title: "6. Sportresultaten",
-        starterCode: [
-          "// Het VRT Nieuws wil een databank aanmaken met alle sportmatchen die gespeeld zijn en hun scores.",
-          "// We gebruiken hierbij volgende informatie, opgeslagen in variabelen:",
-          "// thuisteam, uitteam, sport, datum, score",
-          "// Gebruik variabelen, console.log, strings en concatenatie om volgende zin op het scherm te zetten:", 
-          "// Op 23/01/2009 speelde KAA Gent een voetbal-match tegen Club Brugge die eindigde op 3-1.", 
-        ].join('\n'), 
-          evalOutput: "Op 23/01/2009 speelde KAA Gent een voetbal-match tegen Club Brugge die eindigde op 3-1."
-
-      },
-      {
-        title: "7. Naam Plotten",
-        starterCode: [
-          "// Naast de console kan je ook strings schrijven op het canvas.",
-          "// Hiervoor tekenen we eerst het assenstelsel op het scherm:",
-          " ",
-          "showGrid();", 
-          " ",
-          "// Met het commando writeText() kan je een string of variabele met datatype string schrijven.",
-          "// Opgave: schrijf jouw volledige naam in de console én op het canvas.",
-          "// Gebruik een gepaste variabele.", 
-          " ",
-          "writeText('Lees de opgave');", 
-        ].join('\n')
-      },
-      {
-        title: "8. Namen Plotten",
-        starterCode: [
-          "// Maak vier variabelen aan.",
-          "// Bewaar de namen van jezelf en drie vrienden in die variabelen.", 
-          "// Plot die vier namen in het canvas.", 
-          "// Zorg ervoor dat er slechts 1 naam per kwadrant genoteerd wordt.",
-          "// Je kan jouw coördinaten aanpassen met onderstaand commando:", 
-          "// goTo(X, Y);",
-          " ",
-          "showGrid();",
-          "penUp();",
-        ].join('\n')
-      },
-      {
-        title: "9. Scorebord",
-        starterCode: [
-          "// We ontwerpen een scorebord met daarop volgende informatie:", 
-          "// Vier uitslagen van recente sportwedstrijden.", 
-          "// Elke uitslag kent: datum, thuisploeg - uitploeg, eindscore.", 
-          "// Die informatie moet netjes onder elkaar geordend worden.",
-          "// Er mag slechts 1 uitslag per kwadrant weergegeven worden.",
-           " ",
-          "showGrid();",
-          "penUp();",
-          
-        ].join('\n')
-      },
-    ]
-  },
-  {
-    title: "Hoofdstuk 2: Datatypes en de Sequentie",
-    exercises: [
-      {
-        title: "1. Defect Geldautomaat",
-        starterCode: [
-          "// Fred heeft voor zijn rondreis wat geld opzij gezet op een zichtrekening. Daar staat momenteel 500 euro op.",
-          "// Omdat er deze reis nog enkele grote kosten zitten aan te komen, besluit Fred hier 275 euro bij te storten.",
-          "// Hij gaat naar een bank in de buurt van een camping waar hij verblijft. Eenmaal bij de bank stelt hij vast dat er iets fout loopt met de terminal.",
-          "// Er werd gemorreld met de code van de automaat!", 
-          "// Bekijk de code hieronder en pas de fout aan.", 
-          " ", 
-          "var rekening = '500';", 
-          "var storting = '275';", 
-          "var rekening = rekening + storting",
-          "console.log('Uw nieuw saldo bedraagt ' + rekening + ' euro.');", 
-        ].join('\n'), 
-        evalOutput: "Uw nieuw saldo bedraagt 775 euro."
-      },
-      {
-        title: "2. Statiegeld",
-        starterCode: [
-          "// Het kassasysteem aan een tankstation lijkt een eigenaardige berekening te maken.",
-          "// Fred koopt er vier flesjes cola aan 3.50 euro per stuk.",
-          "// Daarboven hoort Fred ook 10% taks te betalen in de vorm van statiegeld.",
-          "// De kassa levert volgend resultaat:",
-          "// 1 x Cola 0.5l = 3.5",
-          "// 10% van 3.5 = 0.35",
-          "// 4 x 3.5 ",
-          "// + 0.35",
-          "// = 14.35 euro totaal",
-          
-          "// Corrigeer bovenstaand algoritme.", 
-          "// Hanteer leesbare variabelen in jouw algoritme.",
-        ].join('\n'), 
-        evalOutput: "Fred moet 15.4 euro betalen."
-      },
-         {
-        title: "3. Operatoren in JavaScript",
-        starterCode: [
-          "// JavaScript kan overweg met verschillende operatoren.",
-          "// Voer onderstaande code uit.",
-          "// Noteer vervolgens naast de commenttekens hoe die bewerking heet.",
-          "// Volg het voorbeeld!",
-          " ", 
-          "var x = 10;",
-          "var y = 5;",
-          "var z = 4;",
-          "console.log(x + y); // som maken",
-          "console.log(x - z); // verschil maken",
-          "console.log(x * y); // ... ",
-          "console.log(x / z); // ... ",
-          "console.log(x ** y); // ... ",
-          "console.log(x % z); // ... ",
-        ].join('\n'), 
-          evalOutput: "15\n6\n50\n2.5\n100000\n2"
-      },
-      {
-        title: "4. Voetbalveld",
-        starterCode: [
-          "// Fred wil berekenen hoeveel vierkante meter grasmatten men heeft moeten bestellen voor die heraanleg.",
-          "// Hij weet, uit zijn ervaring als amateurvoetballer, dat een standaard voetbalveld 105 meter bij 68 meter meet.",
-          "// Hij wil dus de oppervlakte van het veld berekenen.",
-          "// Maak dit algoritme. Maak gebruik van leesbare variabelen.",
-          "// Print het antwoord in een volzin naar het scherm. De volzin bevat een onderwerp, werkwoordsvorm en eenheid (=vierkante meter).",
-        ].join('\n'), 
-        evalOutput: "De oppervlakte van het voetbalveld is 7140 vierkante meter."
-      },
-      {
-        title: "5. Zwembad",
-        starterCode: [
-          "// Op de camping waar Fred verblijft is er ook een zwembad.",
-          "// Fred vraagt zich af of hij zijn code ook kan gebruiken om het volume van het zwembad te berekenen.",
-          "// Het zwembad bestaat uit twee delen die aan elkaar grenzen.",
-          "// 1 - een rechthoekig gedeelte met 1.5 meter diepte, 11 meter breedte en 20 meter lengte (=balkvorm);",
-          "// 2 - een cirkelvorming gedeelte voor kinderen van 0.60 meter diep en 10 meter diameter (=cilindervorm).",
-          " ",
-          "// Bereken het volume van het volledige zwembad met leesbare variabelen.",
-          "// Print het antwoord in een volzin naar het scherm.",
-          "// De volzin bevat een onderwerp, werkwoordsvorm en eenheid (=kubieke meter);",
-        ].join('\n'), 
-        evalOutput: "Het totale volume van het zwembad is 377.1 kubieke meter."
-      },
-      {
-        title: "6.  Omtrek en oppervlakte rechthoek",
-        starterCode: [
-          "// Een rechthoek is een figuur met twee paar evenwijdige en even lange zijden.",
-          "// Wij willen hiervan de oppervlakte en de omtrek berekenen en tonen op het scherm.",
-          "// Maak een variabele genaamd zijde_1 en voer daar in: 9.75.",
-          "// Maak een variabele genaamd zijde_2 en voer daar in: 8.60.",
-          "// Bereken oppervlakte en omtrek.",
-          "// Print jouw resultaat naar het scherm in volgend formaat:",
-          "// De omtrek van de rechthoek is 36.7 cm en de oppervlakte is 83.85 cm².",
-        ].join('\n'), 
-        evalOutput: "De omtrek van de rechthoek is 36.7 cm en de oppervlakte is 83.85 cm²."
-      },
-      {
-        title: "7. Omtrek en oppervlakte vierkant",
-        starterCode: [
-          "// Maak een variabele genaamd zijde en voer daar de data in.",
-          "// Bereken daarna de omtrek van het vierkant.",
-          "// Bereken vervolgens de oppervlakte van het vierkant.",
-          "// Print jouw resultaat naar het scherm in volgend formaat:",
-          "// De omtrek van het vierkant is 66.0 cm en de oppervlakte is 272.25 cm².",
-        ].join('\n'), 
-        evalOutput: "De omtrek van het vierkant is 66.0 cm en de oppervlakte is 272.25 cm²."
-      },
-      {
-        title: "8. Stappenteller",
-        starterCode: [
-          "// Het Vlaams Instituut Gezond Leven lanceerde in 2022 de campagne “10 000 stappen: elke stap telt!”",
-          "// Schrijf een algoritme waarin je opgeeft hoeveel stappen je vandaag reeds gezet hebt.",
-          "// Bereken vervolgens hoeveel stappen je nog moet zetten.",
-          "// Maak een variabele genaamd aantal_stappen en voer daar in: 5342.",
-          "// Bereken daarna de rest_stappen.",
-          "// Print jouw resultaat naar het scherm in volgend formaat:",
-          "// Je dient nog ... stappen te zetten.",
-        ].join('\n'), 
-        evalOutput: "Je dient nog 4658 stappen te zetten."
-      },
-      {
-        title: "9. Korting In De Supermarkt",
-        starterCode: [
-          "// In de supermarkt nabij de camping houden ze momenteel stapelkorting.",
-          "// 10% korting op aangekochte frisdranken.",
-          "// 20% korting op broodartikelen.",
-          "// 33% korting op groenten en fruit.",
-          " ", 
-          "// Fred koopt volgende items aan in de winkel: ",
-          "// 6 blikjes frisdrank aan 0.89 euro per stuk.", 
-          "// 10 croissants aan 0.35 euro per stuk.",
-          "// 0.7kg bananen aan 2.99 euro per kilo.", 
-          " ",
-          "// Print jouw resultaat naar het scherm in volgend formaat:",
-          "// Fred moet in totaal ... euro betalen aan de kassa.",
-        ].join('\n'), 
-        evalOutput: "Fred moet in totaal 9.01 euro betalen aan de kassa."
-      },
-      {
-        title: "10. Huurwaarborg",
-        starterCode: [
-          "// Fred verhuist naar een huisje aan de Vrijdagsmarkt in Gent.",
-          "// Hij moet een huurwaarborg betalen van drie maal de maandhuur.",
-          "// De maandhuur bedraagt 799 euro.",
-          "// Maar na vijf jaar belooft de bank Fred wel een mooie interest van 19.87% op de waarborg.",
-          " ", 
-          "// Bereken het totaalbedrag dat Fred zal krijgen, na 5 jaar, wanneer hij het geld van de waarborgrekening terug krijgt. ",
-          "// Print jouw resultaat naar het scherm in volgend formaat:",
-          "// Na vijf jaar krijgt Fred ... euro terug van zijn waarborg.",
-        ].join('\n'), 
-        evalOutput: "Na vijf jaar krijgt Fred 2873.28 euro terug van zijn waarborg."
-      },
-      {
-        title: "11. Energiefactuur",
-        starterCode: [
-          "// Naast een maandelijkse huur, moet Fred natuurlijk ook de energiefactuur in het oog houden. ",
-          "// Zo betaalde Fred vorig jaar nog 44.54 euro per maand aan elektriciteit.",
-          "// Tegenwoordig is dat bedrag gestegen naar 68.9 euro per maand.",
-          " ", 
-          "// Bereken volgende gegevens:",
-          "// Het totaalbedrag dat Fred dit jaar (=12 maanden) zal moeten betalen.",
-          "// Hoeveel hij meer moet betalen dan het jaar ervoor, uitgedrukt in euro.",
-          "// Hoeveel hij meer moet betalen dan het jaar ervoor, uitgedrukt in procent.",
-          "// Print het antwoord naar het scherm in een volzin met volgend formaat:",
-          "// Fred moet dit jaar ... euro betalen voor de elektriciteit.", 
-          "// Dit is ... euro meer dan vorig jaar.",
-          "// In procenten uitgedrukt, is dit een stijging van ... % ten opzichte van vorig jaar.", 
-        ].join('\n'), 
-        evalOutput: 
-    "Fred moet dit jaar 826.8 euro betalen voor de elektriciteit.\n" +
-    "Dit is 292.32 euro meer dan vorig jaar.\n" +
-    "In procenten uitgedrukt, is dit een stijging van 54.69 % ten opzichte van vorig jaar."
-      },
-      {
-        title: "12. Raakt Fred Op De Bestemming?",
-        starterCode: [
-          "// Fred maakt een reis met de e-car in Frankrijk.",
-          "// Zijn auto heeft een autonomie van 350 mijl.",
-          "// Fred weet: 1 mijl = 1.6 kilometer.",
-          "// Fred besluit komende dagen vier etappes te rijden van elk 112.34km. ",
-          "// Hoeveel blijft er nadien nog over in de batterij van zijn wagen?", 
-          "// Gebruik volgend formaat om jouw antwoord op het scherm te zetten: ", 
-          "// Na de vier etappes van elk ... km, blijft er nog ... kilometer over in de batterij van Freds wagen.",
-          "// Dit komt overeen met ...% van de totale batterijcapaciteit.",
-        ].join('\n'), 
-        evalOutput: 
-    "Na de vier etappes van elk 112.34 km, blijft er nog 110.64 kilometer over in de batterij van Freds wagen.\n" +
-    "Dit komt overeen met 19.76% van de totale batterijcapaciteit."
-      },
-      {
-        title: "13. Sandbox",
-        starterCode: [
-          "// Hier kan je jouw eigen algoritmes testen en debuggen.",
-          "// Daag jezelf uit door zelf een vraagstuk te ontwerpen!",
-].join('\n')
-      },
     ]
   },
   
