@@ -50,8 +50,7 @@ body {
 #export-pdf,
 #toggle-theme,
 .exercise-btn.current,
-.exercise-btn.completed
-{
+.exercise-btn.completed {
   transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
 }
 
@@ -341,6 +340,7 @@ body.dark .label {
 body.dark .swatch {
   border: 1.2px solid #444;
 }
+
 .main-layout {
   background: #f3f5f8;
 }
@@ -348,7 +348,7 @@ body.dark .swatch {
 body.dark .main-layout {
   background: #23272e;
 }
-    
+
 body.dark #console-output {
   background: #fff !important;
   color: #23272e !important; 
@@ -787,6 +787,7 @@ body.dark .splitter.dragging {
     width: 99vw;
   }
 }
+
 @media (max-width: 640px) {
   .topbar, .toolbar {
     flex-direction: column;
@@ -799,6 +800,7 @@ body.dark .splitter.dragging {
     height: 60vw;
   }
 }
+
 .exercise-progress {
   display: flex;
   align-items: center;
@@ -807,6 +809,7 @@ body.dark .splitter.dragging {
   margin: 1.2em 0 1.8em 0;
   padding-left: 4px;
 }
+
 #modal-actions {
   margin-top: 1.5em;
   text-align: right;
@@ -814,6 +817,7 @@ body.dark .splitter.dragging {
   justify-content: center;
   gap: 1rem;              
 }
+
 @media (min-width: 1500px) {
   .main-layout {
     max-width: 1800px;
@@ -831,6 +835,7 @@ body.dark .splitter.dragging {
     max-width: 1300px;
   }
 }
+
 .zoom-controls {
   display: flex;
   justify-content: center;
@@ -900,6 +905,7 @@ body.dark .splitter.dragging {
 .modal[style*="flex"], #ask-modal[style*="flex"], #confirm-modal[style*="flex"], #pdf-modal[style*="flex"] {
   display: flex !important;
 }
+
 /* === Modalvenster-stijlen === */
 .modal-box, #ask-modal > div, #confirm-modal > div, #pdf-modal > .modal-content {
   background: var(--brand-white);
@@ -918,18 +924,17 @@ body.dark .splitter.dragging {
 /* === Modale knoppen centreren === */
 .modal-actions {
   display: flex;
-  justify-content: center; /* Centreert de knoppen horizontaal */
-  gap: 1rem;               /* Ruimte tussen knoppen */
+  justify-content: center;
+  gap: 1rem;
   margin-top: 2em;
 }
 
 /* === Modale knop-stijlen (licht thema) === */
-/* Deze stijl geldt voor alle modale knoppen in licht thema */
 .modal-btn, .modal-box button,
 #ask-modal button, #confirm-modal button, #pdf-modal button,
 #modal-ok, #confirm-modal-ok, #confirm-modal-cancel, #ask-modal-ok {
-  background: var(--brand-purple);    /* Paarse achtergrond */
-  color: var(--brand-white);          /* Witte tekst */
+  background: var(--brand-purple);
+  color: var(--brand-white);
   border: none;
   border-radius: 8px;
   padding: 0.7em 1.5em;
@@ -940,7 +945,6 @@ body.dark .splitter.dragging {
 }
 
 /* === Hover-effect (licht thema) === */
-/* Kleur verandert naar aqua bij hover, tekst wordt donker */
 .modal-btn:hover,
 .modal-box button:hover,
 #ask-modal button:hover, #confirm-modal button:hover, #pdf-modal button:hover,
@@ -969,9 +973,9 @@ body.dark #modal-ok,
 body.dark #confirm-modal-ok,
 body.dark #confirm-modal-cancel,
 body.dark #ask-modal-ok {
-  background: var(--brand-white);        /* Witte achtergrond */
-  color: var(--brand-purple);            /* Paarse tekst */
-  border: 1.5px solid var(--brand-purple); /* Paarse rand */
+  background: var(--brand-white);
+  color: var(--brand-purple);
+  border: 1.5px solid var(--brand-purple);
 }
 
 /* === Hover-effect voor knoppen in donker thema === */
@@ -984,13 +988,14 @@ body.dark #modal-ok:hover,
 body.dark #confirm-modal-ok:hover,
 body.dark #confirm-modal-cancel:hover,
 body.dark #ask-modal-ok:hover {
-  background: var(--brand-aqua);         /* Aqua achtergrond */
-  color: #23272e;                        /* Donkere tekst */
-  border: 1.5px solid var(--brand-aqua); /* Aqua rand */
+  background: var(--brand-aqua);
+  color: #23272e;
+  border: 1.5px solid var(--brand-aqua);
 }
+
 .brand-btn {
-  background: var(--brand-purple);    /* Paarse achtergrond */
-  color: var(--brand-white);          /* Witte tekst */
+  background: var(--brand-purple);
+  color: var(--brand-white);
   border: none;
   border-radius: 8px;
   padding: 0.7em 1.5em;
@@ -1001,7 +1006,7 @@ body.dark #ask-modal-ok:hover {
   box-shadow: 0 2px 8px rgba(82,0,255,0.10);
 }
 
-/* Hover-effect in licht thema: aqua knop, donkere tekst */
+/* Hover-effect in licht thema */
 .brand-btn:hover, .brand-btn:focus {
   background: var(--brand-aqua);
   color: #23272e;
@@ -1015,7 +1020,7 @@ body.dark .brand-btn {
   border: 1.5px solid var(--brand-purple);
 }
 
-/* Donker thema hover: aqua knop, donkere tekst, aqua rand */
+/* Donker thema hover */
 body.dark .brand-btn:hover, 
 body.dark .brand-btn:focus {
   background: var(--brand-aqua);
@@ -1041,21 +1046,18 @@ body.dark .toolbar .brand-btn:focus {
   color: var(--brand-purple);
   border: 1.5px solid var(--brand-purple);
 }
+
 /* ======================= */
 /* Variabelen voor kleuren */
 /* ======================= */
 :root {
-  --brand-purple:      #5200FF;  /* Merkpaars */
-  --brand-purple-dark: #3700B3;  /* Donker paars voor hover in light mode */
-  --brand-white:       #FFFFFF;  /* Wit */
-  --brand-aqua:        #3dffd0;  /* Accentkleur (aqua) */
+  --brand-purple:      #5200FF;
+  --brand-purple-dark: #3700B3;
+  --brand-white:       #FFFFFF;
+  --brand-aqua:        #3dffd0;
 }
 
-/* ======================================================= */
-/* BASISSTIJL VOOR ALLE BRAND-KNOPPEN (lichte modus)       */
-/* ======================================================= */
-/* Hier vallen: “Uitvoeren”, “Exporteren naar PDF”,       */
-/* “Vooruitgang Wissen” en de thema-toggle (#toggle-theme) */
+/* BASISSTIJL VOOR ALLE BRAND-KNOPPEN (lichte modus) */
 .toolbar .brand-btn,
 .run-btn {
   background: var(--brand-purple);
@@ -1064,9 +1066,7 @@ body.dark .toolbar .brand-btn:focus {
   transition: background 0.25s, color 0.25s;
 }
 
-/* ================================= */
-/* HOVER + FOCUS (lichte modus)      */
-/* ================================= */
+/* HOVER + FOCUS (lichte modus) */
 .toolbar .brand-btn:hover,
 .run-btn:hover,
 .toolbar .brand-btn:focus,
@@ -1075,10 +1075,7 @@ body.dark .toolbar .brand-btn:focus {
   color:      var(--brand-white);
 }
 
-/* ======================================================= */
-/* DONKER THEMA – BASISSTIJL VOOR BRAND-KNOPPEN            */
-/* ======================================================= */
-/* In dark mode: witte knop met paarse tekst/rand */
+/* DONKER THEMA – BASISSTIJL VOOR BRAND-KNOPPEN */
 body.dark .toolbar .brand-btn,
 body.dark .run-btn {
   background: var(--brand-white);
@@ -1086,10 +1083,7 @@ body.dark .run-btn {
   border:     1.5px solid var(--brand-purple);
 }
 
-/* ========================================= */
-/* HOVER + FOCUS (donker thema)              */
-/* ========================================= */
-/* Paarse achtergrond, witte tekst           */
+/* HOVER + FOCUS (donker thema) */
 body.dark .toolbar .brand-btn:hover,
 body.dark .run-btn:hover,
 body.dark .toolbar .brand-btn:focus,
@@ -1098,38 +1092,31 @@ body.dark .run-btn:focus {
   color:      var(--brand-white);
   border:     none;
 }
+
 body.dark .toolbar .brand-btn:hover,
 body.dark .run-btn:hover {
-  /* Accent-kleur voor hover */
   background: var(--brand-aqua) !important;
-  /* Paarse tekst op licht accent */
   color: var(--brand-purple) !important;
-  /* En een bijpassende rand (waar nodig) */
   border-color: var(--brand-aqua) !important;
 }
-/* ================================================= */
-/* Basis- en hover-stijlen voor menu, help & zoom knoppen */
-/* ================================================= */
 
-/* 1) Basisstijl (light mode): paarse achtergrond, witte tekst, transparante rand */
+/* Basis- en hover-stijlen voor menu, help & zoom knoppen */
 .menu-tab,
 .help-btn,
 .zoom-btn {
   background: var(--brand-purple);
   color: var(--brand-white);
-  border: 1.5px solid transparent;  /* nodig voor hover-border */
+  border: 1.5px solid transparent;
 }
 
-/* 2) Hover (light mode): aqua achtergrond, paarse tekst, aqua rand */
 .menu-tab:hover,
 .help-btn:hover,
 .zoom-btn:hover {
   background: var(--brand-aqua);
-  color: var(--brand-purple);           /* paars in plaats van #23272e */
+  color: var(--brand-purple);
   border: 1.5px solid var(--brand-aqua);
 }
 
-/* 3) Dark mode basis: witte achtergrond, paarse tekst, paarse rand */
 body.dark .menu-tab,
 body.dark .help-btn,
 body.dark .zoom-btn {
@@ -1138,19 +1125,15 @@ body.dark .zoom-btn {
   border: 1.5px solid var(--brand-purple);
 }
 
-/* 4) Hover (dark mode): aqua achtergrond, paarse tekst, aqua rand */
 body.dark .menu-tab:hover,
 body.dark .help-btn:hover,
 body.dark .zoom-btn:hover {
   background: var(--brand-aqua);
-  color: var(--brand-purple);           /* paars blijft hier ook */
+  color: var(--brand-purple);
   border: 1.5px solid var(--brand-aqua);
 }
-    
-/* ============================================================================
-   Help-modal: koppen “Formularium” en “Kleuren” altijd wit, ongeacht thema
-   ============================================================================ */
 
+/* Help-modal: koppen “Formularium” en “Kleuren” altijd wit, ongeacht thema */
 body.dark .help-content {
   color: var(--brand-white) !important;
 }
@@ -1161,16 +1144,26 @@ body.dark .help-content {
 body.dark .help-content h2 {
   color: var(--brand-white) !important;
 }
-    
+
+/* VERBERG MENU IN EXAM-MODE */
 #course-menu,
 #menu-tab {
   display: none !important;
 }
-
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const CANVAS_SIZE = 500;
+    let panX = 0;
+    let panY = 0;
+    let zoom = 1.0;
+    function zoomOut() {
+      zoom -= 0.1;
+      if (typeof draw === "function") draw();
+    }
+  </script>
 </head>
 <body>
   <!-- Topbar: opdracht, dark/light toggle en PDF export -->
@@ -1201,7 +1194,7 @@ body.dark .help-content h2 {
     </nav>
   </div>
 
-  <!-- Tab to open menu (verborgen in exam mode via CSS) -->
+  <!-- Tab to open menu -->
   <button id="menu-tab" class="menu-tab" title="Toon menu">Menu</button>
 
   <main class="main-layout" id="main-layout">
@@ -1209,13 +1202,11 @@ body.dark .help-content h2 {
     <section class="editor-pane" id="editor-pane">
       <div class="editor-label">Code-editor</div>
       <div id="code-editor"></div>
-      </br>
-      </br>
+      <br /><br />
       <button id="run-code" class="brand-btn run-btn">▶️ Uitvoeren</button>
-      </br>
-      </br>
+      <br /><br />
       <div class="console-label">Console-uitvoer</div>
-      </br>
+      <br />
       <div id="console-output" class="console-output"></div>
     </section>
 
@@ -1231,7 +1222,7 @@ body.dark .help-content h2 {
       <canvas id="turtlecanvas" width="500" height="500"></canvas>
       <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
       <div class="zoom-controls">
-        <button class="zoom-btn" onclick="zoomIn()" aria-label="Zoom In">+</button>
+        <button class="zoom-btn" onclick="if (typeof zoomIn==='function') zoomIn();" aria-label="Zoom In">+</button>
         <button class="zoom-btn" onclick="zoomOut()" aria-label="Zoom Out">–</button>
       </div>
     </section>
@@ -1330,10 +1321,13 @@ body.dark .help-content h2 {
   <script>
   let dragging = false;
   let capturedOutput = "";
+
   document.addEventListener("DOMContentLoaded", function () {
     const menu = document.getElementById('course-menu');
     const tab = document.getElementById('menu-tab');
     const close = document.getElementById('close-menu');
+    if (!menu || !tab || !close) return;
+
     // Open menu
     tab.addEventListener('click', () => {
       menu.classList.add('open');
@@ -1342,7 +1336,7 @@ body.dark .help-content h2 {
     close.addEventListener('click', () => {
       menu.classList.remove('open');
     });
-    // Optionally: close if clicking outside
+    // Close if clicking outside
     document.addEventListener('click', (e) => {
       if (!menu.contains(e.target) && !tab.contains(e.target)) {
         menu.classList.remove('open');
@@ -1358,8 +1352,8 @@ body.dark .help-content h2 {
     const mainLayout = document.getElementById('main-layout');
     let dragging = false;
 
-    splitter.addEventListener('mousedown', function (e) {
-      if (window.innerWidth < 980) return; // Geen drag op smalle schermen
+    splitter.addEventListener('mousedown', function () {
+      if (window.innerWidth < 980) return;
       dragging = true;
       splitter.classList.add('dragging');
       document.body.style.userSelect = 'none';
@@ -1375,7 +1369,6 @@ body.dark .help-content h2 {
       let newEditorWidth = e.clientX - rect.left;
       const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
       newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
-      // Set both flex and width for maximum browser compatibility
       editorPane.style.flex = `0 0 ${newEditorWidth}px`;
       editorPane.style.width = `${newEditorWidth}px`;
       canvasPane.style.flex = '1 1 0';
@@ -1390,7 +1383,6 @@ body.dark .help-content h2 {
       }
     });
 
-    // Reset widths on window resize if below 980px
     window.addEventListener('resize', function () {
       if (window.innerWidth < 980) {
         editorPane.style.flex = '';
@@ -1481,6 +1473,7 @@ body.dark .help-content h2 {
     }
   ];
   // --------- EINDE DATA VOOR OEFENINGEN -------------------------------
+
   </script>
 
   <script>
@@ -1490,26 +1483,22 @@ body.dark .help-content h2 {
 
   if (EXAM_MODE) {
     const keep = chapters[EXAM_KEEP_CHAPTER_IDX] || chapters[0];
-    chapters.splice(0, chapters.length, keep); // mutate in place so the rest of the code stays intact
+    chapters.splice(0, chapters.length, keep);
   }
   </script>
 
   <script>
   // === STATE ===
-  let currentChapterIdx = 0;   // Welk hoofdstuk is actief?
-  let currentExerciseIdx = 0;  // Welke oefening binnen dat hoofdstuk is actief? 
+  let currentChapterIdx = 0;
+  let currentExerciseIdx = 0;
 
-  // === METRICS: Pogingen + Tijd aan de Oefening ===============================
-  // Alles per oefening bewaren in localStorage, net zoals de code/voortgang.
+  // === METRICS: Pogingen + Tijd aan de Oefening ===
+  let _workTimer = { running:false, lastStart:0, intervalId:null };
 
-  let _workTimer = { running:false, lastStart:0, intervalId:null }; // interne timerstatus
-
-  // Hulpfunctie om consistente keys te maken per oefening:
   function exKey(suffix){ 
     return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
   }
 
-  // -- Pogingen tellen --
   function getPogingen(){ 
     return parseInt(localStorage.getItem(exKey('pogingen')) || '0', 10); 
   }
@@ -1519,7 +1508,6 @@ body.dark .help-content h2 {
     return n;
   }
 
-  // -- Werktijd (in milliseconden) --
   function getWerkTijdMs(){ 
     return parseInt(localStorage.getItem(exKey('werkTijdMs')) || '0', 10); 
   }
@@ -1530,35 +1518,31 @@ body.dark .help-content h2 {
     setWerkTijdMs(getWerkTijdMs() + ms); 
   }
 
-  // Timer besturen: start/stop en UI updaten
   function startWerkTimer(){
-    // Start zodra de leerling effectief iets wijzigt (zie editor.on('change') hook)
     if (_workTimer.running) return;
     _workTimer.running = true;
     _workTimer.lastStart = Date.now();
-    _workTimer.intervalId = setInterval(updateMetricsUI, 1000); // UI elke seconde bijwerken
+    _workTimer.intervalId = setInterval(updateMetricsUI, 1000);
   }
 
   function stopWerkTimer(){
     if(!_workTimer.running) return;
     const nu = Date.now();
-    addWerkTijd(nu - _workTimer.lastStart); // cumuleren in localStorage
+    addWerkTijd(nu - _workTimer.lastStart);
     _workTimer.running = false;
     _workTimer.lastStart = 0;
     clearInterval(_workTimer.intervalId);
     _workTimer.intervalId = null;
-    updateMetricsUI(); // eindstand tonen
+    updateMetricsUI();
   }
 
   function resetWerkTimerState(){
-    // Oproepen bij oefening wisselen; laat de opgeslagen tijd gewoon staan
     _workTimer.running = false;
     _workTimer.lastStart = 0;
     if (_workTimer.intervalId) clearInterval(_workTimer.intervalId);
     _workTimer.intervalId = null;
   }
 
-  // Formatter voor het scherm/PDF
   function formatDuur(ms){
     const s = Math.max(0, Math.floor(ms / 1000));
     const m = Math.floor(s / 60);
@@ -1566,7 +1550,6 @@ body.dark .help-content h2 {
     return (m > 0 ? `${m}m ` : '') + `${r}s`;
   }
 
-  // Klein UI-label rechts van "Canvas" toevoegen/actualiseren
   let metricsEl = null;
   function ensureMetricsEl(){
     if (metricsEl) return metricsEl;
@@ -1586,20 +1569,16 @@ body.dark .help-content h2 {
     el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
   }
 
-  // Pauzeer bij focusverlies/tabwissel (geen spooktijd optellen)
   window.addEventListener('blur', stopWerkTimer);
   window.addEventListener('beforeunload', stopWerkTimer);
-  // Pauzeer ook bij tab-verbergen (sommige browsers sturen geen 'blur')
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stopWerkTimer();
   });
 
-  // === ELEMENTS ===
   const opdrachtTekst = document.getElementById('opdracht-tekst');
   const progressBar = document.getElementById('exercise-progress');
-  const chapterMenuList = document.getElementById('menu-chapters'); // UL in sidebar
+  const chapterMenuList = document.getElementById('menu-chapters');
 
-  // === RENDER CHAPTER MENU ===
   function renderChapterMenu() {
     if (!chapterMenuList) return;
     chapterMenuList.innerHTML = '';
@@ -1607,7 +1586,7 @@ body.dark .help-content h2 {
       const li = document.createElement('li');
       li.className = 'menu-chapter-item' + (idx === currentChapterIdx ? ' active' : '');
       li.textContent = chapter.title;
-      li.tabIndex = 0; // accessibility: tab focusable
+      li.tabIndex = 0;
       li.setAttribute('role', 'button');
       li.onclick = () => switchChapter(idx);
       li.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') switchChapter(idx); };
@@ -1615,17 +1594,14 @@ body.dark .help-content h2 {
     });
   }
 
-  // opslaan van de code van de gebruiker
   function saveUserCode() {
     const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
     const value = editor.getValue();
     try {
       localStorage.setItem(key, value);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
-  // Progress bar / vooruitgang
   function renderExerciseProgress() {
     progressBar.innerHTML = '';
     const exercises = chapters[currentChapterIdx].exercises;
@@ -1633,14 +1609,13 @@ body.dark .help-content h2 {
       const btn = document.createElement('button');
       btn.className = 'exercise-btn' + (idx === currentExerciseIdx ? ' current' : '');
 
-      // NEW: Check for evaluation
       const evalKey = `jsprog-eval-${currentChapterIdx}-${idx}`;
       const evalStatus = localStorage.getItem(evalKey);
       if (evalStatus === "success") {
-        btn.style.background = '#3dffd0'; // green
+        btn.style.background = '#3dffd0';
         btn.style.color = '#23272e';
       } else if (evalStatus === "fail") {
-        btn.style.background = '#ff1744'; // red
+        btn.style.background = '#ff1744';
         btn.style.color = '#fff';
       } else {
         btn.style.background = '';
@@ -1655,7 +1630,6 @@ body.dark .help-content h2 {
     });
   }
 
-  // Inladen van een oefening
   let isDirty = false;
   function loadExercise() {
     const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
@@ -1680,7 +1654,6 @@ body.dark .help-content h2 {
   }
 
   function showSavedToast() {
-    // Geen meerdere pop-ups!
     if (document.getElementById('saved-toast')) return;
     const toast = document.createElement('div');
     toast.id = 'saved-toast';
@@ -1698,16 +1671,13 @@ body.dark .help-content h2 {
     toast.style.opacity = "0";
     toast.style.transition = "opacity 0.25s";
     document.body.appendChild(toast);
-    // Fade in
     setTimeout(() => { toast.style.opacity = "1"; }, 20);
-    // Fade out and remove
     setTimeout(() => {
       toast.style.opacity = "0";
       setTimeout(() => { toast.remove(); }, 300);
     }, 900);
   }
 
-  // SWITCH CHAPTER
   function switchChapter(chapterIdx, exerciseIdx = 0) {
     confirmSwitch(() => {
       currentChapterIdx = chapterIdx;
@@ -1715,21 +1685,19 @@ body.dark .help-content h2 {
       renderChapterMenu();
       renderExerciseProgress();
       loadExercise();
-      isDirty = false; // Reset flag after switch
+      isDirty = false;
     });
   }
 
-  // Wisselen van opdracht
   function switchExercise(exIdx) {
     confirmSwitch(() => {
       currentExerciseIdx = exIdx;
       renderExerciseProgress();
       loadExercise();
-      isDirty = false; // Reset flag after switch
+      isDirty = false;
     });
   }
 
-  // --- BEGIN: Confirm Modal Promise-based Functie ---
   window.confirmModal = function(message) {
     return new Promise((resolve) => {
       const modal = document.getElementById('confirm-modal');
@@ -1737,41 +1705,35 @@ body.dark .help-content h2 {
       const okBtn = document.getElementById('confirm-modal-ok');
       const cancelBtn = document.getElementById('confirm-modal-cancel');
 
-      // Toon de modal en stel het bericht in
       msgDiv.textContent = message;
       modal.style.display = "flex";
 
-      // Opruim-functie voor na klikken of sluiten
       function cleanup(result) {
         modal.style.display = "none";
         okBtn.removeEventListener('click', onOk);
         cancelBtn.removeEventListener('click', onCancel);
         document.removeEventListener('keydown', onKeyDown);
+        modal.onclick = null;
         resolve(result);
       }
 
-      // Handler voor OK-knop
       function onOk() { cleanup(true); }
-      // Handler voor Annuleren-knop
       function onCancel() { cleanup(false); }
 
       okBtn.addEventListener('click', onOk);
       cancelBtn.addEventListener('click', onCancel);
 
-      // Ondersteuning voor ESC- of Enter-toets
       function onKeyDown(e) {
         if (e.key === "Escape") cleanup(false);
         if (e.key === "Enter") cleanup(true);
       }
       document.addEventListener('keydown', onKeyDown);
 
-      // Sluiten bij klikken buiten het modal-venster
       modal.onclick = function(e) {
         if (e.target === modal) cleanup(false);
       };
     });
   };
-  // --- EINDE: Confirm Modal ---
 
   function confirmSwitch(callback) {
     if (!isDirty) {
@@ -1782,18 +1744,15 @@ body.dark .help-content h2 {
       "Je hebt jouw code nog niet uitgevoerd of opgeslagen. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
     ).then((proceed) => {
       if (proceed) callback();
-      // else: doe niets
     });
   }
 
-  // --- INIT ---
   document.addEventListener("DOMContentLoaded", function() {
     renderChapterMenu();
     renderExerciseProgress();
     loadExercise();
   });
 
-  // CodeMirror setup
   let editor = CodeMirror(document.getElementById('code-editor'), {
     value: chapters[0].exercises[0].starterCode,
     mode: "javascript",
@@ -1802,32 +1761,29 @@ body.dark .help-content h2 {
     tabSize: 2,
     autofocus: true,
   });
+
   editor.on('change', function() {
     isDirty = true;
     const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
     localStorage.setItem(key, editor.getValue());
-    startWerkTimer();          // start de werktijd-timer bij eerste wijziging
-    updateMetricsUI();         // toon actuele pogingen+tijd
+    startWerkTimer();
+    updateMetricsUI();
   });
 
-  // Console output logic
   const consoleDiv = document.getElementById('console-output');
   function clearConsole() { consoleDiv.textContent = ''; }
   function appendToConsole(msg) { consoleDiv.textContent += msg + "\n"; }
+
   (function(){
     const oldLog = console.log;
     console.log = function(...args) {
       oldLog.apply(console, args);
-
-      // ---- Vang uitvoer op voor evaluatie ----
       let str = args.map(String).join(" ");
-      capturedOutput += str + "\n";      // <-- extra lijn
-
+      capturedOutput += str + "\n";
       appendToConsole(str);
     };
   })();
 
-  // Help modal tonen/verbergen
   const helpModal = document.getElementById('help-modal');
   document.getElementById('help-btn').onclick = function() {
     helpModal.style.display = "flex";
@@ -1839,7 +1795,6 @@ body.dark .help-content h2 {
     if (e.target === helpModal) helpModal.style.display = "none";
   };
 
-  // Dynamisch kleuren tonen in overlay uit rgbcolor.js
   function renderSwatches() {
     let simple_colors = null;
     if (typeof RGBColor === "function") {
@@ -1879,16 +1834,20 @@ body.dark .help-content h2 {
     document.body.classList.toggle('dark');
   };
 
-  // Export naar PDF (open modal)
-  document.getElementById('export-pdf').onclick = function() {
-    document.getElementById('pdf-modal').style.display = 'flex';
+  // PDF-modal helper + handlers
+  function openPdfModal() {
+    const modal = document.getElementById('pdf-modal');
+    modal.style.display = 'flex';
+
     document.getElementById('modal-naam').value = '';
     document.getElementById('modal-klas').value = '';
     document.getElementById('modal-oefening').value = '';
-    document.getElementById('modal-naam').focus();
-  };
 
-  // Close modal logic (X button or click outside)
+    document.getElementById('modal-naam').focus();
+  }
+
+  document.getElementById('export-pdf').onclick = openPdfModal;
+
   document.getElementById('close-pdf-modal').onclick = function() {
     document.getElementById('pdf-modal').style.display = 'none';
   };
@@ -1901,7 +1860,6 @@ body.dark .help-content h2 {
   const COLOR_GREEN = [61, 255, 208];   // #3DFFD0
   const COLOR_WHITE = [255, 255, 255];  // #FFFFFF
   
-  // Maak een PDF nadat de gebruiker op OK drukt in de modal:
   document.getElementById('modal-ok').onclick = async function() {
     const naam = document.getElementById('modal-naam').value.trim();
     const klas = document.getElementById('modal-klas').value.trim();
@@ -1915,27 +1873,23 @@ body.dark .help-content h2 {
     }
     document.getElementById('pdf-modal').style.display = 'none';
 
-    // Data for evaluation/status
     const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
     const evalStatus = localStorage.getItem(evalKey);
     const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
     const expectedOutput = exercise.evalOutput || "";
 
-    // Canvas capture
     const canvas = document.getElementById('turtlecanvas');
     const canvasImg = await html2canvas(canvas, {
       backgroundColor: null,
       scale: 2
     }).then(cnv => cnv.toDataURL('image/png'));
 
-    // PDF setup
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
     const pageHeight = pdf.internal.pageSize.height;
     const margin = 36, contentWidth = 520;
     let y = margin;
 
-    // Font en stijlen tekst:
     function setBodyFont()   { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12); }
     function setHeaderFont() { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); }
     function setLabelFont()  { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13); }
@@ -1953,7 +1907,7 @@ body.dark .help-content h2 {
       pdf.text(label, margin, y); y += 16;
       if (code) { setCodeFont(); }
       else      { setBodyFont(); }
-      pdf.setTextColor(0, 0, 0); // body text = black
+      pdf.setTextColor(0, 0, 0);
       const lineHeight = code ? 13 : 14;
       for (let i = 0; i < contentLines.length; ) {
         let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
@@ -1967,7 +1921,6 @@ body.dark .help-content h2 {
       y += 10;
     }
 
-    // Header
     pdf.setTextColor(...COLOR_PURPLE); setHeaderFont();
     pdf.text('JavaScript in de Klas – Oefening', margin, y); y += 28;
     pdf.setTextColor(0, 0, 0); setBodyFont();
@@ -1975,38 +1928,31 @@ body.dark .help-content h2 {
     pdf.text(`Klas: ${klas}`, margin, y); y += 18;
     pdf.text(`Oefening: ${oefening}`, margin, y); y += 30;
 
-    // Opdracht
-    let opdrachtTekstPdf = document.getElementById('opdracht-tekst').textContent;
-    let opdrachtLines = pdf.splitTextToSize(opdrachtTekstPdf, contentWidth);
+    let opdrachtText = document.getElementById('opdracht-tekst').textContent;
+    let opdrachtLines = pdf.splitTextToSize(opdrachtText, contentWidth);
     pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
     pdf.text("Opdracht:", margin, y); y += 20;
     pdf.setTextColor(0, 0, 0); setBodyFont();
     pdf.text(opdrachtLines, margin, y); y += opdrachtLines.length * 14 + 18;
 
-    // Code
     let code = editor.getValue();
     let codeLines = pdf.splitTextToSize(code, contentWidth);
     addMultilineSection("Code:", codeLines, COLOR_PURPLE, true);
 
-    // Output
     let consoleText = document.getElementById('console-output').textContent;
     let outputLines = pdf.splitTextToSize(consoleText || "(geen uitvoer)", contentWidth);
     addMultilineSection("Console-uitvoer:", outputLines, COLOR_PURPLE, true);
 
-    // Status oefening + metacognitieve metrics (pogingen & tijd)
     pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
     pdf.text("Status oefening:", margin, y); y += 16;
 
     pdf.setTextColor(0, 0, 0); setBodyFont();
-
-    // 1) Status-tekst zoals vroeger
     let statusText;
     if (evalStatus === "success") statusText = "Oefening correct";
     else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
     else statusText = "Niet uitgevoerd";
     pdf.text(statusText, margin, y); y += 16;
 
-    // 2) Waarden rechtstreeks uit je helpers of, als fallback, uit localStorage
     const pogingen = (typeof getPogingen === 'function')
       ? getPogingen()
       : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
@@ -2015,7 +1961,6 @@ body.dark .help-content h2 {
       ? getWerkTijdMs()
       : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
 
-    // 3) Gebruik dezelfde formatter als in de UI indien beschikbaar
     function _fmt(ms){
       if (typeof formatDuur === 'function') return formatDuur(ms);
       const s = Math.max(0, Math.floor((ms || 0)/1000));
@@ -2023,29 +1968,24 @@ body.dark .help-content h2 {
       return (m > 0 ? `${m}m ` : '') + `${r}s`;
     }
 
-    // 4) Extra regels in het rapport
     pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
     pdf.text(`Tijd besteed: ${_fmt(tijdMs)}`, margin, y); y += 24;
 
-    // Correctiesleutel indien beschikbaar:
     if (expectedOutput && expectedOutput.length > 0) {
       let expectedLines = pdf.splitTextToSize(expectedOutput, contentWidth);
       addMultilineSection("Verwachte uitvoer:", expectedLines, COLOR_PURPLE, true);
     }
 
-    // Canvas:
     const imgHeight = 210, imgWidth = 210;
     ensureRoom(imgHeight + 40);
     pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
     pdf.text("Canvas:", margin, y); y += 10;
     pdf.addImage(canvasImg, 'PNG', margin, y, imgWidth, imgHeight); y += imgHeight + 20;
 
-    // Feedback:
-    ensureRoom(250); // More space for larger rows
+    ensureRoom(250);
     pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
     pdf.text("Beoordeling & Feedback leerkracht:", margin, y); y += 18;
 
-    // Table layout constants
     const tableWidth = 520;
     const criteriumColWidth = 160;
     const scoreColWidth = 54;
@@ -2054,18 +1994,15 @@ body.dark .help-content h2 {
     const col1 = startX + criteriumColWidth;
     const col2 = col1 + scoreColWidth;
     const headerH = 28;
-    const rowH = 44; // Taller rows
+    const rowH = 44;
 
-    // Draw table outline
     pdf.setDrawColor(...COLOR_PURPLE); 
     pdf.setLineWidth(0.8);
     pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, 'S');
 
-    // Draw header background (purple rectangle)
     pdf.setFillColor(...COLOR_PURPLE);
-    pdf.rect(startX, y, tableWidth, headerH, 'F'); // Fill only header row
+    pdf.rect(startX, y, tableWidth, headerH, 'F');
 
-    // Table headers: bold & white
     pdf.setTextColor(255, 255, 255);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(13);
@@ -2073,49 +2010,41 @@ body.dark .help-content h2 {
     pdf.text("Score", col1 + 12, y + 19);
     pdf.text("Feedback", col2 + 12, y + 19);
 
-    // Vertical lines
     pdf.setDrawColor(...COLOR_PURPLE);
     pdf.line(col1, y, col1, y + headerH + 5 * rowH);
     pdf.line(col2, y, col2, y + headerH + 5 * rowH);
 
-    // Horizontal lines and row labels
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
     const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
     for (let i = 0; i < criteria.length; i++) {
       const rowY = y + headerH + i * rowH;
-      // Row line
       pdf.line(startX, rowY, startX + tableWidth, rowY);
-      // Row label (criterium)
       pdf.setTextColor(...COLOR_PURPLE);
       pdf.setFont('helvetica', 'bold');
       pdf.text(criteria[i], startX + 8, rowY + 26);
     }
-    y += headerH + 5 * rowH + 20; // plaats tussen de tabel en alg. feedback
+    y += headerH + 5 * rowH + 20;
 
-    // "Algemene feedback" bold and purple
     pdf.setTextColor(...COLOR_PURPLE);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(13);
     pdf.text("Algemene feedback:", startX + 8, y);
 
-    // Reset text color/font for any further text
     pdf.setTextColor(0, 0, 0);
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
 
-    // Bestand opslaan:
     function sanitize(s) { return s.replace(/[^a-zA-Z0-9_\-]/g, "_"); }
     const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
     pdf.save(fname);
   };
 
-  // === Coördinaten correct berekenen (border + CSS-schaal + zoom/pan) ===
+  // Coördinaten correct berekenen
   (function () {
     const coordsSpan = document.getElementById('coords');
     const canvas = document.getElementById('turtlecanvas');
 
-    // Hulpfunctie: lees daadwerkelijke border-diktes
     function getBorderSizes(el) {
       const s = getComputedStyle(el);
       return {
@@ -2130,28 +2059,23 @@ body.dark .help-content h2 {
       const rect = canvas.getBoundingClientRect();
       const b = getBorderSizes(canvas);
 
-      // 1) Cursorpositie in CSS-pixels binnen de CONTENT (border aftrekken)
       const cssX = event.clientX - rect.left - b.left;
       const cssY = event.clientY - rect.top  - b.top;
 
-      // 2) Schaal CSS-pixels → canvas-pixels (interne bitmap)
       const contentCssWidth  = rect.width  - b.left - b.right;
       const contentCssHeight = rect.height - b.top  - b.bottom;
       const scaleX = canvas.width  / contentCssWidth;
       const scaleY = canvas.height / contentCssHeight;
 
-      const cx = cssX * scaleX;  // canvas-px
-      const cy = cssY * scaleY;  // canvas-px
+      const cx = cssX * scaleX;
+      const cy = cssY * scaleY;
 
-      // 3) Canvas-px → wereldcoördinaten (0,0 in midden; Y omhoog positief)
       const centerX = canvas.width  / 2;
       const centerY = canvas.height / 2;
 
-      // panX/panY/zoom komen uit de globale turtle-state (library.js)
       const worldX = (cx - centerX - panX) / zoom;
       const worldY = (centerY - cy - panY) / zoom;
 
-      // 4) Toon afgeronde waarden
       coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
     });
 
@@ -2164,32 +2088,34 @@ body.dark .help-content h2 {
   const courseMenu = document.getElementById('course-menu');
   const closeMenu = document.getElementById('close-menu');
 
-  menuTab.onclick = (e) => {
-    e.stopPropagation(); // Prevent document click
-    if (courseMenu.classList.contains('open')) {
-      courseMenu.classList.remove('open');
-    } else {
-      courseMenu.classList.add('open');
-      courseMenu.focus();
-    }
-  };
+  if (menuTab && courseMenu && closeMenu) {
+    menuTab.onclick = (e) => {
+      e.stopPropagation();
+      if (courseMenu.classList.contains('open')) {
+        courseMenu.classList.remove('open');
+      } else {
+        courseMenu.classList.add('open');
+        courseMenu.focus();
+      }
+    };
 
-  closeMenu.onclick = () => {
-    courseMenu.classList.remove('open');
-  };
-
-  courseMenu.addEventListener('keydown', e => {
-    if (e.key === 'Escape') courseMenu.classList.remove('open');
-  });
-  document.addEventListener('click', e => {
-    if (
-      courseMenu.classList.contains('open') &&
-      !courseMenu.contains(e.target) &&
-      e.target !== menuTab
-    ) {
+    closeMenu.onclick = () => {
       courseMenu.classList.remove('open');
-    }
-  });
+    };
+
+    courseMenu.addEventListener('keydown', e => {
+      if (e.key === 'Escape') courseMenu.classList.remove('open');
+    });
+    document.addEventListener('click', e => {
+      if (
+        courseMenu.classList.contains('open') &&
+        !courseMenu.contains(e.target) &&
+        e.target !== menuTab
+      ) {
+        courseMenu.classList.remove('open');
+      }
+    });
+  }
 
   document.getElementById('reset-progress').onclick = async function() {
     const proceed = await window.confirmModal(
@@ -2204,7 +2130,6 @@ body.dark .help-content h2 {
     }
   };
 
-  // Functie om de error messages beter te maken voor de leerlingen:
   function translateError(message) {
     if (message.includes("Unexpected identifier")) {
       return "Onverwacht woord in de code. Mogelijk een typfout of een ontbrekende komma. Controleer je regels.";
@@ -2236,27 +2161,22 @@ body.dark .help-content h2 {
     if (message.includes("mogelijk oneindige lus")) {
       return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
     }
-    // Standaard: originele Engelse boodschap
     return message;
   }
 
-  // Evalueren van oefeningen en console uitvoer checken:
-  // --- Opties voor normalisatie van tekst ---
   const _DEFAULT_NORM_OPTS = {
-    caseInsensitive: true,   // hoofdletter-ongevoelig vergelijken
-    trim: true,              // randspaties verwijderen
-    collapseSpaces: true,    // meerdere spaties → één spatie
-    removePunctuation: false,// standaard interpunctie behouden
-    decimalCommaToDot: true  // "12,34" → "12.34" (handig voor Benelux)
+    caseInsensitive: true,
+    trim: true,
+    collapseSpaces: true,
+    removePunctuation: false,
+    decimalCommaToDot: true
   };
 
-  // Regels die we negeren uit de console (bv. debug)
   const _IGNORE_LINE_PATTERNS = [
     /^debug output:/i,
     /^\s*opgeslagen!$/i
   ];
 
-  // --- Helpers ---
   function _shouldIgnoreLine(line) {
     return _IGNORE_LINE_PATTERNS.some(rx => rx.test(line));
   }
@@ -2264,7 +2184,6 @@ body.dark .help-content h2 {
   function _normalizeText(s, opts = _DEFAULT_NORM_OPTS) {
     let t = s ?? "";
     if (opts.decimalCommaToDot) {
-      // Vervang komma-decimaalvorm in getallen (12,34 → 12.34)
       t = t.replace(/(\d),(\d)/g, '$1.$2');
     }
     if (opts.trim) t = t.trim();
@@ -2275,7 +2194,6 @@ body.dark .help-content h2 {
   }
 
   function _extractNumbers(s) {
-    // Herken ook "12,34" als 12.34
     const norm = (s ?? "").replace(/(\d),(\d)/g, '$1.$2');
     const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
     return matches.map(parseFloat);
@@ -2285,12 +2203,10 @@ body.dark .help-content h2 {
     return Math.abs(a - b) <= eps;
   }
 
-  // Vergelijk regel-voor-regel met toleranties op getallen.
-  // Geeft { ok:boolean, info:string } terug.
   function _looseCompare(expectedRaw, userRaw, opts = {}) {
     const linesE = (expectedRaw ?? '')
       .split(/\r?\n/)
-      .map(l => l.replace(/\u00A0/g, ' ')) // NBSP → spatie
+      .map(l => l.replace(/\u00A0/g, ' '))
       .map(l => l.trim())
       .filter(l => l.length > 0);
 
@@ -2311,7 +2227,6 @@ body.dark .help-content h2 {
       const numsE = _extractNumbers(e);
       const numsU = _extractNumbers(u);
 
-      // Als beide regels getallen bevatten met gelijke telling → vergelijk numeriek + resttekst
       if (numsE.length > 0 && numsE.length === numsU.length) {
         const tol = opts.tolerance ?? 0.01;
         for (let j = 0; j < numsE.length; j++) {
@@ -2319,14 +2234,12 @@ body.dark .help-content h2 {
             return { ok: false, info: `Getal op regel ${i + 1} wijkt af (verwacht ${numsE[j]}, kreeg ${numsU[j]}).` };
           }
         }
-        // Vergelijk niet-numerieke delen losser
         const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
         const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
         if (eText !== uText) {
           return { ok: false, info: `Tekst op regel ${i + 1} wijkt af (we negeren spaties/case/komma-punt).` };
         }
       } else {
-        // Geen getallen: losse tekstvergelijking
         const eN = _normalizeText(e, opts);
         const uN = _normalizeText(u, opts);
         if (eN !== uN) {
@@ -2337,7 +2250,6 @@ body.dark .help-content h2 {
     return { ok: true, info: 'Uitvoer komt overeen.' };
   }
 
-  // --- Optionele per-oefening evaluatiemodi ---
   function _evalByMode(exercise, userRaw) {
     const cfg = exercise.eval;
     if (!cfg || !cfg.type) return null;
@@ -2367,7 +2279,7 @@ body.dark .help-content h2 {
     }
 
     if (cfg.type === 'regex') {
-      const re = new RegExp(cfg.pattern, cfg.flags || 'i'); // standaard case-insensitive
+      const re = new RegExp(cfg.pattern, cfg.flags || 'i');
       const ok = re.test(raw.trim());
       return { ok, info: ok ? 'Patroon komt overeen.' : 'Tekst voldoet niet aan het patroon.' };
     }
@@ -2382,27 +2294,22 @@ body.dark .help-content h2 {
     return null;
   }
 
-  // ============= Hoofdfunctie =============
   function evaluateExercise() {
     const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
 
-    // Geen sleutel → niet evalueerbaar
     if (!ex || (!ex.evalOutput && !ex.eval)) {
       window._lastEvalInfo = 'Geen evaluatiesleutel voor deze oefening.';
       return null;
     }
 
-    // Ruwe uitvoer ophalen (we normaliseren later)
     const userRaw = (typeof capturedOutput === 'string') ? capturedOutput : String(capturedOutput || '');
 
-    // 1) Per-oefening modus heeft voorrang (indien aanwezig)
     const modeRes = _evalByMode(ex, userRaw);
     if (modeRes) {
       window._lastEvalInfo = modeRes.info;
       return modeRes.ok;
     }
 
-    // 2) Standaard: losse line-by-line vergelijking met getal-tolerantie
     const loose = _looseCompare(ex.evalOutput || '', userRaw, {
       ..._DEFAULT_NORM_OPTS,
       tolerance: 0.01,
@@ -2413,7 +2320,6 @@ body.dark .help-content h2 {
     return loose.ok;
   }
 
-  // Toast indicator na de output checker:
   function showEvalFeedback(isCorrect) {
     const progressBtns = document.querySelectorAll('.exercise-btn');
     if (!progressBtns[currentExerciseIdx]) return;
@@ -2425,16 +2331,32 @@ body.dark .help-content h2 {
     }
 
     const extraInfo = window._lastEvalInfo || '';
-    const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+    const exercise  = chapters[currentChapterIdx].exercises[currentExerciseIdx];
 
     if (isCorrect) {
       progressBtns[currentExerciseIdx].style.background = '#3dffd0';
       progressBtns[currentExerciseIdx].style.color = '#23272e';
-      showToast("✅ Goed gedaan! " + (extraInfo || "Je output is correct."), true);
+
+      if (typeof window.confirmModal === 'function') {
+        window.confirmModal(
+          "✅ Goed gedaan! Je uitvoer is correct.\n\nWil je je oplossing nu exporteren naar PDF?"
+        ).then(goExport => {
+          if (goExport && typeof openPdfModal === 'function') {
+            openPdfModal();
+          }
+        });
+      } else {
+        showToast("✅ Goed gedaan! " + (extraInfo || "Je output is correct."), true);
+      }
+
     } else {
       progressBtns[currentExerciseIdx].style.background = '#ff1744';
       progressBtns[currentExerciseIdx].style.color = '#fff';
-      const expected = exercise.evalOutput ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput) : "";
+
+      const expected = exercise.evalOutput
+        ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput)
+        : "";
+
       showToast("❌ Niet helemaal goed. " + (extraInfo || "") + expected, false);
     }
   }
@@ -2469,6 +2391,7 @@ body.dark .help-content h2 {
 
   function customPrompt(question, callback) {
     const modal = document.getElementById('custom-modal');
+    if (!modal) return;
     document.getElementById('modal-body').innerHTML = `<label>${question}</label><br><input type="text" id="modal-input" style="width:100%;margin-top:1em;">`;
     document.getElementById('modal-actions').innerHTML =
       `<button id="modal-ok">OK</button>`;
@@ -2489,6 +2412,7 @@ body.dark .help-content h2 {
 
   function customConfirm(question, callback) {
     const modal = document.getElementById('custom-modal');
+    if (!modal) return;
     document.getElementById('modal-body').innerHTML = `<p>${question}</p>`;
     document.getElementById('modal-actions').innerHTML =
       `<button id="modal-yes">Ja</button> <button id="modal-no">Nee</button>`;
@@ -2498,36 +2422,30 @@ body.dark .help-content h2 {
     document.getElementById('modal-yes').onclick = () => { modal.style.display = 'none'; callback(true); };
   }
 
-  // --- Modalgebaseerde ask()-functie want SEB Compatibility ---
-  // Hiermee kan je: var naam = ask("Vraag?");
+  // Modalgebaseerde ask()-functie
   window.ask = function(boodschap) {
     return new Promise((resolve) => {
-      // Haal modal-onderdelen op
       const modal = document.getElementById('ask-modal');
       const msgDiv = document.getElementById('ask-modal-msg');
       const input = document.getElementById('ask-modal-input');
       const okBtn = document.getElementById('ask-modal-ok');
 
-      // Toon de boodschap en maak inputveld leeg
       msgDiv.textContent = boodschap;
       input.value = '';
       modal.style.display = 'flex';
       input.focus();
 
-      // Sluit modal en verwijder event listeners
       function cleanup() {
         modal.style.display = 'none';
         okBtn.removeEventListener('click', onOk);
         input.removeEventListener('keydown', onEnter);
       }
 
-      // Afhandelen bij OK-knop
       function onOk() {
         cleanup();
-        resolve(input.value); // Geef de waarde terug aan de code
+        resolve(input.value);
       }
 
-      // Afhandelen bij Enter-toets
       function onEnter(e) {
         if (e.key === 'Enter') onOk();
       }
@@ -2537,22 +2455,17 @@ body.dark .help-content h2 {
     });
   };
 
-  // --- Loop guard instrumentation (iteration + time budget) ---
   function applyLoopGuard(source, options = {}) {
-    const MAX_ITERS = options.maxIters ?? 200000;  // stop after N iterations
-    const MAX_MS    = options.maxMs   ?? 2000;     // or after N milliseconds
+    const MAX_ITERS = options.maxIters ?? 200000;
+    const MAX_MS    = options.maxMs   ?? 2000;
 
-    // Optional escape hatch per exercise:
-    // if the student puts /* @no-guard */ at the top, skip guarding
     if (/^\s*\/\*\s*@no-guard\s*\*\//.test(source)) return source;
 
-    // EDU: require braces on loop bodies
     const bracelessLoop = /(for|while)\s*\([^)]*\)\s*(?!\{)/;
     if (bracelessLoop.test(source)) {
       throw new Error("Lus zonder accolades gedetecteerd. Gebruik { } rond de code in je for/while-lus.");
     }
 
-    // Prelude defines __tick() which enforces the limits
     const prelude = `
       const __GUARD_MAX_ITERS = ${MAX_ITERS};
       const __GUARD_MAX_MS = ${MAX_MS};
@@ -2573,32 +2486,26 @@ body.dark .help-content h2 {
 
     let code = source;
 
-    // do { ... } while(...);
     code = code.replace(/do\s*\{/g, match => `${match} __tick(); `);
 
-    // while (...) {
     code = code.replace(
       /while\s*\(([^)]*)\)\s*\{/g,
       (m, cond) => `while ((__tick(), (${cond}))) { __tick(); `
     );
 
-    // for (init; cond; step) {
     code = code.replace(
       /for\s*\(([^;]*);([^;]*);([^\)]*)\)\s*\{/g,
       (m, init, cond, step) => `for (${init}; (__tick(), (${cond})); ${step}) { __tick(); `
     );
 
-    // for (;;){ ... } – condless forms
     code = code.replace(/for\s*\(\s*;\s*;\s*\)\s*\{/g, 'for (;;){ __tick(); ');
 
     return prelude + "\n" + code;
   }
 
-  // --- Studentencode uitvoeren met ondersteuning voor ask() ---
   window.runStudentCode = function(studentCode) {
     let transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
 
-    // Bescherming voor infinite loops:
     transformed = applyLoopGuard(transformed, {
       maxIters: 200000,
       maxMs:    2000
@@ -2612,9 +2519,7 @@ body.dark .help-content h2 {
     return new Function('ask', 'console', wrapper)(window.ask, window.console);
   };
 
-  // --- Run-knop: koppelen aan runStudentCode ---
   document.getElementById('run-code').onclick = async function() {
-    // poging registreren + timer pauzeren terwijl code runt
     if (isDirty && typeof incPogingen === 'function') incPogingen();
     if (typeof stopWerkTimer === 'function') stopWerkTimer();
     if (typeof updateMetricsUI === 'function') updateMetricsUI();
@@ -2633,6 +2538,7 @@ body.dark .help-content h2 {
       showSavedToast();
 
       await runStudentCode(code);
+
     } catch (e) {
       let uitleg = translateError(e.message);
       appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
