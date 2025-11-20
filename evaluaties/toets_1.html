@@ -98,14 +98,11 @@ body {
   overflow: auto;
 }
 
-
-
 #turtlecanvas, #imagecanvas {
   width: 100%;
   max-width: 900px;
   height: auto;
 }
-
 
 .editor-label,
 .console-label,
@@ -292,7 +289,6 @@ body {
   margin-left: 0.5rem;
 }
 
-
 #export-pdf {
   background: #5200FF;
   color: #fff;
@@ -358,7 +354,6 @@ body.dark #console-output {
   color: #23272e !important; 
   border-color: #3dffd0 !important; 
 }
-
 
 .course-menu {
   position: fixed;
@@ -518,7 +513,6 @@ body.dark #console-output {
 .splitter.dragging {
   background: linear-gradient(to right, #b7b7ff 0%, #5200FF 100%);
 }
-
 
 .exercise-btn {
   width: 32px;
@@ -894,7 +888,7 @@ body.dark .splitter.dragging {
   }
 }
 
-    .modal, #ask-modal, #confirm-modal, #pdf-modal {
+.modal, #ask-modal, #confirm-modal, #pdf-modal {
   display: none;
   position: fixed;
   inset: 0;
@@ -1028,7 +1022,6 @@ body.dark .brand-btn:focus {
   color: #23272e;
   border: 1.5px solid var(--brand-aqua);
 }
-    
 
 .toolbar .brand-btn {
   background: var(--brand-purple);
@@ -1107,7 +1100,7 @@ body.dark .run-btn:focus {
 }
 body.dark .toolbar .brand-btn:hover,
 body.dark .run-btn:hover {
-  /* Accent‑kleur voor hover */
+  /* Accent-kleur voor hover */
   background: var(--brand-aqua) !important;
   /* Paarse tekst op licht accent */
   color: var(--brand-purple) !important;
@@ -1115,7 +1108,7 @@ body.dark .run-btn:hover {
   border-color: var(--brand-aqua) !important;
 }
 /* ================================================= */
-/* Basis‑ en hover‑stijlen voor menu, help & zoom knoppen */
+/* Basis- en hover-stijlen voor menu, help & zoom knoppen */
 /* ================================================= */
 
 /* 1) Basisstijl (light mode): paarse achtergrond, witte tekst, transparante rand */
@@ -1124,7 +1117,7 @@ body.dark .run-btn:hover {
 .zoom-btn {
   background: var(--brand-purple);
   color: var(--brand-white);
-  border: 1.5px solid transparent;  /* nodig voor hover‑border */
+  border: 1.5px solid transparent;  /* nodig voor hover-border */
 }
 
 /* 2) Hover (light mode): aqua achtergrond, paarse tekst, aqua rand */
@@ -1155,9 +1148,8 @@ body.dark .zoom-btn:hover {
 }
     
 /* ============================================================================
-   Help‑modal: koppen “Formularium” en “Kleuren” altijd wit, ongeacht thema
-   ============================================================================
-*/
+   Help-modal: koppen “Formularium” en “Kleuren” altijd wit, ongeacht thema
+   ============================================================================ */
 
 body.dark .help-content {
   color: var(--brand-white) !important;
@@ -1172,26 +1164,13 @@ body.dark .help-content h2 {
     
 #course-menu,
 #menu-tab {
-display: none !important;
+  display: none !important;
 }
 
-
-
-</style>
+  </style>
 
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script>
-    const CANVAS_SIZE = 500;
-    let panX = 0;
-    let panY = 0;
-    let zoom = 1.0;
-    function zoomOut() {
-      zoom -= 0.1;
-      draw();
-    }
-  </script>
-  
 </head>
 <body>
   <!-- Topbar: opdracht, dark/light toggle en PDF export -->
@@ -1206,61 +1185,61 @@ display: none !important;
       <button class="brand-btn" id="reset-progress">Vooruitgang Wissen</button>
     </div>
   </header>
-<!-- Slide-in Course Menu -->
-<div id="course-menu" class="course-menu" tabindex="-1" aria-label="Hoofdmenu">
-  <div class="menu-header">
-    <span class="menu-title">Menu</span>
-    <button id="close-menu" class="close-menu" title="Sluit menu">×</button>
+
+  <!-- Slide-in Course Menu (verborgen in exam mode via CSS) -->
+  <div id="course-menu" class="course-menu" tabindex="-1" aria-label="Hoofdmenu">
+    <div class="menu-header">
+      <span class="menu-title">Menu</span>
+      <button id="close-menu" class="close-menu" title="Sluit menu">×</button>
+    </div>
+    <nav class="menu-content">
+      <h3>Inhoud</h3>
+      <ul id="menu-chapters" class="chapter-list"></ul>
+      <div class="menu-footer">
+        <b>Vond je een bug? Neem contact op met Robbe via: robbewulgaert.be/contact </b>
+      </div>
+    </nav>
   </div>
-  <nav class="menu-content">
-    <h3>Inhoud</h3>
-    <ul id="menu-chapters" class="chapter-list"></ul>
-    <div class="menu-footer">
-      <b>Vond je een bug? Neem contact op met Robbe via: robbewulgaert.be/contact </b>
-    </div>
-  </nav>
-</div>
 
+  <!-- Tab to open menu (verborgen in exam mode via CSS) -->
+  <button id="menu-tab" class="menu-tab" title="Toon menu">Menu</button>
 
-<!-- Tab to open menu -->
-<button id="menu-tab" class="menu-tab" title="Toon menu">Menu</button>
+  <main class="main-layout" id="main-layout">
+    <!-- Editor Pane (left) -->
+    <section class="editor-pane" id="editor-pane">
+      <div class="editor-label">Code-editor</div>
+      <div id="code-editor"></div>
+      </br>
+      </br>
+      <button id="run-code" class="brand-btn run-btn">▶️ Uitvoeren</button>
+      </br>
+      </br>
+      <div class="console-label">Console-uitvoer</div>
+      </br>
+      <div id="console-output" class="console-output"></div>
+    </section>
 
+    <!-- The draggable splitter -->
+    <div class="splitter" id="splitter"></div>
 
-<main class="main-layout" id="main-layout">
-  <!-- Editor Pane (left) -->
-  <section class="editor-pane" id="editor-pane">
-    <div class="editor-label">Code-editor</div>
-    <div id="code-editor"></div>
-    </br>
-    </br>
-    <button id="run-code" class="brand-btn run-btn">▶️ Uitvoeren</button>
-    </br>
-</br>
-  
-    <div class="console-label">Console-uitvoer</div>
-  </br>
-    <div id="console-output" class="console-output"></div>
-  </section>
+    <!-- Canvas Pane (right) -->
+    <section class="canvas-pane" id="canvas-pane">
+      <div class="canvas-header">
+        <span class="canvas-label">Canvas</span>
+        <span id="coords" class="coords"></span>
+      </div>
+      <canvas id="turtlecanvas" width="500" height="500"></canvas>
+      <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()" aria-label="Zoom In">+</button>
+        <button class="zoom-btn" onclick="zoomOut()" aria-label="Zoom Out">–</button>
+      </div>
+    </section>
 
-  <!-- The draggable splitter -->
-  <div class="splitter" id="splitter"></div>
-
-  <!-- Canvas Pane (right) -->
-  <section class="canvas-pane" id="canvas-pane">
-    <div class="canvas-header">
-      <span class="canvas-label">Canvas</span>
-      <span id="coords" class="coords"></span>
-    </div>
-    <canvas id="turtlecanvas" width="500" height="500"></canvas>
-    <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
-    <div class="zoom-controls">
-      <button class="zoom-btn" onclick="zoomIn()" aria-label="Zoom In">+</button>
-      <button class="zoom-btn" onclick="zoomOut()" aria-label="Zoom Out">–</button>
-</div>
-  </section>
     <!-- Help button floating right-under -->
     <button id="help-btn" class="help-btn" title="Toon commando's en uitleg">?</button>
   </main>
+
   <!-- Help modal/overlay -->
   <div id="help-modal" class="help-modal">
     <div class="help-content twocol">
@@ -1304,218 +1283,207 @@ display: none !important;
       </div>
     </div>
   </div>
+
   <!-- JS libraries & scripts: CodeMirror always first! -->
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/mode/javascript/javascript.min.js"></script>
   <script src="rgbcolor.js"></script>
   <script src="library.js"></script>
-  
-  
-<div id="pdf-modal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span class="modal-close" id="close-pdf-modal">&times;</span>
-    <h3>PDF Exporteren</h3>
-    <label for="modal-naam">Naam:</label>
-    <input id="modal-naam" type="text" required autocomplete="off">
-    <label for="modal-klas">Klas:</label>
-    <input id="modal-klas" type="text" required autocomplete="off">
-    <label for="modal-oefening">Oefeningstitel:</label>
-    <input id="modal-oefening" type="text" placeholder="(Laat leeg voor automatische titel)" autocomplete="off">
-    <button id="modal-ok">Exporteren</button>
-  </div>
-</div>
-  
-<!-- modal voor prompt naar ask want SEB compat. -->
-<!-- Ask Modal -->
-<div id="ask-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <div id="ask-modal-msg" class="modal-message"></div>
-    <input id="ask-modal-input" type="text" class="modal-input" autocomplete="off"/>
-    <div class="modal-actions">
-      <button id="ask-modal-ok" class="modal-btn modal-btn-primary">OK</button>
+
+  <!-- PDF modal -->
+  <div id="pdf-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="modal-close" id="close-pdf-modal">&times;</span>
+      <h3>PDF Exporteren</h3>
+      <label for="modal-naam">Naam:</label>
+      <input id="modal-naam" type="text" required autocomplete="off">
+      <label for="modal-klas">Klas:</label>
+      <input id="modal-klas" type="text" required autocomplete="off">
+      <label for="modal-oefening">Oefeningstitel:</label>
+      <input id="modal-oefening" type="text" placeholder="(Laat leeg voor automatische titel)" autocomplete="off">
+      <button id="modal-ok">Exporteren</button>
     </div>
   </div>
-</div>
 
-<!-- Confirm Modal -->
-<div id="confirm-modal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <div id="confirm-modal-msg" class="modal-message modal-message-warning"></div>
-    <div class="modal-actions">
-      <button id="confirm-modal-ok" class="modal-btn modal-btn-primary">OK</button>
-      <button id="confirm-modal-cancel" class="modal-btn">Annuleren</button>
+  <!-- Ask Modal -->
+  <div id="ask-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div id="ask-modal-msg" class="modal-message"></div>
+      <input id="ask-modal-input" type="text" class="modal-input" autocomplete="off"/>
+      <div class="modal-actions">
+        <button id="ask-modal-ok" class="modal-btn modal-btn-primary">OK</button>
+      </div>
     </div>
   </div>
-</div>
 
+  <!-- Confirm Modal -->
+  <div id="confirm-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div id="confirm-modal-msg" class="modal-message modal-message-warning"></div>
+      <div class="modal-actions">
+        <button id="confirm-modal-ok" class="modal-btn modal-btn-primary">OK</button>
+        <button id="confirm-modal-cancel" class="modal-btn">Annuleren</button>
+      </div>
+    </div>
+  </div>
 
-
-
-  
-<script>
+  <script>
   let dragging = false;
   let capturedOutput = "";
   document.addEventListener("DOMContentLoaded", function () {
-  const menu = document.getElementById('course-menu');
-  const tab = document.getElementById('menu-tab');
-  const close = document.getElementById('close-menu');
-  // Open menu
-  tab.addEventListener('click', () => {
-    menu.classList.add('open');
-  });
-  // Close menu
-  close.addEventListener('click', () => {
-    menu.classList.remove('open');
-  });
-  // Optionally: close if clicking outside
-  document.addEventListener('click', (e) => {
-    if (!menu.contains(e.target) && !tab.contains(e.target)) {
+    const menu = document.getElementById('course-menu');
+    const tab = document.getElementById('menu-tab');
+    const close = document.getElementById('close-menu');
+    // Open menu
+    tab.addEventListener('click', () => {
+      menu.classList.add('open');
+    });
+    // Close menu
+    close.addEventListener('click', () => {
       menu.classList.remove('open');
-    }
-  });
-});
-
-    // ---- DRAGGABLE SPLITTER ----
-document.addEventListener("DOMContentLoaded", function () {
-  const splitter = document.getElementById('splitter');
-  const editorPane = document.getElementById('editor-pane');
-  const canvasPane = document.getElementById('canvas-pane');
-  const mainLayout = document.getElementById('main-layout');
-  let dragging = false;
-
-  splitter.addEventListener('mousedown', function (e) {
-    if (window.innerWidth < 980) return; // Geen drag op smalle schermen
-    dragging = true;
-    splitter.classList.add('dragging');
-    document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mousemove', function (e) {
-    if (!dragging || window.innerWidth < 980) return;
-    const rect = mainLayout.getBoundingClientRect();
-    const minEditorWidth = 220;
-    const minCanvasWidth = 220;
-    const splitterWidth = splitter.offsetWidth;
-    const totalWidth = rect.width;
-    let newEditorWidth = e.clientX - rect.left;
-    const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
-    newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
-    // Set both flex and width for maximum browser compatibility
-    editorPane.style.flex = `0 0 ${newEditorWidth}px`;
-    editorPane.style.width = `${newEditorWidth}px`;
-    canvasPane.style.flex = '1 1 0';
-    canvasPane.style.width = '';
-  });
-
-  document.addEventListener('mouseup', function () {
-    if (dragging) {
-      dragging = false;
-      splitter.classList.remove('dragging');
-      document.body.style.userSelect = '';
-    }
-  });
-
-  // Reset widths on window resize if below 980px
-  window.addEventListener('resize', function () {
-    if (window.innerWidth < 980) {
-      editorPane.style.flex = '';
-      editorPane.style.width = '';
-      canvasPane.style.flex = '';
-      canvasPane.style.width = '';
-      splitter.style.display = 'none';
-    } else {
-      splitter.style.display = 'block';
-    }
-  });
-});
-
-
-
-
-
-
-// --------- DATA VOOR OEFENINGEN: ENKEL TEKSTOPDRACHTEN --------------
-const chapters = [
-  {
-    title: "JavaScript: Toets 1",
-    exercises: [
-      {
-        title: "1. Brandstofmeter",
-        starterCode: [
-          "// In de tank zit 45 liter brandstof.",
-          "// Fred tankt 20 liter bij.",
-          "// 1. Maak variabelen voor de beginhoeveelheid en de bijgetankte hoeveelheid.",
-          "// 2. Bereken het totaal in een nieuwe variabele.",
-          "// 3. Toon het antwoord in deze zin in de console:",
-          "//    Er staat nu ... liter brandstof in de tank.",
-          "",
-          "// Schrijf hieronder je code."
-        ].join('\n'),
-        evalOutput: "Er staat nu 65 liter brandstof in de tank."
-      },
-      {
-        title: "2. Dagbudget op reis",
-        starterCode: [
-          "// Fred heeft een dagbudget van 75 euro.",
-          "// Hij koopt drie dingen: 8.5 euro, 12.75 euro en 15 euro.",
-          "// 1. Bereken het totaal dat hij uitgeeft.",
-          "// 2. Bereken hoeveel geld hij overhoudt.",
-          "// 3. Toon het antwoord in deze zin in de console:",
-          "//    Fred heeft nog ... euro over van zijn dagbudget.",
-          "",
-          "// Schrijf hieronder je code."
-        ].join('\n'),
-        evalOutput: "Fred heeft nog 38.75 euro over van zijn dagbudget."
-      },
-      {
-        title: "3. Gemiddelde temperatuur",
-        starterCode: [
-          "// De temperaturen van vandaag (in °C) zijn: 12, 15, 18 en 17.",
-          "// 1. Bewaar de vier waarden in aparte variabelen of in een array.",
-          "// 2. Bereken de gemiddelde temperatuur.",
-          "// 3. Toon het antwoord in deze zin in de console:",
-          "//    De gemiddelde temperatuur vandaag is ... graden.",
-          "",
-          "// Schrijf hieronder je code."
-        ].join('\n'),
-        evalOutput: "De gemiddelde temperatuur vandaag is 15.5 graden."
-      },
-      {
-        title: "4. Gemiddelde snelheid",
-        starterCode: [
-          "// Fred rijdt 150 kilometer in 2.5 uur.",
-          "// 1. Bereken zijn gemiddelde snelheid in km/u.",
-          "// 2. Toon het antwoord via deze zin in de console:",
-          "//    De gemiddelde snelheid van Fred is ... km/u.",
-          "",
-          "// Schrijf hieronder je code."
-        ].join('\n'),
-        evalOutput: "De gemiddelde snelheid van Fred is 60 km/u."
-      },
-      {
-        title: "5. Tegelpad rond de tentplaats",
-        starterCode: [
-          "// Een rechthoekige tentplaats is 6 m lang en 4 m breed.",
-          "// Rond de tentplaats komt een tegelpad van 1 m breed.",
-          "// 1. Bereken de oppervlakte van het hele rechthoekige gebied",
-          "//    (tentplaats + pad).",
-          "// 2. Trek de oppervlakte van de tentplaats zelf af.",
-          "// 3. Toon exact deze zin in de console:",
-          "//    De oppervlakte van het tegelpad is ... vierkante meter.",
-          "",
-          "// Schrijf hieronder je code."
-        ].join('\n'),
-        evalOutput: "De oppervlakte van het tegelpad is 24 vierkante meter."
+    });
+    // Optionally: close if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && !tab.contains(e.target)) {
+        menu.classList.remove('open');
       }
-    ]
-  }
-];
-// --------- EINDE DATA VOOR OEFENINGEN -------------------------------
+    });
+  });
 
-  
-</script>
-    
-<script>
+  // ---- DRAGGABLE SPLITTER ----
+  document.addEventListener("DOMContentLoaded", function () {
+    const splitter = document.getElementById('splitter');
+    const editorPane = document.getElementById('editor-pane');
+    const canvasPane = document.getElementById('canvas-pane');
+    const mainLayout = document.getElementById('main-layout');
+    let dragging = false;
+
+    splitter.addEventListener('mousedown', function (e) {
+      if (window.innerWidth < 980) return; // Geen drag op smalle schermen
+      dragging = true;
+      splitter.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!dragging || window.innerWidth < 980) return;
+      const rect = mainLayout.getBoundingClientRect();
+      const minEditorWidth = 220;
+      const minCanvasWidth = 220;
+      const splitterWidth = splitter.offsetWidth;
+      const totalWidth = rect.width;
+      let newEditorWidth = e.clientX - rect.left;
+      const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
+      newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
+      // Set both flex and width for maximum browser compatibility
+      editorPane.style.flex = `0 0 ${newEditorWidth}px`;
+      editorPane.style.width = `${newEditorWidth}px`;
+      canvasPane.style.flex = '1 1 0';
+      canvasPane.style.width = '';
+    });
+
+    document.addEventListener('mouseup', function () {
+      if (dragging) {
+        dragging = false;
+        splitter.classList.remove('dragging');
+        document.body.style.userSelect = '';
+      }
+    });
+
+    // Reset widths on window resize if below 980px
+    window.addEventListener('resize', function () {
+      if (window.innerWidth < 980) {
+        editorPane.style.flex = '';
+        editorPane.style.width = '';
+        canvasPane.style.flex = '';
+        canvasPane.style.width = '';
+        splitter.style.display = 'none';
+      } else {
+        splitter.style.display = 'block';
+      }
+    });
+  });
+
+  // --------- DATA VOOR OEFENINGEN: ENKEL TEKSTOPDRACHTEN --------------
+  const chapters = [
+    {
+      title: "JavaScript: Toets 1",
+      exercises: [
+        {
+          title: "1. Brandstofmeter",
+          starterCode: [
+            "// In de tank zit 45 liter brandstof.",
+            "// Fred tankt 20 liter bij.",
+            "// 1. Maak variabelen voor de beginhoeveelheid en de bijgetankte hoeveelheid.",
+            "// 2. Bereken het totaal in een nieuwe variabele.",
+            "// 3. Toon het antwoord in deze zin in de console:",
+            "//    Er staat nu ... liter brandstof in de tank.",
+            "",
+            "// Schrijf hieronder je code."
+          ].join('\n'),
+          evalOutput: "Er staat nu 65 liter brandstof in de tank."
+        },
+        {
+          title: "2. Dagbudget op reis",
+          starterCode: [
+            "// Fred heeft een dagbudget van 75 euro.",
+            "// Hij koopt drie dingen: 8.5 euro, 12.75 euro en 15 euro.",
+            "// 1. Bereken het totaal dat hij uitgeeft.",
+            "// 2. Bereken hoeveel geld hij overhoudt.",
+            "// 3. Toon het antwoord in deze zin in de console:",
+            "//    Fred heeft nog ... euro over van zijn dagbudget.",
+            "",
+            "// Schrijf hieronder je code."
+          ].join('\n'),
+          evalOutput: "Fred heeft nog 38.75 euro over van zijn dagbudget."
+        },
+        {
+          title: "3. Gemiddelde temperatuur",
+          starterCode: [
+            "// De temperaturen van vandaag (in °C) zijn: 12, 15, 18 en 17.",
+            "// 1. Bewaar de vier waarden in aparte variabelen of in een array.",
+            "// 2. Bereken de gemiddelde temperatuur.",
+            "// 3. Toon het antwoord in deze zin in de console:",
+            "//    De gemiddelde temperatuur vandaag is ... graden.",
+            "",
+            "// Schrijf hieronder je code."
+          ].join('\n'),
+          evalOutput: "De gemiddelde temperatuur vandaag is 15.5 graden."
+        },
+        {
+          title: "4. Gemiddelde snelheid",
+          starterCode: [
+            "// Fred rijdt 150 kilometer in 2.5 uur.",
+            "// 1. Bereken zijn gemiddelde snelheid in km/u.",
+            "// 2. Toon het antwoord via deze zin in de console:",
+            "//    De gemiddelde snelheid van Fred is ... km/u.",
+            "",
+            "// Schrijf hieronder je code."
+          ].join('\n'),
+          evalOutput: "De gemiddelde snelheid van Fred is 60 km/u."
+        },
+        {
+          title: "5. Tegelpad rond de tentplaats",
+          starterCode: [
+            "// Een rechthoekige tentplaats is 6 m lang en 4 m breed.",
+            "// Rond de tentplaats komt een tegelpad van 1 m breed.",
+            "// 1. Bereken de oppervlakte van het hele rechthoekige gebied",
+            "//    (tentplaats + pad).",
+            "// 2. Trek de oppervlakte van de tentplaats zelf af.",
+            "// 3. Toon exact deze zin in de console:",
+            "//    De oppervlakte van het tegelpad is ... vierkante meter.",
+            "",
+            "// Schrijf hieronder je code."
+          ].join('\n'),
+          evalOutput: "De oppervlakte van het tegelpad is 24 vierkante meter."
+        }
+      ]
+    }
+  ];
+  // --------- EINDE DATA VOOR OEFENINGEN -------------------------------
+  </script>
+
+  <script>
   /* === EXAM MODE: limit to a single chapter === */
   const EXAM_MODE = true;
   const EXAM_KEEP_CHAPTER_IDX = 0; // 0 = Hoofdstuk 1, 1 = Hoofdstuk 2, ...
@@ -1524,1051 +1492,1013 @@ const chapters = [
     const keep = chapters[EXAM_KEEP_CHAPTER_IDX] || chapters[0];
     chapters.splice(0, chapters.length, keep); // mutate in place so the rest of the code stays intact
   }
-</script>
-<script>
+  </script>
 
-// === STATE ===
-let currentChapterIdx = 0;   // Welk hoofdstuk is actief?
-let currentExerciseIdx = 0;  // Welke oefening binnen dat hoofdstuk is actief? 
+  <script>
+  // === STATE ===
+  let currentChapterIdx = 0;   // Welk hoofdstuk is actief?
+  let currentExerciseIdx = 0;  // Welke oefening binnen dat hoofdstuk is actief? 
 
-// === METRICS: Pogingen + Tijd aan de Oefening ===============================
-// Alles per oefening bewaren in localStorage, net zoals de code/voortgang.
+  // === METRICS: Pogingen + Tijd aan de Oefening ===============================
+  // Alles per oefening bewaren in localStorage, net zoals de code/voortgang.
 
-let _workTimer = { running:false, lastStart:0, intervalId:null }; // interne timerstatus
+  let _workTimer = { running:false, lastStart:0, intervalId:null }; // interne timerstatus
 
-// Hulpfunctie om consistente keys te maken per oefening:
-function exKey(suffix){ 
-  return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
-}
-
-// -- Pogingen tellen --
-function getPogingen(){ 
-  return parseInt(localStorage.getItem(exKey('pogingen')) || '0', 10); 
-}
-function incPogingen(){ 
-  const n = getPogingen() + 1;
-  localStorage.setItem(exKey('pogingen'), String(n));
-  return n;
-}
-
-// -- Werktijd (in milliseconden) --
-function getWerkTijdMs(){ 
-  return parseInt(localStorage.getItem(exKey('werkTijdMs')) || '0', 10); 
-}
-function setWerkTijdMs(ms){ 
-  localStorage.setItem(exKey('werkTijdMs'), String(ms)); 
-}
-function addWerkTijd(ms){ 
-  setWerkTijdMs(getWerkTijdMs() + ms); 
-}
-
-// Timer besturen: start/stop en UI updaten
-function startWerkTimer(){
-  // Start zodra de leerling effectief iets wijzigt (zie editor.on('change') hook)
-  if (_workTimer.running) return;
-  _workTimer.running = true;
-  _workTimer.lastStart = Date.now();
-  _workTimer.intervalId = setInterval(updateMetricsUI, 1000); // UI elke seconde bijwerken
-}
-
-function stopWerkTimer(){
-  if(!_workTimer.running) return;
-  const nu = Date.now();
-  addWerkTijd(nu - _workTimer.lastStart); // cumuleren in localStorage
-  _workTimer.running = false;
-  _workTimer.lastStart = 0;
-  clearInterval(_workTimer.intervalId);
-  _workTimer.intervalId = null;
-  updateMetricsUI(); // eindstand tonen
-}
-
-function resetWerkTimerState(){
-  // Oproepen bij oefening wisselen; laat de opgeslagen tijd gewoon staan
-  _workTimer.running = false;
-  _workTimer.lastStart = 0;
-  if (_workTimer.intervalId) clearInterval(_workTimer.intervalId);
-  _workTimer.intervalId = null;
-}
-
-// Formatter voor het scherm/PDF
-function formatDuur(ms){
-  const s = Math.max(0, Math.floor(ms / 1000));
-  const m = Math.floor(s / 60);
-  const r = s % 60;
-  return (m > 0 ? `${m}m ` : '') + `${r}s`;
-}
-
-// Klein UI-label rechts van "Canvas" toevoegen/actualiseren
-let metricsEl = null;
-function ensureMetricsEl(){
-  if (metricsEl) return metricsEl;
-  const header = document.querySelector('.canvas-header');
-  metricsEl = document.createElement('span');
-  metricsEl.id = 'metrics';
-  metricsEl.style.fontFamily = 'monospace';
-  metricsEl.style.marginLeft = '12px';
-  header && header.appendChild(metricsEl);
-  return metricsEl;
-}
-
-function updateMetricsUI(){
-  const el = ensureMetricsEl();
-  const basisMs = getWerkTijdMs();
-  const liveMs  = _workTimer.running ? (Date.now() - _workTimer.lastStart) : 0;
-  el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
-}
-
-// Pauzeer bij focusverlies/tabwissel (geen spooktijd optellen)
-window.addEventListener('blur', stopWerkTimer);
-window.addEventListener('beforeunload', stopWerkTimer);
-// Pauzeer ook bij tab-verbergen (sommige browsers sturen geen 'blur')
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) stopWerkTimer();
-});
-// === ELEMENTS ===
-const opdrachtTekst = document.getElementById('opdracht-tekst');
-const progressBar = document.getElementById('exercise-progress');
-const chapterMenuList = document.getElementById('menu-chapters'); // UL in sidebar
-
-// === RENDER CHAPTER MENU ===
-function renderChapterMenu() {
-  chapterMenuList.innerHTML = '';
-  chapters.forEach((chapter, idx) => {
-    const li = document.createElement('li');
-    li.className = 'menu-chapter-item' + (idx === currentChapterIdx ? ' active' : '');
-    li.textContent = chapter.title;
-    li.tabIndex = 0; // accessibility: tab focusable
-    li.setAttribute('role', 'button');
-    li.onclick = () => switchChapter(idx);
-    li.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') switchChapter(idx); };
-    chapterMenuList.appendChild(li);
-  });
-}
-
-// opslaan van de code van de gebruiker
-function saveUserCode() {
-  const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-  const value = editor.getValue();
-  try {
-    localStorage.setItem(key, value);
-  } catch (e) {
+  // Hulpfunctie om consistente keys te maken per oefening:
+  function exKey(suffix){ 
+    return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
   }
-}
 
-// Progress bar / vooruitgang
-function renderExerciseProgress() {
-  progressBar.innerHTML = '';
-  const exercises = chapters[currentChapterIdx].exercises;
-  exercises.forEach((exercise, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'exercise-btn' + (idx === currentExerciseIdx ? ' current' : '');
+  // -- Pogingen tellen --
+  function getPogingen(){ 
+    return parseInt(localStorage.getItem(exKey('pogingen')) || '0', 10); 
+  }
+  function incPogingen(){ 
+    const n = getPogingen() + 1;
+    localStorage.setItem(exKey('pogingen'), String(n));
+    return n;
+  }
 
-    // NEW: Check for evaluation
-    const evalKey = `jsprog-eval-${currentChapterIdx}-${idx}`;
-    const evalStatus = localStorage.getItem(evalKey);
-    if (evalStatus === "success") {
-      btn.style.background = '#3dffd0'; // green
-      btn.style.color = '#23272e';
-    } else if (evalStatus === "fail") {
-      btn.style.background = '#ff1744'; // red
-      btn.style.color = '#fff';
-    } else {
-      btn.style.background = '';
-      btn.style.color = '';
+  // -- Werktijd (in milliseconden) --
+  function getWerkTijdMs(){ 
+    return parseInt(localStorage.getItem(exKey('werkTijdMs')) || '0', 10); 
+  }
+  function setWerkTijdMs(ms){ 
+    localStorage.setItem(exKey('werkTijdMs'), String(ms)); 
+  }
+  function addWerkTijd(ms){ 
+    setWerkTijdMs(getWerkTijdMs() + ms); 
+  }
+
+  // Timer besturen: start/stop en UI updaten
+  function startWerkTimer(){
+    // Start zodra de leerling effectief iets wijzigt (zie editor.on('change') hook)
+    if (_workTimer.running) return;
+    _workTimer.running = true;
+    _workTimer.lastStart = Date.now();
+    _workTimer.intervalId = setInterval(updateMetricsUI, 1000); // UI elke seconde bijwerken
+  }
+
+  function stopWerkTimer(){
+    if(!_workTimer.running) return;
+    const nu = Date.now();
+    addWerkTijd(nu - _workTimer.lastStart); // cumuleren in localStorage
+    _workTimer.running = false;
+    _workTimer.lastStart = 0;
+    clearInterval(_workTimer.intervalId);
+    _workTimer.intervalId = null;
+    updateMetricsUI(); // eindstand tonen
+  }
+
+  function resetWerkTimerState(){
+    // Oproepen bij oefening wisselen; laat de opgeslagen tijd gewoon staan
+    _workTimer.running = false;
+    _workTimer.lastStart = 0;
+    if (_workTimer.intervalId) clearInterval(_workTimer.intervalId);
+    _workTimer.intervalId = null;
+  }
+
+  // Formatter voor het scherm/PDF
+  function formatDuur(ms){
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return (m > 0 ? `${m}m ` : '') + `${r}s`;
+  }
+
+  // Klein UI-label rechts van "Canvas" toevoegen/actualiseren
+  let metricsEl = null;
+  function ensureMetricsEl(){
+    if (metricsEl) return metricsEl;
+    const header = document.querySelector('.canvas-header');
+    metricsEl = document.createElement('span');
+    metricsEl.id = 'metrics';
+    metricsEl.style.fontFamily = 'monospace';
+    metricsEl.style.marginLeft = '12px';
+    header && header.appendChild(metricsEl);
+    return metricsEl;
+  }
+
+  function updateMetricsUI(){
+    const el = ensureMetricsEl();
+    const basisMs = getWerkTijdMs();
+    const liveMs  = _workTimer.running ? (Date.now() - _workTimer.lastStart) : 0;
+    el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
+  }
+
+  // Pauzeer bij focusverlies/tabwissel (geen spooktijd optellen)
+  window.addEventListener('blur', stopWerkTimer);
+  window.addEventListener('beforeunload', stopWerkTimer);
+  // Pauzeer ook bij tab-verbergen (sommige browsers sturen geen 'blur')
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopWerkTimer();
+  });
+
+  // === ELEMENTS ===
+  const opdrachtTekst = document.getElementById('opdracht-tekst');
+  const progressBar = document.getElementById('exercise-progress');
+  const chapterMenuList = document.getElementById('menu-chapters'); // UL in sidebar
+
+  // === RENDER CHAPTER MENU ===
+  function renderChapterMenu() {
+    if (!chapterMenuList) return;
+    chapterMenuList.innerHTML = '';
+    chapters.forEach((chapter, idx) => {
+      const li = document.createElement('li');
+      li.className = 'menu-chapter-item' + (idx === currentChapterIdx ? ' active' : '');
+      li.textContent = chapter.title;
+      li.tabIndex = 0; // accessibility: tab focusable
+      li.setAttribute('role', 'button');
+      li.onclick = () => switchChapter(idx);
+      li.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') switchChapter(idx); };
+      chapterMenuList.appendChild(li);
+    });
+  }
+
+  // opslaan van de code van de gebruiker
+  function saveUserCode() {
+    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    const value = editor.getValue();
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
     }
-
-    btn.textContent = idx + 1;
-    btn.type = 'button';
-    btn.title = exercise.title || `Oefening ${idx + 1}`;
-    btn.onclick = () => switchExercise(idx);
-    progressBar.appendChild(btn);
-  });
-}
-
-
-
-
-
-// Inladen van een oefening
-let isDirty = false;
-function loadExercise() {
-  const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-  opdrachtTekst.innerHTML = `<strong>${exercise.title || "(geen titel)"}</strong>`;
-  
-  const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-  let savedCode = localStorage.getItem(key);
-  if (savedCode !== null) {
-    editor.setValue(savedCode);
-  } else if (exercise.starterCode) {
-    editor.setValue(exercise.starterCode);
-  } else {
-    editor.setValue('');
   }
-  clearConsole();
-  if (window.resetTurtle) window.resetTurtle();
-  if (window.clearCanvas) window.clearCanvas();
-  isDirty = false;
-  stopWerkTimer();
-  resetWerkTimerState();
-  updateMetricsUI();
-}
-function showSavedToast() {
-  // Geen meerdere pop-ups!
-  if (document.getElementById('saved-toast')) return;
-  const toast = document.createElement('div');
-  toast.id = 'saved-toast';
-  toast.textContent = "Opgeslagen!";
-  toast.style.position = "fixed";
-  toast.style.bottom = "32px";
-  toast.style.right = "32px";
-  toast.style.background = "#3dffd0";
-  toast.style.color = "#23272e";
-  toast.style.padding = "0.8em 1.2em";
-  toast.style.borderRadius = "8px";
-  toast.style.fontWeight = "bold";
-  toast.style.boxShadow = "0 2px 12px rgba(0,0,0,0.10)";
-  toast.style.zIndex = 3001;
-  toast.style.opacity = "0";
-  toast.style.transition = "opacity 0.25s";
-  document.body.appendChild(toast);
-  // Fade in
-  setTimeout(() => { toast.style.opacity = "1"; }, 20);
-  // Fade out and remove
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    setTimeout(() => { toast.remove(); }, 300);
-  }, 900);
-}
 
-// SWITCH CHAPTER
-function switchChapter(chapterIdx, exerciseIdx = 0) {
-  confirmSwitch(() => {
-    currentChapterIdx = chapterIdx;
-    currentExerciseIdx = exerciseIdx;
+  // Progress bar / vooruitgang
+  function renderExerciseProgress() {
+    progressBar.innerHTML = '';
+    const exercises = chapters[currentChapterIdx].exercises;
+    exercises.forEach((exercise, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'exercise-btn' + (idx === currentExerciseIdx ? ' current' : '');
+
+      // NEW: Check for evaluation
+      const evalKey = `jsprog-eval-${currentChapterIdx}-${idx}`;
+      const evalStatus = localStorage.getItem(evalKey);
+      if (evalStatus === "success") {
+        btn.style.background = '#3dffd0'; // green
+        btn.style.color = '#23272e';
+      } else if (evalStatus === "fail") {
+        btn.style.background = '#ff1744'; // red
+        btn.style.color = '#fff';
+      } else {
+        btn.style.background = '';
+        btn.style.color = '';
+      }
+
+      btn.textContent = idx + 1;
+      btn.type = 'button';
+      btn.title = exercise.title || `Oefening ${idx + 1}`;
+      btn.onclick = () => switchExercise(idx);
+      progressBar.appendChild(btn);
+    });
+  }
+
+  // Inladen van een oefening
+  let isDirty = false;
+  function loadExercise() {
+    const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+    opdrachtTekst.innerHTML = `<strong>${exercise.title || "(geen titel)"}</strong>`;
+    
+    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    let savedCode = localStorage.getItem(key);
+    if (savedCode !== null) {
+      editor.setValue(savedCode);
+    } else if (exercise.starterCode) {
+      editor.setValue(exercise.starterCode);
+    } else {
+      editor.setValue('');
+    }
+    clearConsole();
+    if (window.resetTurtle) window.resetTurtle();
+    if (window.clearCanvas) window.clearCanvas();
+    isDirty = false;
+    stopWerkTimer();
+    resetWerkTimerState();
+    updateMetricsUI();
+  }
+
+  function showSavedToast() {
+    // Geen meerdere pop-ups!
+    if (document.getElementById('saved-toast')) return;
+    const toast = document.createElement('div');
+    toast.id = 'saved-toast';
+    toast.textContent = "Opgeslagen!";
+    toast.style.position = "fixed";
+    toast.style.bottom = "32px";
+    toast.style.right = "32px";
+    toast.style.background = "#3dffd0";
+    toast.style.color = "#23272e";
+    toast.style.padding = "0.8em 1.2em";
+    toast.style.borderRadius = "8px";
+    toast.style.fontWeight = "bold";
+    toast.style.boxShadow = "0 2px 12px rgba(0,0,0,0.10)";
+    toast.style.zIndex = 3001;
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.25s";
+    document.body.appendChild(toast);
+    // Fade in
+    setTimeout(() => { toast.style.opacity = "1"; }, 20);
+    // Fade out and remove
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => { toast.remove(); }, 300);
+    }, 900);
+  }
+
+  // SWITCH CHAPTER
+  function switchChapter(chapterIdx, exerciseIdx = 0) {
+    confirmSwitch(() => {
+      currentChapterIdx = chapterIdx;
+      currentExerciseIdx = exerciseIdx;
+      renderChapterMenu();
+      renderExerciseProgress();
+      loadExercise();
+      isDirty = false; // Reset flag after switch
+    });
+  }
+
+  // Wisselen van opdracht
+  function switchExercise(exIdx) {
+    confirmSwitch(() => {
+      currentExerciseIdx = exIdx;
+      renderExerciseProgress();
+      loadExercise();
+      isDirty = false; // Reset flag after switch
+    });
+  }
+
+  // --- BEGIN: Confirm Modal Promise-based Functie ---
+  window.confirmModal = function(message) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('confirm-modal');
+      const msgDiv = document.getElementById('confirm-modal-msg');
+      const okBtn = document.getElementById('confirm-modal-ok');
+      const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+      // Toon de modal en stel het bericht in
+      msgDiv.textContent = message;
+      modal.style.display = "flex";
+
+      // Opruim-functie voor na klikken of sluiten
+      function cleanup(result) {
+        modal.style.display = "none";
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        document.removeEventListener('keydown', onKeyDown);
+        resolve(result);
+      }
+
+      // Handler voor OK-knop
+      function onOk() { cleanup(true); }
+      // Handler voor Annuleren-knop
+      function onCancel() { cleanup(false); }
+
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+
+      // Ondersteuning voor ESC- of Enter-toets
+      function onKeyDown(e) {
+        if (e.key === "Escape") cleanup(false);
+        if (e.key === "Enter") cleanup(true);
+      }
+      document.addEventListener('keydown', onKeyDown);
+
+      // Sluiten bij klikken buiten het modal-venster
+      modal.onclick = function(e) {
+        if (e.target === modal) cleanup(false);
+      };
+    });
+  };
+  // --- EINDE: Confirm Modal ---
+
+  function confirmSwitch(callback) {
+    if (!isDirty) {
+      callback();
+      return;
+    }
+    window.confirmModal(
+      "Je hebt jouw code nog niet uitgevoerd of opgeslagen. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
+    ).then((proceed) => {
+      if (proceed) callback();
+      // else: doe niets
+    });
+  }
+
+  // --- INIT ---
+  document.addEventListener("DOMContentLoaded", function() {
     renderChapterMenu();
     renderExerciseProgress();
     loadExercise();
-    isDirty = false; // Reset flag after switch
   });
-}
 
-// Wisselen van opdracht
-function switchExercise(exIdx) {
-  confirmSwitch(() => {
-    currentExerciseIdx = exIdx;
-    renderExerciseProgress();
-    loadExercise();
-    isDirty = false; // Reset flag after switch
+  // CodeMirror setup
+  let editor = CodeMirror(document.getElementById('code-editor'), {
+    value: chapters[0].exercises[0].starterCode,
+    mode: "javascript",
+    lineNumbers: true,
+    theme: "default",
+    tabSize: 2,
+    autofocus: true,
   });
-}
+  editor.on('change', function() {
+    isDirty = true;
+    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    localStorage.setItem(key, editor.getValue());
+    startWerkTimer();          // start de werktijd-timer bij eerste wijziging
+    updateMetricsUI();         // toon actuele pogingen+tijd
+  });
 
-// --- BEGIN: Confirm Modal Promise-based Functie ---
-window.confirmModal = function(message) {
-  return new Promise((resolve) => {
-    const modal = document.getElementById('confirm-modal');
-    const msgDiv = document.getElementById('confirm-modal-msg');
-    const okBtn = document.getElementById('confirm-modal-ok');
-    const cancelBtn = document.getElementById('confirm-modal-cancel');
+  // Console output logic
+  const consoleDiv = document.getElementById('console-output');
+  function clearConsole() { consoleDiv.textContent = ''; }
+  function appendToConsole(msg) { consoleDiv.textContent += msg + "\n"; }
+  (function(){
+    const oldLog = console.log;
+    console.log = function(...args) {
+      oldLog.apply(console, args);
 
-    // Toon de modal en stel het bericht in
-    msgDiv.textContent = message;
-    modal.style.display = "flex";
+      // ---- Vang uitvoer op voor evaluatie ----
+      let str = args.map(String).join(" ");
+      capturedOutput += str + "\n";      // <-- extra lijn
 
-    // Opruim-functie voor na klikken of sluiten
-    function cleanup(result) {
-      modal.style.display = "none";
-      okBtn.removeEventListener('click', onOk);
-      cancelBtn.removeEventListener('click', onCancel);
-      document.removeEventListener('keydown', onKeyDown);
-      resolve(result);
-    }
-
-    // Handler voor OK-knop
-    function onOk() { cleanup(true); }
-    // Handler voor Annuleren-knop
-    function onCancel() { cleanup(false); }
-
-    okBtn.addEventListener('click', onOk);
-    cancelBtn.addEventListener('click', onCancel);
-
-    // Ondersteuning voor ESC- of Enter-toets
-    function onKeyDown(e) {
-      if (e.key === "Escape") cleanup(false);
-      if (e.key === "Enter") cleanup(true);
-    }
-    document.addEventListener('keydown', onKeyDown);
-
-    // Sluiten bij klikken buiten het modal-venster
-    modal.onclick = function(e) {
-      if (e.target === modal) cleanup(false);
+      appendToConsole(str);
     };
-  });
-};
-// --- EINDE: Confirm Modal ---
+  })();
 
-  
-function confirmSwitch(callback) {
-  if (!isDirty) {
-    callback();
-    return;
-  }
-  window.confirmModal(
-    "Je hebt jouw code nog niet uitgevoerd of opgeslagen. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
-  ).then((proceed) => {
-    if (proceed) callback();
-    // else: doe niets
-  });
-}
-
-
-
-
-// --- INIT ---
-document.addEventListener("DOMContentLoaded", function() {
-  renderChapterMenu();
-  renderExerciseProgress();
-  loadExercise();
-});
-
-    // CodeMirror setup
-    let editor = CodeMirror(document.getElementById('code-editor'), {
-      value: chapters[0].exercises[0].starterCode,
-      mode: "javascript",
-      lineNumbers: true,
-      theme: "default",
-      tabSize: 2,
-      autofocus: true,
-    });
-    editor.on('change', function() {
-  isDirty = true;
-  const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-  localStorage.setItem(key, editor.getValue());
-  startWerkTimer();          // Nederlands: start de werktijd-timer bij eerste wijziging
-  updateMetricsUI();         // Nederlands: toon actuele pogingen+tijd
-});
-
-
-
-    // Console output logic
-    const consoleDiv = document.getElementById('console-output');
-    function clearConsole() { consoleDiv.textContent = ''; }
-    function appendToConsole(msg) { consoleDiv.textContent += msg + "\n"; }
-    (function(){
-  const oldLog = console.log;
-  console.log = function(...args) {
-    oldLog.apply(console, args);
-
-    // ---- Vang uitvoer op voor evaluatie ----
-    let str = args.map(String).join(" ");
-    capturedOutput += str + "\n";      // <-- Dit is de extra lijn!
-
-    appendToConsole(str);
+  // Help modal tonen/verbergen
+  const helpModal = document.getElementById('help-modal');
+  document.getElementById('help-btn').onclick = function() {
+    helpModal.style.display = "flex";
   };
-})();
+  document.getElementById('close-help').onclick = function() {
+    helpModal.style.display = "none";
+  };
+  helpModal.onclick = function(e) {
+    if (e.target === helpModal) helpModal.style.display = "none";
+  };
 
-    // Help modal tonen/verbergen
-    const helpModal = document.getElementById('help-modal');
-    document.getElementById('help-btn').onclick = function() {
-      helpModal.style.display = "flex";
-    };
-    document.getElementById('close-help').onclick = function() {
-      helpModal.style.display = "none";
-    };
-    helpModal.onclick = function(e) {
-      if (e.target === helpModal) helpModal.style.display = "none";
-    };
-
-    // Dynamisch kleuren tonen in overlay uit rgbcolor.js
-    function renderSwatches() {
-      let simple_colors = null;
-      if (typeof RGBColor === "function") {
-        let match = RGBColor.toString().match(/var\s+simple_colors\s*=\s*({[\s\S]+?});/);
-        if (match) {
-          try { simple_colors = eval('(' + match[1] + ')'); } catch (e) {}
-        }
-        if (!simple_colors && RGBColor.simple_colors) simple_colors = RGBColor.simple_colors;
+  // Dynamisch kleuren tonen in overlay uit rgbcolor.js
+  function renderSwatches() {
+    let simple_colors = null;
+    if (typeof RGBColor === "function") {
+      let match = RGBColor.toString().match(/var\s+simple_colors\s*=\s*({[\s\S]+?});/);
+      if (match) {
+        try { simple_colors = eval('(' + match[1] + ')'); } catch (e) {}
       }
-      if (!simple_colors) simple_colors = {red:'ff0000',blue:'0000ff',green:'008000',black:'000000',white:'ffffff'};
+      if (!simple_colors && RGBColor.simple_colors) simple_colors = RGBColor.simple_colors;
+    }
+    if (!simple_colors) simple_colors = {red:'ff0000',blue:'0000ff',green:'008000',black:'000000',white:'ffffff'};
 
-      const MAX_COLORS = 32;
-      let names = Object.keys(simple_colors).slice(0, MAX_COLORS);
+    const MAX_COLORS = 32;
+    let names = Object.keys(simple_colors).slice(0, MAX_COLORS);
 
-      let swatchesHTML = '';
-      for (const colorName of names) {
-        const hex = '#' + simple_colors[colorName];
-        const r = parseInt(simple_colors[colorName].substring(0,2), 16);
-        const g = parseInt(simple_colors[colorName].substring(2,4), 16);
-        const b = parseInt(simple_colors[colorName].substring(4,6), 16);
-        const rgbString = `rgb(${r},${g},${b})`;
-        swatchesHTML += `
-          <div class="swatch-container">
+    let swatchesHTML = '';
+    for (const colorName of names) {
+      const hex = '#' + simple_colors[colorName];
+      const r = parseInt(simple_colors[colorName].substring(0,2), 16);
+      const g = parseInt(simple_colors[colorName].substring(2,4), 16);
+      const b = parseInt(simple_colors[colorName].substring(4,6), 16);
+      const rgbString = `rgb(${r},${g},${b})`;
+      swatchesHTML += `
+        <div class="swatch-container">
           <div class="swatch" style="background:${hex};"></div>
           <div class="label">${colorName}<br>
             <span class="rgb">${rgbString}</span>
           </div>
         </div>
-        `;
-
-      }
-      document.getElementById('dynamic-color-swatches').innerHTML = swatchesHTML;
+      `;
     }
-    document.addEventListener("DOMContentLoaded", renderSwatches);
+    document.getElementById('dynamic-color-swatches').innerHTML = swatchesHTML;
+  }
+  document.addEventListener("DOMContentLoaded", renderSwatches);
 
-    // Dark mode toggle
-    document.getElementById('toggle-theme').onclick = function() {
-      document.body.classList.toggle('dark');
-    };
+  // Dark mode toggle
+  document.getElementById('toggle-theme').onclick = function() {
+    document.body.classList.toggle('dark');
+  };
 
-// Export naar PDF
-document.getElementById('export-pdf').onclick = function() {
-  document.getElementById('pdf-modal').style.display = 'flex';
-  document.getElementById('modal-naam').value = '';
-  document.getElementById('modal-klas').value = '';
-  document.getElementById('modal-oefening').value = '';
-  document.getElementById('modal-naam').focus();
-};
+  // Export naar PDF (open modal)
+  document.getElementById('export-pdf').onclick = function() {
+    document.getElementById('pdf-modal').style.display = 'flex';
+    document.getElementById('modal-naam').value = '';
+    document.getElementById('modal-klas').value = '';
+    document.getElementById('modal-oefening').value = '';
+    document.getElementById('modal-naam').focus();
+  };
 
-// Close modal logic (X button or click outside)
-document.getElementById('close-pdf-modal').onclick = function() {
-  document.getElementById('pdf-modal').style.display = 'none';
-};
-document.getElementById('pdf-modal').onclick = function(e) {
-  if (e.target === this) this.style.display = 'none';
-};
-// Brand colours voor de opmaak van de PDF: 
+  // Close modal logic (X button or click outside)
+  document.getElementById('close-pdf-modal').onclick = function() {
+    document.getElementById('pdf-modal').style.display = 'none';
+  };
+  document.getElementById('pdf-modal').onclick = function(e) {
+    if (e.target === this) this.style.display = 'none';
+  };
+
+  // Brand colours voor de opmaak van de PDF:
   const COLOR_PURPLE = [82, 0, 255];    // #5200FF
   const COLOR_GREEN = [61, 255, 208];   // #3DFFD0
   const COLOR_WHITE = [255, 255, 255];  // #FFFFFF
   
-// Maak een PDF nadat de gebruiker op OK drukt in de modal: 
-document.getElementById('modal-ok').onclick = async function() {
-  const naam = document.getElementById('modal-naam').value.trim();
-  const klas = document.getElementById('modal-klas').value.trim();
-  let oefening = document.getElementById('modal-oefening').value.trim();
-  if (!naam || !klas) {
-    alert("Gelieve je naam en klas in te vullen.");
-    return;
-  }
-  if (!oefening) {
-    oefening = chapters[currentChapterIdx].exercises[currentExerciseIdx].title || "(geen titel)";
-  }
-  document.getElementById('pdf-modal').style.display = 'none';
-
-  // Data for evaluation/status
-  const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
-  const evalStatus = localStorage.getItem(evalKey);
-  const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-  const expectedOutput = exercise.evalOutput || "";
-
-  // Canvas capture
-  const canvas = document.getElementById('turtlecanvas');
-  const canvasImg = await html2canvas(canvas, {
-    backgroundColor: null,
-    scale: 2
-  }).then(cnv => cnv.toDataURL('image/png'));
-
-  // PDF setup
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-  const pageHeight = pdf.internal.pageSize.height;
-  const margin = 36, contentWidth = 520;
-  let y = margin;
-
-  // Font en stijlen tekst:
-  function setBodyFont()   { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12); }
-  function setHeaderFont() { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); }
-  function setLabelFont()  { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13); }
-  function setCodeFont()   { pdf.setFont('courier', 'normal'); pdf.setFontSize(10); }
-
-  function ensureRoom(heightNeeded) {
-    if (y + heightNeeded > pageHeight - margin) {
-      pdf.addPage();
-      y = margin;
+  // Maak een PDF nadat de gebruiker op OK drukt in de modal:
+  document.getElementById('modal-ok').onclick = async function() {
+    const naam = document.getElementById('modal-naam').value.trim();
+    const klas = document.getElementById('modal-klas').value.trim();
+    let oefening = document.getElementById('modal-oefening').value.trim();
+    if (!naam || !klas) {
+      alert("Gelieve je naam en klas in te vullen.");
+      return;
     }
-  }
-
-  function addMultilineSection(label, contentLines, color=COLOR_PURPLE, code=false) {
-    pdf.setTextColor(...color); setLabelFont();
-    pdf.text(label, margin, y); y += 16;
-    if (code) { setCodeFont(); }
-    else      { setBodyFont(); }
-    pdf.setTextColor(0, 0, 0); // body text = black
-    const lineHeight = code ? 13 : 14;
-    for (let i = 0; i < contentLines.length; ) {
-      let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
-      if (linesFit < 1) { pdf.addPage(); y = margin; continue; }
-      let linesThisPage = contentLines.slice(i, i + linesFit);
-      pdf.text(linesThisPage, margin, y);
-      i += linesFit;
-      y += linesThisPage.length * lineHeight;
-      if (i < contentLines.length) { pdf.addPage(); y = margin; }
+    if (!oefening) {
+      oefening = chapters[currentChapterIdx].exercises[currentExerciseIdx].title || "(geen titel)";
     }
-    y += 10;
-  }
+    document.getElementById('pdf-modal').style.display = 'none';
 
-  // Header
-  pdf.setTextColor(...COLOR_PURPLE); setHeaderFont();
-  pdf.text('JavaScript in de Klas – Oefening', margin, y); y += 28;
-  pdf.setTextColor(0, 0, 0); setBodyFont();
-  pdf.text(`Naam: ${naam}`, margin, y); y += 18;
-  pdf.text(`Klas: ${klas}`, margin, y); y += 18;
-  pdf.text(`Oefening: ${oefening}`, margin, y); y += 30;
+    // Data for evaluation/status
+    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+    const evalStatus = localStorage.getItem(evalKey);
+    const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+    const expectedOutput = exercise.evalOutput || "";
 
-  // Opdracht
-  let opdrachtTekst = document.getElementById('opdracht-tekst').textContent;
-  let opdrachtLines = pdf.splitTextToSize(opdrachtTekst, contentWidth);
-  pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
-  pdf.text("Opdracht:", margin, y); y += 20;
-  pdf.setTextColor(0, 0, 0); setBodyFont();
-  pdf.text(opdrachtLines, margin, y); y += opdrachtLines.length * 14 + 18;
+    // Canvas capture
+    const canvas = document.getElementById('turtlecanvas');
+    const canvasImg = await html2canvas(canvas, {
+      backgroundColor: null,
+      scale: 2
+    }).then(cnv => cnv.toDataURL('image/png'));
 
-  // Code
-  let code = editor.getValue();
-  let codeLines = pdf.splitTextToSize(code, contentWidth);
-  addMultilineSection("Code:", codeLines, COLOR_PURPLE, true);
+    // PDF setup
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const pageHeight = pdf.internal.pageSize.height;
+    const margin = 36, contentWidth = 520;
+    let y = margin;
 
-  // Output
-  let consoleText = document.getElementById('console-output').textContent;
-  let outputLines = pdf.splitTextToSize(consoleText || "(geen uitvoer)", contentWidth);
-  addMultilineSection("Console-uitvoer:", outputLines, COLOR_PURPLE, true);
+    // Font en stijlen tekst:
+    function setBodyFont()   { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12); }
+    function setHeaderFont() { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); }
+    function setLabelFont()  { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13); }
+    function setCodeFont()   { pdf.setFont('courier', 'normal'); pdf.setFontSize(10); }
 
-// Status oefening + metacognitieve metrics (pogingen & tijd)
-pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
-pdf.text("Status oefening:", margin, y); y += 16;
+    function ensureRoom(heightNeeded) {
+      if (y + heightNeeded > pageHeight - margin) {
+        pdf.addPage();
+        y = margin;
+      }
+    }
 
-pdf.setTextColor(0, 0, 0); setBodyFont();
+    function addMultilineSection(label, contentLines, color=COLOR_PURPLE, code=false) {
+      pdf.setTextColor(...color); setLabelFont();
+      pdf.text(label, margin, y); y += 16;
+      if (code) { setCodeFont(); }
+      else      { setBodyFont(); }
+      pdf.setTextColor(0, 0, 0); // body text = black
+      const lineHeight = code ? 13 : 14;
+      for (let i = 0; i < contentLines.length; ) {
+        let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
+        if (linesFit < 1) { pdf.addPage(); y = margin; continue; }
+        let linesThisPage = contentLines.slice(i, i + linesFit);
+        pdf.text(linesThisPage, margin, y);
+        i += linesFit;
+        y += linesThisPage.length * lineHeight;
+        if (i < contentLines.length) { pdf.addPage(); y = margin; }
+      }
+      y += 10;
+    }
 
-// 1) Status-tekst zoals vroeger
-let statusText;
-if (evalStatus === "success") statusText = "Oefening correct";
-else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
-else statusText = "Niet uitgevoerd";
-pdf.text(statusText, margin, y); y += 16;
+    // Header
+    pdf.setTextColor(...COLOR_PURPLE); setHeaderFont();
+    pdf.text('JavaScript in de Klas – Oefening', margin, y); y += 28;
+    pdf.setTextColor(0, 0, 0); setBodyFont();
+    pdf.text(`Naam: ${naam}`, margin, y); y += 18;
+    pdf.text(`Klas: ${klas}`, margin, y); y += 18;
+    pdf.text(`Oefening: ${oefening}`, margin, y); y += 30;
 
-// 2) Waarden rechtstreeks uit je helpers of, als fallback, uit localStorage
-//    (Zo blijft het werken als je functienamen ooit wijzigt)
-const pogingen = (typeof getPogingen === 'function')
-  ? getPogingen()
-  : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
+    // Opdracht
+    let opdrachtTekstPdf = document.getElementById('opdracht-tekst').textContent;
+    let opdrachtLines = pdf.splitTextToSize(opdrachtTekstPdf, contentWidth);
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Opdracht:", margin, y); y += 20;
+    pdf.setTextColor(0, 0, 0); setBodyFont();
+    pdf.text(opdrachtLines, margin, y); y += opdrachtLines.length * 14 + 18;
 
-const tijdMs = (typeof getWerkTijdMs === 'function')
-  ? getWerkTijdMs()
-  : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
+    // Code
+    let code = editor.getValue();
+    let codeLines = pdf.splitTextToSize(code, contentWidth);
+    addMultilineSection("Code:", codeLines, COLOR_PURPLE, true);
 
-// 3) Gebruik dezelfde formatter als in de UI indien beschikbaar
-function _fmt(ms){
-  if (typeof formatDuur === 'function') return formatDuur(ms);
-  const s = Math.max(0, Math.floor((ms || 0)/1000));
-  const m = Math.floor(s/60), r = s % 60;
-  return (m > 0 ? `${m}m ` : '') + `${r}s`;
-}
+    // Output
+    let consoleText = document.getElementById('console-output').textContent;
+    let outputLines = pdf.splitTextToSize(consoleText || "(geen uitvoer)", contentWidth);
+    addMultilineSection("Console-uitvoer:", outputLines, COLOR_PURPLE, true);
 
-// 4) Extra regels in het rapport
-pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
-pdf.text(`Tijd besteed: ${_fmt(tijdMs)}`, margin, y); y += 24;
+    // Status oefening + metacognitieve metrics (pogingen & tijd)
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Status oefening:", margin, y); y += 16;
 
+    pdf.setTextColor(0, 0, 0); setBodyFont();
 
-  // Correctiesleutel indien beschikbaar: 
-  if (expectedOutput && expectedOutput.length > 0) {
-    let expectedLines = pdf.splitTextToSize(expectedOutput, contentWidth);
-    addMultilineSection("Verwachte uitvoer:", expectedLines, COLOR_PURPLE, true);
-  }
+    // 1) Status-tekst zoals vroeger
+    let statusText;
+    if (evalStatus === "success") statusText = "Oefening correct";
+    else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
+    else statusText = "Niet uitgevoerd";
+    pdf.text(statusText, margin, y); y += 16;
 
-  // Canvas: 
-  const imgHeight = 210, imgWidth = 210;
-  ensureRoom(imgHeight + 40);
-  pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
-  pdf.text("Canvas:", margin, y); y += 10;
-  pdf.addImage(canvasImg, 'PNG', margin, y, imgWidth, imgHeight); y += imgHeight + 20;
+    // 2) Waarden rechtstreeks uit je helpers of, als fallback, uit localStorage
+    const pogingen = (typeof getPogingen === 'function')
+      ? getPogingen()
+      : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
 
-// Feedback:
-ensureRoom(250); // More space for larger rows
-pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
-pdf.text("Beoordeling & Feedback leerkracht:", margin, y); y += 18;
+    const tijdMs = (typeof getWerkTijdMs === 'function')
+      ? getWerkTijdMs()
+      : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
 
-// Table layout constants
-const tableWidth = 520;
-const criteriumColWidth = 160;
-const scoreColWidth = 54;
-const feedbackColWidth = tableWidth - criteriumColWidth - scoreColWidth;
-const startX = margin;
-const col1 = startX + criteriumColWidth;
-const col2 = col1 + scoreColWidth;
-const headerH = 28;
-const rowH = 44; // Taller rows
+    // 3) Gebruik dezelfde formatter als in de UI indien beschikbaar
+    function _fmt(ms){
+      if (typeof formatDuur === 'function') return formatDuur(ms);
+      const s = Math.max(0, Math.floor((ms || 0)/1000));
+      const m = Math.floor(s/60), r = s % 60;
+      return (m > 0 ? `${m}m ` : '') + `${r}s`;
+    }
 
-// Draw table outline
-pdf.setDrawColor(...COLOR_PURPLE); 
-pdf.setLineWidth(0.8);
-pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, 'S');
+    // 4) Extra regels in het rapport
+    pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
+    pdf.text(`Tijd besteed: ${_fmt(tijdMs)}`, margin, y); y += 24;
 
-// Draw header background (purple rectangle)
-pdf.setFillColor(...COLOR_PURPLE);
-pdf.rect(startX, y, tableWidth, headerH, 'F'); // Fill only header row
+    // Correctiesleutel indien beschikbaar:
+    if (expectedOutput && expectedOutput.length > 0) {
+      let expectedLines = pdf.splitTextToSize(expectedOutput, contentWidth);
+      addMultilineSection("Verwachte uitvoer:", expectedLines, COLOR_PURPLE, true);
+    }
 
-// Table headers: bold & white
-pdf.setTextColor(255, 255, 255);
-pdf.setFont('helvetica', 'bold');
-pdf.setFontSize(13);
-pdf.text("Criterium", startX + 8, y + 19);
-pdf.text("Score", col1 + 12, y + 19);
-pdf.text("Feedback", col2 + 12, y + 19);
+    // Canvas:
+    const imgHeight = 210, imgWidth = 210;
+    ensureRoom(imgHeight + 40);
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Canvas:", margin, y); y += 10;
+    pdf.addImage(canvasImg, 'PNG', margin, y, imgWidth, imgHeight); y += imgHeight + 20;
 
-// Vertical lines
-pdf.setDrawColor(...COLOR_PURPLE);
-pdf.line(col1, y, col1, y + headerH + 5 * rowH);
-pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+    // Feedback:
+    ensureRoom(250); // More space for larger rows
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Beoordeling & Feedback leerkracht:", margin, y); y += 18;
 
-// Horizontal lines and row labels
-pdf.setFont('helvetica', 'normal');
-pdf.setFontSize(12);
-const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
-for (let i = 0; i < criteria.length; i++) {
-  const rowY = y + headerH + i * rowH;
-  // Row line
-  pdf.line(startX, rowY, startX + tableWidth, rowY);
-  // Row label (criterium)
-  pdf.setTextColor(...COLOR_PURPLE);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text(criteria[i], startX + 8, rowY + 26);
-  
-}
-y += headerH + 5 * rowH + 20; // plaats tussen de tabel en alg. feedback
+    // Table layout constants
+    const tableWidth = 520;
+    const criteriumColWidth = 160;
+    const scoreColWidth = 54;
+    const feedbackColWidth = tableWidth - criteriumColWidth - scoreColWidth;
+    const startX = margin;
+    const col1 = startX + criteriumColWidth;
+    const col2 = col1 + scoreColWidth;
+    const headerH = 28;
+    const rowH = 44; // Taller rows
 
-// "Algemene feedback" bold and purple
-pdf.setTextColor(...COLOR_PURPLE);
-pdf.setFont('helvetica', 'bold');
-pdf.setFontSize(13);
-pdf.text("Algemene feedback:", startX + 8, y);
+    // Draw table outline
+    pdf.setDrawColor(...COLOR_PURPLE); 
+    pdf.setLineWidth(0.8);
+    pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, 'S');
 
-// Reset text color/font for any further text
-pdf.setTextColor(0, 0, 0);
-pdf.setFont('helvetica', 'normal');
-pdf.setFontSize(12);
+    // Draw header background (purple rectangle)
+    pdf.setFillColor(...COLOR_PURPLE);
+    pdf.rect(startX, y, tableWidth, headerH, 'F'); // Fill only header row
 
+    // Table headers: bold & white
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(13);
+    pdf.text("Criterium", startX + 8, y + 19);
+    pdf.text("Score", col1 + 12, y + 19);
+    pdf.text("Feedback", col2 + 12, y + 19);
 
+    // Vertical lines
+    pdf.setDrawColor(...COLOR_PURPLE);
+    pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+    pdf.line(col2, y, col2, y + headerH + 5 * rowH);
 
+    // Horizontal lines and row labels
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(12);
+    const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+    for (let i = 0; i < criteria.length; i++) {
+      const rowY = y + headerH + i * rowH;
+      // Row line
+      pdf.line(startX, rowY, startX + tableWidth, rowY);
+      // Row label (criterium)
+      pdf.setTextColor(...COLOR_PURPLE);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(criteria[i], startX + 8, rowY + 26);
+    }
+    y += headerH + 5 * rowH + 20; // plaats tussen de tabel en alg. feedback
 
-  // Bestand opslaan: 
-  function sanitize(s) { return s.replace(/[^a-zA-Z0-9_\-]/g, "_"); }
-  const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
-  pdf.save(fname);
-};
+    // "Algemene feedback" bold and purple
+    pdf.setTextColor(...COLOR_PURPLE);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(13);
+    pdf.text("Algemene feedback:", startX + 8, y);
 
+    // Reset text color/font for any further text
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(12);
 
-// === Coördinaten correct berekenen (border + CSS-schaal + zoom/pan) ===
-(function () {
-  const coordsSpan = document.getElementById('coords');
-  const canvas = document.getElementById('turtlecanvas');
+    // Bestand opslaan:
+    function sanitize(s) { return s.replace(/[^a-zA-Z0-9_\-]/g, "_"); }
+    const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
+    pdf.save(fname);
+  };
 
-  // Hulpfunctie: lees daadwerkelijke border-diktes
-  function getBorderSizes(el) {
-    const s = getComputedStyle(el);
-    return {
-      left:   parseFloat(s.borderLeftWidth)   || 0,
-      right:  parseFloat(s.borderRightWidth)  || 0,
-      top:    parseFloat(s.borderTopWidth)    || 0,
-      bottom: parseFloat(s.borderBottomWidth) || 0
-    };
-  }
+  // === Coördinaten correct berekenen (border + CSS-schaal + zoom/pan) ===
+  (function () {
+    const coordsSpan = document.getElementById('coords');
+    const canvas = document.getElementById('turtlecanvas');
 
-  canvas.addEventListener("mousemove", function (event) {
-    const rect = canvas.getBoundingClientRect();
-    const b = getBorderSizes(canvas);
+    // Hulpfunctie: lees daadwerkelijke border-diktes
+    function getBorderSizes(el) {
+      const s = getComputedStyle(el);
+      return {
+        left:   parseFloat(s.borderLeftWidth)   || 0,
+        right:  parseFloat(s.borderRightWidth)  || 0,
+        top:    parseFloat(s.borderTopWidth)    || 0,
+        bottom: parseFloat(s.borderBottomWidth) || 0
+      };
+    }
 
-    // 1) Cursorpositie in CSS-pixels binnen de CONTENT (border aftrekken)
-    const cssX = event.clientX - rect.left - b.left;
-    const cssY = event.clientY - rect.top  - b.top;
+    canvas.addEventListener("mousemove", function (event) {
+      const rect = canvas.getBoundingClientRect();
+      const b = getBorderSizes(canvas);
 
-    // 2) Schaal CSS-pixels → canvas-pixels (interne bitmap)
-    const contentCssWidth  = rect.width  - b.left - b.right;
-    const contentCssHeight = rect.height - b.top  - b.bottom;
-    const scaleX = canvas.width  / contentCssWidth;
-    const scaleY = canvas.height / contentCssHeight;
+      // 1) Cursorpositie in CSS-pixels binnen de CONTENT (border aftrekken)
+      const cssX = event.clientX - rect.left - b.left;
+      const cssY = event.clientY - rect.top  - b.top;
 
-    const cx = cssX * scaleX;  // canvas-px
-    const cy = cssY * scaleY;  // canvas-px
+      // 2) Schaal CSS-pixels → canvas-pixels (interne bitmap)
+      const contentCssWidth  = rect.width  - b.left - b.right;
+      const contentCssHeight = rect.height - b.top  - b.bottom;
+      const scaleX = canvas.width  / contentCssWidth;
+      const scaleY = canvas.height / contentCssHeight;
 
-    // 3) Canvas-px → wereldcoördinaten (0,0 in midden; Y omhoog positief)
-    const centerX = canvas.width  / 2;
-    const centerY = canvas.height / 2;
+      const cx = cssX * scaleX;  // canvas-px
+      const cy = cssY * scaleY;  // canvas-px
 
-    // Let op: panX/panY en zoom komen uit jouw globale staat
-    const worldX = (cx - centerX - panX) / zoom;
-    const worldY = (centerY - cy - panY) / zoom;
+      // 3) Canvas-px → wereldcoördinaten (0,0 in midden; Y omhoog positief)
+      const centerX = canvas.width  / 2;
+      const centerY = canvas.height / 2;
 
-    // 4) Toon afgeronde waarden
-    coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
-  });
+      // panX/panY/zoom komen uit de globale turtle-state (library.js)
+      const worldX = (cx - centerX - panX) / zoom;
+      const worldY = (centerY - cy - panY) / zoom;
 
-  canvas.addEventListener("mouseleave", function () {
-    coordsSpan.textContent = "";
-  });
-})();
-
- 
-
-const menuTab = document.getElementById('menu-tab');
-const courseMenu = document.getElementById('course-menu');
-const closeMenu = document.getElementById('close-menu');
-
-menuTab.onclick = (e) => {
-  e.stopPropagation(); // Prevent document click
-  if (courseMenu.classList.contains('open')) {
-    courseMenu.classList.remove('open');
-  } else {
-    courseMenu.classList.add('open');
-    courseMenu.focus();
-  }
-};
-
-closeMenu.onclick = () => {
-  courseMenu.classList.remove('open');
-};
-
-courseMenu.addEventListener('keydown', e => {
-  if (e.key === 'Escape') courseMenu.classList.remove('open');
-});
-document.addEventListener('click', e => {
-  if (
-    courseMenu.classList.contains('open') &&
-    !courseMenu.contains(e.target) &&
-    e.target !== menuTab
-  ) {
-    courseMenu.classList.remove('open');
-  }
-});
- 
-document.getElementById('reset-progress').onclick = async function() {
-  const proceed = await window.confirmModal(
-    "Weet je zeker dat je alle voortgang en opgeslagen code wilt wissen?"
-  );
-  if (proceed) {
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith("jsprog-")) localStorage.removeItem(key);
+      // 4) Toon afgeronde waarden
+      coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
     });
-    renderExerciseProgress();
-    loadExercise();
-  }
-};
 
-// Functie om de error messages beter te maken voor de leerlingen: 
-function translateError(message) {
-  if (message.includes("Unexpected identifier")) {
-    return "Onverwacht woord in de code. Mogelijk een typfout of een ontbrekende komma. Controleer je regels.";
-  }
-  if (message.includes("is not defined")) {
-    return "Variabele is niet gekend. Heb je de variabele gedeclareerd met 'var'? Of een typfout?";
-  }
-  if (message.includes("missing ) after argument list")) {
-    return "Je mist een haakje. Tel je ( en ) even na!";
-  }
-  if (message.includes("Unexpected token }")) {
-    return "Onverwachte '}'. Mogelijk te veel of te weinig accolades gebruikt.";
-  }
-  if (message.includes("not a function")) {
-    return "Je probeert iets als functie te gebruiken, maar dat klopt niet. Typfout in de functienaam?";
-  }
-  if (message.includes("Cannot read property")) {
-    return "Je probeert iets te gebruiken dat niet bestaat. Controleer je objecten en variabelen.";
-  }
-  if (message.includes("Maximum call stack")) {
-    return "Je code zit mogelijk in een oneindige lus. Controleer je lussen!";
-  }
-  if (message.includes("Invalid or unexpected token")) {
-    return "Er staat een teken in je code dat JavaScript niet herkent. Dit kan een typefout zijn, een vergeten haakje, puntkomma of een vreemd teken.";
-  }
-  if (message.includes("Lus zonder accolades")) {
-  return "Je gebruikt een lus zonder { }. Zet je lus-inhoud tussen accolades: { ... }";
-  }
-if (message.includes("mogelijk oneindige lus")) {
-  return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
-}
-  // Standaard: originele Engelse boodschap
-  return message;
-}
+    canvas.addEventListener("mouseleave", function () {
+      coordsSpan.textContent = "";
+    });
+  })();
 
-// Evalueren van oefeningen en console uitvoer checken:
-// --- Opties voor normalisatie van tekst ---
-const _DEFAULT_NORM_OPTS = {
-  caseInsensitive: true,   // hoofdletter-ongevoelig vergelijken
-  trim: true,              // randspaties verwijderen
-  collapseSpaces: true,    // meerdere spaties → één spatie
-  removePunctuation: false,// standaard interpunctie behouden
-  decimalCommaToDot: true  // "12,34" → "12.34" (handig voor Benelux)
-};
+  const menuTab = document.getElementById('menu-tab');
+  const courseMenu = document.getElementById('course-menu');
+  const closeMenu = document.getElementById('close-menu');
 
-// Regels die we negeren uit de console (bv. debug)
-const _IGNORE_LINE_PATTERNS = [
-  /^debug output:/i,
-  /^\s*opgeslagen!$/i
-];
+  menuTab.onclick = (e) => {
+    e.stopPropagation(); // Prevent document click
+    if (courseMenu.classList.contains('open')) {
+      courseMenu.classList.remove('open');
+    } else {
+      courseMenu.classList.add('open');
+      courseMenu.focus();
+    }
+  };
 
-// --- Helpers ---
-function _shouldIgnoreLine(line) {
-  return _IGNORE_LINE_PATTERNS.some(rx => rx.test(line));
-}
+  closeMenu.onclick = () => {
+    courseMenu.classList.remove('open');
+  };
 
-function _normalizeText(s, opts = _DEFAULT_NORM_OPTS) {
-  let t = s ?? "";
-  if (opts.decimalCommaToDot) {
-    // Vervang komma-decimaalvorm in getallen (12,34 → 12.34)
-    t = t.replace(/(\d),(\d)/g, '$1.$2');
-  }
-  if (opts.trim) t = t.trim();
-  if (opts.collapseSpaces) t = t.replace(/\s+/g, ' ');
-  if (opts.removePunctuation) t = t.replace(/[.,;:!?…–—\-]/g, '');
-  if (opts.caseInsensitive) t = t.toLowerCase();
-  return t;
-}
+  courseMenu.addEventListener('keydown', e => {
+    if (e.key === 'Escape') courseMenu.classList.remove('open');
+  });
+  document.addEventListener('click', e => {
+    if (
+      courseMenu.classList.contains('open') &&
+      !courseMenu.contains(e.target) &&
+      e.target !== menuTab
+    ) {
+      courseMenu.classList.remove('open');
+    }
+  });
 
-function _extractNumbers(s) {
-  // Herken ook "12,34" als 12.34
-  const norm = (s ?? "").replace(/(\d),(\d)/g, '$1.$2');
-  const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
-  return matches.map(parseFloat);
-}
+  document.getElementById('reset-progress').onclick = async function() {
+    const proceed = await window.confirmModal(
+      "Weet je zeker dat je alle voortgang en opgeslagen code wilt wissen?"
+    );
+    if (proceed) {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith("jsprog-")) localStorage.removeItem(key);
+      });
+      renderExerciseProgress();
+      loadExercise();
+    }
+  };
 
-function _nearlyEqual(a, b, eps = 0.01) {
-  return Math.abs(a - b) <= eps;
-}
-
-// Vergelijk regel-voor-regel met toleranties op getallen.
-// Geeft { ok:boolean, info:string } terug.
-function _looseCompare(expectedRaw, userRaw, opts = {}) {
-  const linesE = (expectedRaw ?? '')
-    .split(/\r?\n/)
-    .map(l => l.replace(/\u00A0/g, ' ')) // NBSP → spatie
-    .map(l => l.trim())
-    .filter(l => l.length > 0);
-
-  const linesU = (userRaw ?? '')
-    .split(/\r?\n/)
-    .map(l => l.replace(/\u00A0/g, ' '))
-    .map(l => l.trim())
-    .filter(l => l.length > 0 && !_shouldIgnoreLine(l));
-
-  if (linesE.length !== linesU.length) {
-    return { ok: false, info: `Regelaantal wijkt af (verwacht ${linesE.length}, gekregen ${linesU.length}).` };
+  // Functie om de error messages beter te maken voor de leerlingen:
+  function translateError(message) {
+    if (message.includes("Unexpected identifier")) {
+      return "Onverwacht woord in de code. Mogelijk een typfout of een ontbrekende komma. Controleer je regels.";
+    }
+    if (message.includes("is not defined")) {
+      return "Variabele is niet gekend. Heb je de variabele gedeclareerd met 'var'? Of een typfout?";
+    }
+    if (message.includes("missing ) after argument list")) {
+      return "Je mist een haakje. Tel je ( en ) even na!";
+    }
+    if (message.includes("Unexpected token }")) {
+      return "Onverwachte '}'. Mogelijk te veel of te weinig accolades gebruikt.";
+    }
+    if (message.includes("not a function")) {
+      return "Je probeert iets als functie te gebruiken, maar dat klopt niet. Typfout in de functienaam?";
+    }
+    if (message.includes("Cannot read property")) {
+      return "Je probeert iets te gebruiken dat niet bestaat. Controleer je objecten en variabelen.";
+    }
+    if (message.includes("Maximum call stack")) {
+      return "Je code zit mogelijk in een oneindige lus. Controleer je lussen!";
+    }
+    if (message.includes("Invalid or unexpected token")) {
+      return "Er staat een teken in je code dat JavaScript niet herkent. Dit kan een typefout zijn, een vergeten haakje, puntkomma of een vreemd teken.";
+    }
+    if (message.includes("Lus zonder accolades")) {
+      return "Je gebruikt een lus zonder { }. Zet je lus-inhoud tussen accolades: { ... }";
+    }
+    if (message.includes("mogelijk oneindige lus")) {
+      return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
+    }
+    // Standaard: originele Engelse boodschap
+    return message;
   }
 
-  for (let i = 0; i < linesE.length; i++) {
-    const e = linesE[i];
-    const u = linesU[i];
+  // Evalueren van oefeningen en console uitvoer checken:
+  // --- Opties voor normalisatie van tekst ---
+  const _DEFAULT_NORM_OPTS = {
+    caseInsensitive: true,   // hoofdletter-ongevoelig vergelijken
+    trim: true,              // randspaties verwijderen
+    collapseSpaces: true,    // meerdere spaties → één spatie
+    removePunctuation: false,// standaard interpunctie behouden
+    decimalCommaToDot: true  // "12,34" → "12.34" (handig voor Benelux)
+  };
 
-    const numsE = _extractNumbers(e);
-    const numsU = _extractNumbers(u);
+  // Regels die we negeren uit de console (bv. debug)
+  const _IGNORE_LINE_PATTERNS = [
+    /^debug output:/i,
+    /^\s*opgeslagen!$/i
+  ];
 
-    // Als beide regels getallen bevatten met gelijke telling → vergelijk numeriek + resttekst
-    if (numsE.length > 0 && numsE.length === numsU.length) {
-      const tol = opts.tolerance ?? 0.01;
-      for (let j = 0; j < numsE.length; j++) {
-        if (!_nearlyEqual(numsE[j], numsU[j], tol)) {
-          return { ok: false, info: `Getal op regel ${i + 1} wijkt af (verwacht ${numsE[j]}, kreeg ${numsU[j]}).` };
+  // --- Helpers ---
+  function _shouldIgnoreLine(line) {
+    return _IGNORE_LINE_PATTERNS.some(rx => rx.test(line));
+  }
+
+  function _normalizeText(s, opts = _DEFAULT_NORM_OPTS) {
+    let t = s ?? "";
+    if (opts.decimalCommaToDot) {
+      // Vervang komma-decimaalvorm in getallen (12,34 → 12.34)
+      t = t.replace(/(\d),(\d)/g, '$1.$2');
+    }
+    if (opts.trim) t = t.trim();
+    if (opts.collapseSpaces) t = t.replace(/\s+/g, ' ');
+    if (opts.removePunctuation) t = t.replace(/[.,;:!?…–—\-]/g, '');
+    if (opts.caseInsensitive) t = t.toLowerCase();
+    return t;
+  }
+
+  function _extractNumbers(s) {
+    // Herken ook "12,34" als 12.34
+    const norm = (s ?? "").replace(/(\d),(\d)/g, '$1.$2');
+    const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
+    return matches.map(parseFloat);
+  }
+
+  function _nearlyEqual(a, b, eps = 0.01) {
+    return Math.abs(a - b) <= eps;
+  }
+
+  // Vergelijk regel-voor-regel met toleranties op getallen.
+  // Geeft { ok:boolean, info:string } terug.
+  function _looseCompare(expectedRaw, userRaw, opts = {}) {
+    const linesE = (expectedRaw ?? '')
+      .split(/\r?\n/)
+      .map(l => l.replace(/\u00A0/g, ' ')) // NBSP → spatie
+      .map(l => l.trim())
+      .filter(l => l.length > 0);
+
+    const linesU = (userRaw ?? '')
+      .split(/\r?\n/)
+      .map(l => l.replace(/\u00A0/g, ' '))
+      .map(l => l.trim())
+      .filter(l => l.length > 0 && !_shouldIgnoreLine(l));
+
+    if (linesE.length !== linesU.length) {
+      return { ok: false, info: `Regelaantal wijkt af (verwacht ${linesE.length}, gekregen ${linesU.length}).` };
+    }
+
+    for (let i = 0; i < linesE.length; i++) {
+      const e = linesE[i];
+      const u = linesU[i];
+
+      const numsE = _extractNumbers(e);
+      const numsU = _extractNumbers(u);
+
+      // Als beide regels getallen bevatten met gelijke telling → vergelijk numeriek + resttekst
+      if (numsE.length > 0 && numsE.length === numsU.length) {
+        const tol = opts.tolerance ?? 0.01;
+        for (let j = 0; j < numsE.length; j++) {
+          if (!_nearlyEqual(numsE[j], numsU[j], tol)) {
+            return { ok: false, info: `Getal op regel ${i + 1} wijkt af (verwacht ${numsE[j]}, kreeg ${numsU[j]}).` };
+          }
+        }
+        // Vergelijk niet-numerieke delen losser
+        const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
+        const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
+        if (eText !== uText) {
+          return { ok: false, info: `Tekst op regel ${i + 1} wijkt af (we negeren spaties/case/komma-punt).` };
+        }
+      } else {
+        // Geen getallen: losse tekstvergelijking
+        const eN = _normalizeText(e, opts);
+        const uN = _normalizeText(u, opts);
+        if (eN !== uN) {
+          return { ok: false, info: `Regel ${i + 1} wijkt af.` };
         }
       }
-      // Vergelijk niet-numerieke delen losser
-      const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
-      const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
-      if (eText !== uText) {
-        return { ok: false, info: `Tekst op regel ${i + 1} wijkt af (we negeren spaties/case/komma-punt).` };
-      }
-    } else {
-      // Geen getallen: losse tekstvergelijking
-      const eN = _normalizeText(e, opts);
-      const uN = _normalizeText(u, opts);
-      if (eN !== uN) {
-        return { ok: false, info: `Regel ${i + 1} wijkt af.` };
+    }
+    return { ok: true, info: 'Uitvoer komt overeen.' };
+  }
+
+  // --- Optionele per-oefening evaluatiemodi ---
+  function _evalByMode(exercise, userRaw) {
+    const cfg = exercise.eval;
+    if (!cfg || !cfg.type) return null;
+
+    const raw = (userRaw ?? '').replace(/(\d),(\d)/g, '$1.$2');
+
+    if (cfg.type === 'numbers') {
+      const numsU = _extractNumbers(raw);
+      const numsE = (cfg.expected || []).map(Number);
+      const tol = cfg.tolerance ?? 0.01;
+
+      if (cfg.orderInsensitive) {
+        const a = [...numsU].sort((x,y)=>x-y);
+        const b = [...numsE].sort((x,y)=>x-y);
+        if (a.length !== b.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${b.length}, kreeg ${a.length}).` };
+        for (let i=0;i<a.length;i++) if (!_nearlyEqual(a[i], b[i], tol)) {
+          return { ok:false, info:`Getallen wijken af (tolerantie ${tol}).` };
+        }
+        return { ok:true, info:'Getallen kloppen (volgorde genegeerd).' };
+      } else {
+        if (numsU.length !== numsE.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${numsE.length}, kreeg ${numsU.length}).` };
+        for (let i=0;i<numsE.length;i++) if (!_nearlyEqual(numsE[i], numsU[i], tol)) {
+          return { ok:false, info:`Getal #${i+1} wijkt af (verwacht ${numsE[i]}, kreeg ${numsU[i]}).` };
+        }
+        return { ok:true, info:'Getallen kloppen (op volgorde).' };
       }
     }
-  }
-  return { ok: true, info: 'Uitvoer komt overeen.' };
-}
 
-// --- Optionele per-oefening evaluatiemodi ---
-// Voorbeeld in een oefening:
-// eval: { type: 'numbers', expected: [826.80, 292.32, 54.4], tolerance: 0.1 }
-// eval: { type: 'regex', pattern: "de\\s+toegangsprijs\\s+is\\s+\\d+(?:[.,]\\d+)?\\s+euro\\.?$", flags: "i" }
-// eval: { type: 'contains', substrings: ["goedemorgen", "mevr.", "deleye"] }
-
-function _evalByMode(exercise, userRaw) {
-  const cfg = exercise.eval;
-  if (!cfg || !cfg.type) return null;
-
-  const raw = (userRaw ?? '').replace(/(\d),(\d)/g, '$1.$2');
-
-  if (cfg.type === 'numbers') {
-    const numsU = _extractNumbers(raw);
-    const numsE = (cfg.expected || []).map(Number);
-    const tol = cfg.tolerance ?? 0.01;
-
-    if (cfg.orderInsensitive) {
-      const a = [...numsU].sort((x,y)=>x-y);
-      const b = [...numsE].sort((x,y)=>x-y);
-      if (a.length !== b.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${b.length}, kreeg ${a.length}).` };
-      for (let i=0;i<a.length;i++) if (!_nearlyEqual(a[i], b[i], tol)) {
-        return { ok:false, info:`Getallen wijken af (tolerantie ${tol}).` };
-      }
-      return { ok:true, info:'Getallen kloppen (volgorde genegeerd).' };
-    } else {
-      if (numsU.length !== numsE.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${numsE.length}, kreeg ${numsU.length}).` };
-      for (let i=0;i<numsE.length;i++) if (!_nearlyEqual(numsU[i], numsE[i], tol)) {
-        return { ok:false, info:`Getal #${i+1} wijkt af (verwacht ${numsE[i]}, kreeg ${numsU[i]}).` };
-      }
-      return { ok:true, info:'Getallen kloppen (op volgorde).' };
+    if (cfg.type === 'regex') {
+      const re = new RegExp(cfg.pattern, cfg.flags || 'i'); // standaard case-insensitive
+      const ok = re.test(raw.trim());
+      return { ok, info: ok ? 'Patroon komt overeen.' : 'Tekst voldoet niet aan het patroon.' };
     }
-  }
 
-  if (cfg.type === 'regex') {
-    const re = new RegExp(cfg.pattern, cfg.flags || 'i'); // standaard case-insensitive
-    const ok = re.test(raw.trim());
-    return { ok, info: ok ? 'Patroon komt overeen.' : 'Tekst voldoet niet aan het patroon.' };
-  }
+    if (cfg.type === 'contains') {
+      const hay = raw.toLowerCase();
+      const missing = (cfg.substrings || []).filter(s => !hay.includes(String(s).toLowerCase()));
+      if (missing.length === 0) return { ok:true, info:'Alle vereiste woorden/fragmenten aanwezig.' };
+      return { ok:false, info:`Ontbreekt: ${missing.join(', ')}` };
+    }
 
-  if (cfg.type === 'contains') {
-    const hay = raw.toLowerCase();
-    const missing = (cfg.substrings || []).filter(s => !hay.includes(String(s).toLowerCase()));
-    if (missing.length === 0) return { ok:true, info:'Alle vereiste woorden/fragmenten aanwezig.' };
-    return { ok:false, info:`Ontbreekt: ${missing.join(', ')}` };
-  }
-
-  return null;
-}
-
-// ============= Hoofdfunctie =============
-function evaluateExercise() {
-  const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-
-  // Geen sleutel → niet evalueerbaar
-  if (!ex || (!ex.evalOutput && !ex.eval)) {
-    window._lastEvalInfo = 'Geen evaluatiesleutel voor deze oefening.';
     return null;
   }
 
-  // Ruwe uitvoer ophalen (we normaliseren later)
-  const userRaw = (typeof capturedOutput === 'string') ? capturedOutput : String(capturedOutput || '');
+  // ============= Hoofdfunctie =============
+  function evaluateExercise() {
+    const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
 
-  // 1) Per-oefening modus heeft voorrang (indien aanwezig)
-  const modeRes = _evalByMode(ex, userRaw);
-  if (modeRes) {
-    window._lastEvalInfo = modeRes.info;
-    return modeRes.ok;
+    // Geen sleutel → niet evalueerbaar
+    if (!ex || (!ex.evalOutput && !ex.eval)) {
+      window._lastEvalInfo = 'Geen evaluatiesleutel voor deze oefening.';
+      return null;
+    }
+
+    // Ruwe uitvoer ophalen (we normaliseren later)
+    const userRaw = (typeof capturedOutput === 'string') ? capturedOutput : String(capturedOutput || '');
+
+    // 1) Per-oefening modus heeft voorrang (indien aanwezig)
+    const modeRes = _evalByMode(ex, userRaw);
+    if (modeRes) {
+      window._lastEvalInfo = modeRes.info;
+      return modeRes.ok;
+    }
+
+    // 2) Standaard: losse line-by-line vergelijking met getal-tolerantie
+    const loose = _looseCompare(ex.evalOutput || '', userRaw, {
+      ..._DEFAULT_NORM_OPTS,
+      tolerance: 0.01,
+      removePunctuation: false
+    });
+
+    window._lastEvalInfo = loose.info;
+    return loose.ok;
   }
 
-  // 2) Standaard: losse line-by-line vergelijking met getal-tolerantie
-  const loose = _looseCompare(ex.evalOutput || '', userRaw, {
-    ..._DEFAULT_NORM_OPTS,
-    tolerance: 0.01,        // pas aan indien nodig
-    removePunctuation: false
-  });
+  // Toast indicator na de output checker:
+  function showEvalFeedback(isCorrect) {
+    const progressBtns = document.querySelectorAll('.exercise-btn');
+    if (!progressBtns[currentExerciseIdx]) return;
 
-  window._lastEvalInfo = loose.info;
-  return loose.ok;
-}
-  
-  
-// Toast indicator na de output checker: 
-function showEvalFeedback(isCorrect) {
-  const progressBtns = document.querySelectorAll('.exercise-btn');
-  if (!progressBtns[currentExerciseIdx]) return;
+    if (isCorrect === null) {
+      progressBtns[currentExerciseIdx].style.background = '';
+      progressBtns[currentExerciseIdx].style.color = '';
+      return;
+    }
 
-  if (isCorrect === null) {
-    progressBtns[currentExerciseIdx].style.background = '';
-    progressBtns[currentExerciseIdx].style.color = '';
-    return;
+    const extraInfo = window._lastEvalInfo || '';
+    const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+
+    if (isCorrect) {
+      progressBtns[currentExerciseIdx].style.background = '#3dffd0';
+      progressBtns[currentExerciseIdx].style.color = '#23272e';
+      showToast("✅ Goed gedaan! " + (extraInfo || "Je output is correct."), true);
+    } else {
+      progressBtns[currentExerciseIdx].style.background = '#ff1744';
+      progressBtns[currentExerciseIdx].style.color = '#fff';
+      const expected = exercise.evalOutput ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput) : "";
+      showToast("❌ Niet helemaal goed. " + (extraInfo || "") + expected, false);
+    }
   }
 
-  const extraInfo = window._lastEvalInfo || '';
-  const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-
-  if (isCorrect) {
-    progressBtns[currentExerciseIdx].style.background = '#3dffd0';
-    progressBtns[currentExerciseIdx].style.color = '#23272e';
-    // 🇳🇱 duidelijke feedback
-    showToast("✅ Goed gedaan! " + (extraInfo || "Je output is correct."), true);
-  } else {
-    progressBtns[currentExerciseIdx].style.background = '#ff1744';
-    progressBtns[currentExerciseIdx].style.color = '#fff';
-    const expected = exercise.evalOutput ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput) : "";
-    showToast("❌ Niet helemaal goed. " + (extraInfo || "") + expected, false);
+  function showToast(message, success) {
+    let toast = document.getElementById('eval-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'eval-toast';
+      toast.style.position = 'fixed';
+      toast.style.bottom = '42px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.padding = '1em 2em';
+      toast.style.fontSize = '1.1em';
+      toast.style.fontWeight = 'bold';
+      toast.style.borderRadius = '12px';
+      toast.style.zIndex = 9999;
+      toast.style.boxShadow = '0 4px 16px rgba(0,0,0,0.16)';
+      toast.style.maxWidth = '85vw';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.background = success ? '#e6fff8' : '#fff0f0';
+    toast.style.color = success ? '#04695c' : '#c81c1c';
+    toast.style.display = 'block';
+    clearTimeout(window.evalToastTimeout);
+    window.evalToastTimeout = setTimeout(() => {
+      toast.style.display = 'none';
+    }, 4000);
   }
-}
-// Voeg toe aan je script
-function showToast(message, success) {
-  let toast = document.getElementById('eval-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'eval-toast';
-    toast.style.position = 'fixed';
-    toast.style.bottom = '42px';
-    toast.style.left = '50%';
-    toast.style.transform = 'translateX(-50%)';
-    toast.style.padding = '1em 2em';
-    toast.style.fontSize = '1.1em';
-    toast.style.fontWeight = 'bold';
-    toast.style.borderRadius = '12px';
-    toast.style.zIndex = 9999;
-    toast.style.boxShadow = '0 4px 16px rgba(0,0,0,0.16)';
-    toast.style.maxWidth = '85vw';
-    document.body.appendChild(toast);
+
+  function customPrompt(question, callback) {
+    const modal = document.getElementById('custom-modal');
+    document.getElementById('modal-body').innerHTML = `<label>${question}</label><br><input type="text" id="modal-input" style="width:100%;margin-top:1em;">`;
+    document.getElementById('modal-actions').innerHTML =
+      `<button id="modal-ok">OK</button>`;
+    modal.style.display = 'flex';
+
+    document.getElementById('modal-close').onclick = () => modal.style.display = 'none';
+
+    document.getElementById('modal-ok').onclick = function() {
+      const val = document.getElementById('modal-input').value;
+      modal.style.display = 'none';
+      callback(val);
+    };
+    document.getElementById('modal-input').onkeydown = function(e) {
+      if (e.key === "Enter") document.getElementById('modal-ok').click();
+    };
+    document.getElementById('modal-input').focus();
   }
-  toast.textContent = message;
-  toast.style.background = success ? '#e6fff8' : '#fff0f0';
-  toast.style.color = success ? '#04695c' : '#c81c1c';
-  toast.style.display = 'block';
-  clearTimeout(window.evalToastTimeout);
-  window.evalToastTimeout = setTimeout(() => {
-    toast.style.display = 'none';
-  }, 4000);
-}
 
-function customPrompt(question, callback) {
-  const modal = document.getElementById('custom-modal');
-  document.getElementById('modal-body').innerHTML = `<label>${question}</label><br><input type="text" id="modal-input" style="width:100%;margin-top:1em;">`;
-  document.getElementById('modal-actions').innerHTML =
-    `<button id="modal-ok">OK</button>`;
-  modal.style.display = 'flex';
+  function customConfirm(question, callback) {
+    const modal = document.getElementById('custom-modal');
+    document.getElementById('modal-body').innerHTML = `<p>${question}</p>`;
+    document.getElementById('modal-actions').innerHTML =
+      `<button id="modal-yes">Ja</button> <button id="modal-no">Nee</button>`;
+    modal.style.display = 'flex';
+    document.getElementById('modal-close').onclick = () => { modal.style.display = 'none'; callback(false); };
+    document.getElementById('modal-no').onclick = () => { modal.style.display = 'none'; callback(false); };
+    document.getElementById('modal-yes').onclick = () => { modal.style.display = 'none'; callback(true); };
+  }
 
-  // Close met X
-  document.getElementById('modal-close').onclick = () => modal.style.display = 'none';
-
-  // Bevestig
-  document.getElementById('modal-ok').onclick = function() {
-    const val = document.getElementById('modal-input').value;
-    modal.style.display = 'none';
-    callback(val);
-  };
-  // Enter = OK
-  document.getElementById('modal-input').onkeydown = function(e) {
-    if (e.key === "Enter") document.getElementById('modal-ok').click();
-  };
-  document.getElementById('modal-input').focus();
-}
-
-function customConfirm(question, callback) {
-  const modal = document.getElementById('custom-modal');
-  document.getElementById('modal-body').innerHTML = `<p>${question}</p>`;
-  document.getElementById('modal-actions').innerHTML =
-    `<button id="modal-yes">Ja</button> <button id="modal-no">Nee</button>`;
-  modal.style.display = 'flex';
-  document.getElementById('modal-close').onclick = () => { modal.style.display = 'none'; callback(false); };
-  document.getElementById('modal-no').onclick = () => { modal.style.display = 'none'; callback(false); };
-  document.getElementById('modal-yes').onclick = () => { modal.style.display = 'none'; callback(true); };
-}
-
-  document.getElementById('close-pdf-modal').onclick = function() {
-    document.getElementById('pdf-modal').style.display = 'none';
-  };
-    
-document.getElementById('export-pdf').onclick = function() {
-  document.getElementById('pdf-modal').style.display = 'flex';
-  document.getElementById('modal-naam').value = '';
-  document.getElementById('modal-klas').value = '';
-  document.getElementById('modal-oefening').value = '';
-  document.getElementById('modal-naam').focus();
-};
-
-// --- Modalgebaseerde ask()-functie want SEB Compatibility ---
+  // --- Modalgebaseerde ask()-functie want SEB Compatibility ---
   // Hiermee kan je: var naam = ask("Vraag?");
   window.ask = function(boodschap) {
     return new Promise((resolve) => {
@@ -2606,144 +2536,122 @@ document.getElementById('export-pdf').onclick = function() {
       input.addEventListener('keydown', onEnter);
     });
   };
-  
-// --- Loop guard instrumentation (iteration + time budget) ---
-function applyLoopGuard(source, options = {}) {
-  const MAX_ITERS = options.maxIters ?? 200000;  // stop after N iterations
-  const MAX_MS    = options.maxMs   ?? 2000;     // or after N milliseconds
 
-  // Optional escape hatch per exercise:
-  // if the student puts /* @no-guard */ at the top, skip guarding
-  if (/^\s*\/\*\s*@no-guard\s*\*\//.test(source)) return source;
+  // --- Loop guard instrumentation (iteration + time budget) ---
+  function applyLoopGuard(source, options = {}) {
+    const MAX_ITERS = options.maxIters ?? 200000;  // stop after N iterations
+    const MAX_MS    = options.maxMs   ?? 2000;     // or after N milliseconds
 
-  // EDU: to keep instrumentation simple + robust, require braces on loop bodies.
-  // This avoids tricky single-statement loops like: while (x<10) moveForward(1);
-  const bracelessLoop = /(for|while)\s*\([^)]*\)\s*(?!\{)/;
-  if (bracelessLoop.test(source)) {
-    throw new Error("Lus zonder accolades gedetecteerd. Gebruik { } rond de code in je for/while-lus.");
-  }
+    // Optional escape hatch per exercise:
+    // if the student puts /* @no-guard */ at the top, skip guarding
+    if (/^\s*\/\*\s*@no-guard\s*\*\//.test(source)) return source;
 
-  // Prelude defines __tick() which enforces the limits
-  const prelude = `
-    const __GUARD_MAX_ITERS = ${MAX_ITERS};
-    const __GUARD_MAX_MS = ${MAX_MS};
-    let __guard_iters = 0;
-    const __guard_start = Date.now();
-    function __tick() {
-      __guard_iters++;
-      // check time every ~1000 ticks
-      if ((__guard_iters & 1023) === 0) {
-        if (Date.now() - __guard_start > __GUARD_MAX_MS) {
-          throw new Error("Tijdslimiet overschreden (mogelijk oneindige lus).");
+    // EDU: require braces on loop bodies
+    const bracelessLoop = /(for|while)\s*\([^)]*\)\s*(?!\{)/;
+    if (bracelessLoop.test(source)) {
+      throw new Error("Lus zonder accolades gedetecteerd. Gebruik { } rond de code in je for/while-lus.");
+    }
+
+    // Prelude defines __tick() which enforces the limits
+    const prelude = `
+      const __GUARD_MAX_ITERS = ${MAX_ITERS};
+      const __GUARD_MAX_MS = ${MAX_MS};
+      let __guard_iters = 0;
+      const __guard_start = Date.now();
+      function __tick() {
+        __guard_iters++;
+        if ((__guard_iters & 1023) === 0) {
+          if (Date.now() - __guard_start > __GUARD_MAX_MS) {
+            throw new Error("Tijdslimiet overschreden (mogelijk oneindige lus).");
+          }
+        }
+        if (__guard_iters > __GUARD_MAX_ITERS) {
+          throw new Error("Te veel iteraties (mogelijk oneindige lus).");
         }
       }
-      if (__guard_iters > __GUARD_MAX_ITERS) {
-        throw new Error("Te veel iteraties (mogelijk oneindige lus).");
-      }
-    }
-  `;
+    `;
 
-  // We inject __tick in:
-  //  - while(...) { ... }    => call in condition + at body start
-  //  - for(init;cond;step) { => call in condition + at body start
-  //  - for(;;) {             => body start
-  //  - do { ... } while(...); => call at body start
-  let code = source;
+    let code = source;
 
-  // do { ... } while(...);
-  code = code.replace(/do\s*\{/g, match => `${match} __tick(); `);
+    // do { ... } while(...);
+    code = code.replace(/do\s*\{/g, match => `${match} __tick(); `);
 
-  // while (...) {
-  code = code.replace(
-    /while\s*\(([^)]*)\)\s*\{/g,
-    (m, cond) => `while ((__tick(), (${cond}))) { __tick(); `
-  );
+    // while (...) {
+    code = code.replace(
+      /while\s*\(([^)]*)\)\s*\{/g,
+      (m, cond) => `while ((__tick(), (${cond}))) { __tick(); `
+    );
 
-  // for (init; cond; step) {
-  code = code.replace(
-    /for\s*\(([^;]*);([^;]*);([^\)]*)\)\s*\{/g,
-    (m, init, cond, step) => `for (${init}; (__tick(), (${cond})); ${step}) { __tick(); `
-  );
+    // for (init; cond; step) {
+    code = code.replace(
+      /for\s*\(([^;]*);([^;]*);([^\)]*)\)\s*\{/g,
+      (m, init, cond, step) => `for (${init}; (__tick(), (${cond})); ${step}) { __tick(); `
+    );
 
-  // for (;;){ ... } – condless forms
-  code = code.replace(/for\s*\(\s*;\s*;\s*\)\s*\{/g, 'for (;;){ __tick(); ');
+    // for (;;){ ... } – condless forms
+    code = code.replace(/for\s*\(\s*;\s*;\s*\)\s*\{/g, 'for (;;){ __tick(); ');
 
-  return prelude + "\n" + code;
-}
-
+    return prelude + "\n" + code;
+  }
 
   // --- Studentencode uitvoeren met ondersteuning voor ask() ---
-window.runStudentCode = function(studentCode) {
-  
-  let transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
+  window.runStudentCode = function(studentCode) {
+    let transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
 
-  // Bescherming voor infinite loops: 
-  transformed = applyLoopGuard(transformed, {
-    maxIters: 200000,  // tweak if needed
-    maxMs:    2000     // tweak if needed
-  });
+    // Bescherming voor infinite loops:
+    transformed = applyLoopGuard(transformed, {
+      maxIters: 200000,
+      maxMs:    2000
+    });
 
-  
-  const wrapper = `
-    return (async function __student_main__() {
-      ${transformed}
-    })();
-  `;
-  return new Function('ask', 'console', wrapper)(window.ask, window.console);
-};
-  
-// --- 3. Koppel de Run-knop aan runStudentCode (ipv new Function) ---
-document.getElementById('run-code').onclick = async function() {
-  // ▼ NIEUW: poging registreren + timer pauzeren terwijl code runt
-  // (Timer start vanzelf opnieuw zodra de leerling weer typt in de editor.)
-  if (isDirty && typeof incPogingen === 'function') incPogingen();   
-  if (typeof stopWerkTimer === 'function') stopWerkTimer(); 
-  if (typeof updateMetricsUI === 'function') updateMetricsUI(); 
+    const wrapper = `
+      return (async function __student_main__() {
+        ${transformed}
+      })();
+    `;
+    return new Function('ask', 'console', wrapper)(window.ask, window.console);
+  };
 
-  clearConsole();
-  capturedOutput = "";
-
-  try {
-
-    if (window.resetTurtle) window.resetTurtle();
-    if (window.clearCanvas) window.clearCanvas();
-
-
-    const code = editor.getValue();
-    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-    localStorage.setItem(key, code);
-    isDirty = false;
-    showSavedToast();
-
-
-    await runStudentCode(code);
-
-  } catch (e) {
-
-    let uitleg = translateError(e.message);
-    appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
-  } finally {
-
+  // --- Run-knop: koppelen aan runStudentCode ---
+  document.getElementById('run-code').onclick = async function() {
+    // poging registreren + timer pauzeren terwijl code runt
+    if (isDirty && typeof incPogingen === 'function') incPogingen();
+    if (typeof stopWerkTimer === 'function') stopWerkTimer();
     if (typeof updateMetricsUI === 'function') updateMetricsUI();
 
+    clearConsole();
+    capturedOutput = "";
 
-    const isCorrect = evaluateExercise();
-    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
-    if (isCorrect === true) {
-      localStorage.setItem(evalKey, "success");
-    } else if (isCorrect === false) {
-      localStorage.setItem(evalKey, "fail");
-    } else {
-      localStorage.removeItem(evalKey); 
+    try {
+      if (window.resetTurtle) window.resetTurtle();
+      if (window.clearCanvas) window.clearCanvas();
+
+      const code = editor.getValue();
+      const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+      localStorage.setItem(key, code);
+      isDirty = false;
+      showSavedToast();
+
+      await runStudentCode(code);
+    } catch (e) {
+      let uitleg = translateError(e.message);
+      appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
+    } finally {
+      if (typeof updateMetricsUI === 'function') updateMetricsUI();
+
+      const isCorrect = evaluateExercise();
+      const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+      if (isCorrect === true) {
+        localStorage.setItem(evalKey, "success");
+      } else if (isCorrect === false) {
+        localStorage.setItem(evalKey, "fail");
+      } else {
+        localStorage.removeItem(evalKey);
+      }
+      renderExerciseProgress();
+      showEvalFeedback(isCorrect);
     }
-    renderExerciseProgress();
-    showEvalFeedback(isCorrect);
-  }
-};
-
-
-
-</script>
-  
+  };
+  </script>
 </body>
 </html>
