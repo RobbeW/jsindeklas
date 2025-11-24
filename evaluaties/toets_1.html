@@ -4,10 +4,22 @@
   <html lang="nl">
   <head>
     <meta charset="utf-8" />
-    <title>JavaScript in de Klas</title>
+    <title>JavaScript in de Klas - Toets</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
+    
+  <!-- === CONFIG: toets-modus === -->
+  <script>
+    // Zet op true als dit een SEB/toetsversie is, op false voor de gewone oefenversie
+    window.JSIK_TEST_MODE  = true;          
+    window.JSIK_TEST_LABEL = "24-11-2025";  // optioneel
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    
     <style>
   html, body {
     height: 100%;
@@ -1558,6 +1570,41 @@
     </script>
 
     <script>
+      // === TEST-CONTEXT: eenmalige reset van localStorage bij toets ===
+  // Leest de instellingen uit het kleine config-blok in <head>
+  const TEST_MODE  = !!window.JSIK_TEST_MODE;                 // true = toets, false = oefening
+  const TEST_LABEL = window.JSIK_TEST_LABEL || "default";     // korte naam, b.v. datum
+  const TEST_ID    = TEST_MODE ? `jsik-test-${TEST_LABEL}`    // unieke id per toets
+                               : `jsik-normal`;
+
+  const TEST_INIT_KEY = `jsprog-test-init-${TEST_ID}`;
+
+  (function firstLoadResetForThisTest() {
+    // In oefenversie nooit automatisch wissen
+    if (!TEST_MODE) return;
+
+    try {
+      // Als deze toets eerder al gestart is in deze browser, dus niet wissen hier. 
+      if (localStorage.getItem(TEST_INIT_KEY)) return;
+
+      // Eerste keer deze toets: wis alle oude jsprog-* sleutels
+      const allKeys = Object.keys(localStorage);
+      for (const key of allKeys) {
+        if (key.startsWith("jsprog-")) {
+          localStorage.removeItem(key);
+        }
+      }
+
+      // Markeer dat de reset voor deze TEST_ID is uitgevoerd
+      localStorage.setItem(TEST_INIT_KEY, "1");
+    } catch (e) {
+      // In SEB of bij beperkte storage: stil negeren
+      console.warn("LocalStorage reset overgeslagen:", e);
+    }
+  })();
+  
+      
+      
     // === STATE ===
     let currentChapterIdx = 0;
     let currentExerciseIdx = 0;
@@ -1663,6 +1710,8 @@
         chapterMenuList.appendChild(li);
       });
     }
+      
+    
 
     function saveUserCode() {
       const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
