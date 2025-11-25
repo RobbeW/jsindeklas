@@ -3326,6 +3326,11 @@ function createSafeConsole() {
            "Je probeert er een variabele van te maken, en dat mag niet. " +
            "Debug jouw console.log()-functie!";
   }
+    if (message.includes("Fout: Attempted to assign to readonly property.")) {
+      return "Fout in jouw console.log-regel." +
+           "Je probeert er een variabele van te maken, en dat mag niet. " +
+           "Debug jouw console.log()-functie!";
+    }
     return message;
   }
 
