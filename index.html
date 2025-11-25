@@ -3322,12 +3322,12 @@ function createSafeConsole() {
       return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
     }
     if (message.includes("Cannot assign to read only property 'log'")) {
-    return "Fout in jouw console.log-regel." +
+    return "Fout in jouw console.log-regel. " +
            "Je probeert er een variabele van te maken, en dat mag niet. " +
            "Debug jouw console.log()-functie!";
   }
     if (message.includes("Attempted to assign to readonly property.")) {
-      return "Fout in jouw console.log-regel." +
+      return "Fout in jouw console.log-regel. " +
            "Je probeert er een variabele van te maken, en dat mag niet. " +
            "Debug jouw console.log()-functie!";
     }
