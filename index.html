@@ -2843,19 +2843,39 @@ body.dark .verify-block {
   });
 
   const consoleDiv = document.getElementById('console-output');
-  function clearConsole() { consoleDiv.textContent = ''; }
-  function appendToConsole(msg) { consoleDiv.textContent += msg + "\n"; }
+function clearConsole() { consoleDiv.textContent = ''; }
+function appendToConsole(msg) { consoleDiv.textContent += msg + "\n"; }
+// Maakt een veilige console voor de leerlingcode
+function createSafeConsole() {
+  // Bewaar de echte console voor debug in de browser
+  const realConsole = window.console;
 
-  (function(){
-    const oldLog = console.log;
-    console.log = function(...args) {
-      oldLog.apply(console, args);
-      let str = args.map(String).join(" ");
+  const safeConsole = {};
+
+  // console.log vastzetten als niet-overschrijfbare functie
+  Object.defineProperty(safeConsole, "log", {
+    value: (...args) => {
+      // 1) tekst naar de leerling-console schrijven
+      const str = args.map(String).join(" ");
       capturedOutput += str + "\n";
       appendToConsole(str);
-    };
-  })();
 
+      // 2) optioneel ook naar de echte devtools-console loggen
+      if (realConsole && typeof realConsole.log === "function") {
+        realConsole.log(...args);
+      }
+    },
+    writable: false,      // leerling kan console.log niet overschrijven
+    configurable: false,
+    enumerable: true
+  });
+
+  // Optioneel: extra methodes zoals console.error, console.warn, ...
+  // Object.defineProperty(safeConsole, "error", { ... });
+
+  return safeConsole;
+}
+    
   // Help modal
   const helpModal = document.getElementById('help-modal');
   document.getElementById('help-btn').onclick = function() {
@@ -3301,6 +3321,11 @@ body.dark .verify-block {
     if (message.includes("mogelijk oneindige lus") || message.includes("Tijdslimiet overschreden")) {
       return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
     }
+    if (message.includes("Cannot assign to read only property 'log'")) {
+    return "Je probeert 'console.log' zelf te veranderen. " +
+           "Waarschijnlijk heb je '=' gebruikt. " +
+           "Schrijf bijvoorbeeld: console.log(\"Hallo\"); en niet console.log = \"Hallo\";";
+  }
     return message;
   }
 
@@ -3684,40 +3709,61 @@ body.dark .verify-block {
   }
 
   // Studentencode uitvoeren
-  async function runStudentCode(studentCode) {
-    saveUserCode();
-    isDirty = false;
+async function runStudentCode(studentCode) {
 
-    stopWerkTimer();
-    incPogingen();
-    updateMetricsUI();
+  saveUserCode();
+  isDirty = false;
 
-    capturedOutput = "";
-    clearConsole();
-    if (window.resetTurtle) window.resetTurtle();
-    if (window.clearCanvas) window.clearCanvas();
+  stopWerkTimer();
+  incPogingen();
+  updateMetricsUI();
 
-    try {
-      const guarded = applyLoopGuard(studentCode);
-      const transformed = guarded.replace(/ask\s*\(/g, 'await ask(');
-      const wrapped = `(async () => {\n${transformed}\n})();`;
-      await (0, eval)(wrapped);
-    } catch (e) {
-      const errMsg = e && e.message ? e.message : String(e);
-      const friendly = translateError(errMsg);
-      appendToConsole("Fout: " + friendly);
-    }
 
-    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
-    const isCorrect = evaluateExercise();
-    if (isCorrect === null) {
-      localStorage.removeItem(evalKey);
-    } else {
-      localStorage.setItem(evalKey, isCorrect ? "success" : "fail");
-    }
-    showEvalFeedback(isCorrect);
-    updateMetricsUI();
+  capturedOutput = "";
+  clearConsole();
+  if (window.resetTurtle) window.resetTurtle();
+  if (window.clearCanvas) window.clearCanvas();
+
+  try {
+
+    const guarded = applyLoopGuard(studentCode);
+
+
+    const transformed = guarded.replace(/ask\s*\(/g, 'await ask(');
+
+    
+    const body =
+      `"use strict";\n` +
+      `return (async () => {\n` +
+      transformed +
+      `\n})();`;
+
+
+    const safeConsole = createSafeConsole();
+
+
+    const runner = new Function("console", "ask", body);
+
+
+    await runner(safeConsole, window.ask);
+  } catch (e) {
+    const errMsg = e && e.message ? e.message : String(e);
+    const friendly = translateError(errMsg);
+    appendToConsole("Fout: " + friendly);
   }
+
+
+  const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+  const isCorrect = evaluateExercise();
+  if (isCorrect === null) {
+    localStorage.removeItem(evalKey);
+  } else {
+    localStorage.setItem(evalKey, isCorrect ? "success" : "fail");
+  }
+  showEvalFeedback(isCorrect);
+  updateMetricsUI();
+}
+    
 
   // Run-knop
   document.getElementById('run-code').onclick = async function () {
