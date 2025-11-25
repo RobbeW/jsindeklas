@@ -1919,16 +1919,38 @@
     const consoleDiv = document.getElementById('console-output');
     function clearConsole() { consoleDiv.textContent = ''; }
     function appendToConsole(msg) { consoleDiv.textContent += msg + "\n"; }
+      
+// Maakt een veilige console voor de leerlingcode
+function createSafeConsole() {
+  // Bewaar de echte console voor debug in de browser
+  const realConsole = window.console;
 
-    (function(){
-      const oldLog = console.log;
-      console.log = function(...args) {
-        oldLog.apply(console, args);
-        let str = args.map(String).join(" ");
-        capturedOutput += str + "\n";
-        appendToConsole(str);
-      };
-    })();
+  const safeConsole = {};
+
+  // console.log vastzetten als niet-overschrijfbare functie
+  Object.defineProperty(safeConsole, "log", {
+    value: (...args) => {
+      // 1) tekst naar de leerling-console schrijven
+      const str = args.map(String).join(" ");
+      capturedOutput += str + "\n";
+      appendToConsole(str);
+
+      // 2) optioneel ook naar de echte devtools-console loggen
+      if (realConsole && typeof realConsole.log === "function") {
+        realConsole.log(...args);
+      }
+    },
+    writable: false,      // leerling kan console.log niet overschrijven
+    configurable: false,
+    enumerable: true
+  });
+
+  // Optioneel: extra methodes zoals console.error, console.warn, ...
+  // Object.defineProperty(safeConsole, "error", { ... });
+
+  return safeConsole;
+}
+
 
     const helpModal = document.getElementById('help-modal');
     document.getElementById('help-btn').onclick = function() {
@@ -2322,6 +2344,15 @@
       if (message.includes("mogelijk oneindige lus")) {
         return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
       }
+      if (
+  message.includes("Cannot assign to read only property 'log'") ||
+  message.includes("Cannot assign to read only property 'log' of object")
+) {
+  return "Je probeert 'console.log' zelf te veranderen. " +
+         "Waarschijnlijk heb je '=' gebruikt. " +
+         "Gebruik ronde haakjes: console.log(\"tekst\"); " +
+         "en niet console.log = \"tekst\";";
+}
       return message;
     }
 
@@ -2695,61 +2726,88 @@
       return prelude + "\n" + code;
     }
 
-    window.runStudentCode = function(studentCode) {
-      let transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
 
-      transformed = applyLoopGuard(transformed, {
-        maxIters: 200000,
-        maxMs:    2000
-      });
+function checkConsoleMisuse(source) {
+  const re = /console\s*\.\s*log\s*=/;
+  if (re.test(source)) {
+    throw new Error(
+      "Je gebruikt '=' na console.log. " +
+      "Schrijf bijvoorbeeld: console.log(\"Hallo\"); " +
+      "en niet console.log = \"Hallo\";"
+    );
+  }
+}
 
-      const wrapper = `
-        return (async function __student_main__() {
-          ${transformed}
-        })();
-      `;
-      return new Function('ask', 'console', wrapper)(window.ask, window.console);
-    };
+window.runStudentCode = function(studentCode) {
 
-    document.getElementById('run-code').onclick = async function() {
-      if (isDirty && typeof incPogingen === 'function') incPogingen();
-      if (typeof stopWerkTimer === 'function') stopWerkTimer();
-      if (typeof updateMetricsUI === 'function') updateMetricsUI();
+  checkConsoleMisuse(studentCode);
 
-      clearConsole();
-      capturedOutput = "";
 
-      try {
-        if (window.resetTurtle) window.resetTurtle();
-        if (window.clearCanvas) window.clearCanvas();
+  let transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
 
-        const code = editor.getValue();
-        const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-        localStorage.setItem(key, code);
-        isDirty = false;
-        showSavedToast();
+ 
+  transformed = applyLoopGuard(transformed, {
+    maxIters: 200000,
+    maxMs:    2000
+  });
 
-        await runStudentCode(code);
 
-      } catch (e) {
-        let uitleg = translateError(e.message);
-        appendToConsole("Fout: " + uitleg + "\n(Origineel: " + e.message + ")");
-      } finally {
-        if (typeof updateMetricsUI === 'function') updateMetricsUI();
+  const safeConsole = createSafeConsole();
 
-        const isCorrect = evaluateExercise();
-        const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
-        if (isCorrect === true) {
-          localStorage.setItem(evalKey, "success");
-        } else if (isCorrect === false) {
-          localStorage.setItem(evalKey, "fail");
-        } else {
-          localStorage.removeItem(evalKey);
-        }
-        renderExerciseProgress();
-        showEvalFeedback(isCorrect);
-      }
-    };
-    </script>
+
+  const wrapper = `
+    "use strict";
+    return (async function __student_main__() {
+      ${transformed}
+    })();
+  `;
+
+ 
+  return new Function('console', 'ask', wrapper)(safeConsole, window.ask);
+};
+document.getElementById('run-code').onclick = async function() {
+  // Tel poging wanneer er effectief aan de code gewerkt is
+  if (isDirty && typeof incPogingen === 'function') incPogingen();
+  if (typeof stopWerkTimer === 'function') stopWerkTimer();
+  if (typeof updateMetricsUI === 'function') updateMetricsUI();
+
+  clearConsole();
+  capturedOutput = "";
+
+  try {
+    if (window.resetTurtle) window.resetTurtle();
+    if (window.clearCanvas) window.clearCanvas();
+
+    const code = editor.getValue();
+    const key  = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    localStorage.setItem(key, code);
+    isDirty = false;
+    showSavedToast();
+
+    await runStudentCode(code);
+
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    const uitleg = translateError(msg);
+    appendToConsole("Fout: " + uitleg);
+  } finally {
+    if (typeof updateMetricsUI === 'function') updateMetricsUI();
+
+    const isCorrect = evaluateExercise();
+    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+    if (isCorrect === true) {
+      localStorage.setItem(evalKey, "success");
+    } else if (isCorrect === false) {
+      localStorage.setItem(evalKey, "fail");
+    } else {
+      localStorage.removeItem(evalKey);
+    }
+    renderExerciseProgress();
+    showEvalFeedback(isCorrect);
+  }
+};
+   
+
+</script>
   </body>
   </html>
