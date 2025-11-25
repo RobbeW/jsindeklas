@@ -2731,9 +2731,9 @@ function checkConsoleMisuse(source) {
   const re = /console\s*\.\s*log\s*=/;
   if (re.test(source)) {
     throw new Error(
-      "Je gebruikt '=' na console.log. " +
-      "Schrijf bijvoorbeeld: console.log(\"Hallo\"); " +
-      "en niet console.log = \"Hallo\";"
+      "Er staat een fout in jouw console.log-regel." +
+      "Je probeert er een variabele van te maken, en dat mag niet. " +
+      "Debug jouw console.log()-functie!"
     );
   }
 }
