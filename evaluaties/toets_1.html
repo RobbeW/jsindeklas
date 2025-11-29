@@ -2582,8 +2582,8 @@ function createSafeConsole() {
         progressBtns[currentExerciseIdx].style.color = '#fff';
 
         const expected = exercise.evalOutput
-          ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput)
-          : "";
+          //? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput) -- uitgeschakeld voor evaluaties. 
+          ? ("\n\nHerlees de opgave en debug jouw code!")
 
         showToast("Niet helemaal goed. " + (extraInfo || "") + expected, false);
       }
