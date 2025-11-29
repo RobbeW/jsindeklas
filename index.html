@@ -3558,7 +3558,8 @@ function createSafeConsole() {
       btn.style.color = '#fff';
       btn.classList.remove('eval-success');
       btn.classList.add('eval-fail');
-      const expected = exercise.evalOutput ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput) : "";
+      const expected = exercise.evalOutput ?  ("\n\nHerlees de opgave en debug jouw code!") : "";
+      //const expected = exercise.evalOutput ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput) : "";
       showToast("Niet helemaal goed. " + (extraInfo || "") + expected, false);
     }
   }
