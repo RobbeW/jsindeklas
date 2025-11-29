@@ -1,0 +1,2860 @@
+  <!--Auteur: Robbe Wulgaert / aiindeklas.be-->
+  <!-- Copyright 2025 - Gebruik vrij voor educatie -->
+  <!DOCTYPE html>
+  <html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <title>JavaScript in de Klas - Examen Kerst 2025-2026</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
+    
+  <!-- === CONFIG: toets-modus === -->
+  <script>
+    // Zet op true als dit een SEB/toetsversie is, op false voor de gewone oefenversie
+    window.JSIK_TEST_MODE  = true;          
+    window.JSIK_TEST_LABEL = "10-12-2025";  // optioneel
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    
+    <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #23272e;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  .topbar,
+  .editor-pane,
+  .canvas-pane,
+  .main-layout,
+  .modal-content,
+  .modal,
+  .help-content,
+  .toolbar button,
+  .exercise-btn,
+  .menu-tab,
+  #code-editor,
+  #console-output,
+  .course-menu,
+  .help-modal,
+  .swatch,
+  .label,
+  .close-menu,
+  .modal-content input[type="text"],
+  #modal-ok,
+  .run-btn,
+  #export-pdf,
+  #toggle-theme,
+  .exercise-btn.current,
+  .exercise-btn.completed {
+    transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+  }
+
+  .topbar {
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    border-bottom: 1.5px solid #eee;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .main-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+    background: #f3f5f8;
+  }
+
+  .editor-pane {
+    flex: 0 0 420px;
+    min-width: 220px;
+    max-width: none;
+    background: #f7f8fa;
+    border-radius: 18px 0 0 18px;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    transition: background 0.2s;
+    overflow: auto;
+  }
+
+  .canvas-pane {
+    flex: 1 1 0;
+    min-width: 220px;
+    background: #f7f8fa;
+    border-radius: 0 18px 18px 0;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    overflow: auto;
+  }
+
+  #turtlecanvas, #imagecanvas {
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+  }
+
+  .editor-label,
+  .console-label,
+  .canvas-label {
+    font-weight: 900;
+    font-size: 1.14em;
+    color: #5200FF;
+    margin-bottom: 0.5rem;
+  }
+
+  #code-editor {
+    height: 320px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1.5px solid #5200FF;
+    background: #fff;
+  }
+
+  .run-btn {
+    background: #3dffd0;
+    color: #23272e;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 0.7rem;
+    width: 140px;
+    align-self: flex-start;
+  }
+
+  .run-btn:hover {
+    background: #5ffff0;
+  }
+
+  #console-output {
+    background: #161820;
+    color: #fff;
+    min-height: 60px;
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    font-family: monospace;
+    font-size: 1em;
+    white-space: pre-line;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .canvas-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  #coords {
+    font-family: monospace;
+    color: #23272e;
+    font-size: 1em;
+  }
+
+  #turtlecanvas {
+    background: #fff;
+    border: 2px solid #5200FF;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(82,0,255,0.08);
+    display: block;
+    margin: 0 auto;
+    width: 500px;
+    height: 500px;
+    max-width: 90vw;
+    max-height: 60vw;
+  }
+
+  #imagecanvas {
+    display: none;
+  }
+
+  .help-btn {
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    z-index: 1500;
+    background: #5200FF;
+    color: #fff;
+    font-size: 2em;
+    border: none;
+    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(82,0,255,0.11);
+  }
+
+  .help-btn:hover {
+    background: #3700b3;
+  }
+
+  .help-modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.52);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .help-modal[style*="flex"], .help-modal.active {
+    display: flex !important;
+  }
+
+  .help-content {
+    background: #fff;
+    color: #23272e;
+    border-radius: 14px;
+    padding: 2.6rem 2.2rem 1.7rem 2.2rem;
+    gap: 2.6rem;
+    width: 900px;
+    max-width: 98vw;
+    box-shadow: 0 6px 40px rgba(82,0,255,0.17);
+    position: relative;
+    display: flex;
+    gap: 2.2rem;
+    flex-direction: row;
+  }
+
+  .help-left {
+    width: 44%;
+    min-width: 200px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .help-right {
+    width: 52%;
+    min-width: 170px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .help-content h2 {
+    color: #5200FF;
+    font-weight: 900;
+    margin-top: 0;
+  }
+
+  .help-content ul {
+    padding-left: 1.3em;
+    font-size: 1.05em;
+    line-height: 1.5;
+  }
+
+  .help-content code {
+    background: #f2f0fd;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 1em;
+  }
+
+  .close-help {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    color: #23272e;
+    font-weight: 700;
+  }
+
+  .toolbar button {
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 700;
+    margin-left: 0.5rem;
+  }
+
+  #export-pdf {
+    background: #5200FF;
+    color: #fff;
+  }
+
+  #export-pdf:hover {
+    background: #3700b3;
+  }
+
+  .color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 14px;
+    min-width: 320px;
+    max-width: 98vw;
+    justify-content: flex-start;
+  }
+
+  .swatch-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 130px;
+    margin-bottom: 10px;
+  }
+
+  .swatch {
+    width: 110px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1.2px solid #eee;
+    margin-bottom: 6px;
+  }
+
+  .label {
+    color: #23272e;
+    font-size: 1em;
+    font-weight: 500;
+    line-height: 1.23;
+    text-align: center;
+    word-break: break-all;
+    max-width: 130px;
+    overflow-wrap: break-word;
+  }
+
+  body.dark .label {
+    color: #fff;
+  }
+
+  body.dark .swatch {
+    border: 1.2px solid #444;
+  }
+
+  .main-layout {
+    background: #f3f5f8;
+  }
+
+  body.dark .main-layout {
+    background: #23272e;
+  }
+
+  body.dark #console-output {
+    background: #fff !important;
+    color: #23272e !important;
+    border-color: #3dffd0 !important;
+  }
+
+  .course-menu {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 320px;
+    height: 100vh;
+    background: #5200FF;
+    color: #fff;
+    z-index: 3000;
+    box-shadow: -3px 0 24px rgba(0,0,0,0.10);
+    border-radius: 16px 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.33s cubic-bezier(.4,.2,.2,1), background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+    font-family: 'Roboto', Arial, sans-serif;
+    max-width: 95vw;
+  }
+
+  .course-menu.open {
+    right: 0;
+  }
+
+  .menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4em 1.1em 1em 1.3em;
+    border-bottom: 1.5px solid #fff3;
+  }
+
+  .menu-title {
+    font-size: 1.32em;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+
+  .close-menu {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2em;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 0.1em;
+    margin-left: 8px;
+    border-radius: 50%;
+    line-height: 1;
+  }
+
+  .close-menu:hover {
+    background: #fff2;
+  }
+
+  .menu-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 1.3em 1.3em 1em 1.3em;
+    font-size: 1.07em;
+  }
+
+  .menu-content h3 {
+    margin-top: 0.3em;
+    margin-bottom: 1em;
+    font-size: 1.09em;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #fff;
+  }
+
+  .chapter-list {
+    padding-left: 0.5em;
+    margin-bottom: 1.9em;
+  }
+
+  .chapter-list li {
+    margin: 0.65em 0;
+    list-style: none;
+    font-size: 1em;
+  }
+
+  .chapter-list strong {
+    color: #3dffd0;
+    font-weight: bold;
+  }
+
+  .menu-footer {
+    border-top: 1.3px solid #fff2;
+    margin-top: 2em;
+    padding-top: 1.2em;
+    text-align: left;
+  }
+
+  .contact-link {
+    color: #fff;
+    text-decoration: underline;
+    font-weight: 600;
+    font-size: 1.01em;
+    transition: color 0.2s;
+  }
+
+  .contact-link:hover {
+    color: #3dffd0;
+  }
+
+  .menu-tab {
+    position: fixed;
+    top: 46%;
+    right: 0;
+    background: #5200FF;
+    color: #fff;
+    font-size: 1.13em;
+    font-weight: 900;
+    border: none;
+    border-radius: 14px 0 0 14px;
+    box-shadow: -1px 2px 10px rgba(0,0,0,0.07);
+    padding: 1.06em 1.35em 1.06em 1.15em;
+    cursor: pointer;
+    z-index: 3010;
+    letter-spacing: 1px;
+    writing-mode: vertical-lr;
+  }
+
+  .menu-tab:hover {
+    background: #3dffd0;
+    color: #23272e;
+  }
+
+  .menu-chapter-item.active {
+    background: #fff2;
+    color: #3dffd0;
+    font-weight: bold;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 1000px) {
+    .course-menu { width: 99vw; right: -99vw; border-radius: 0; }
+    .course-menu.open { right: 0; }
+    .menu-tab { font-size: 1em; padding: 0.7em 1em 0.7em 0.8em; }
+    .color-swatches { gap: 10px 6px; }
+    .swatch-container, .swatch { width: 80px; }
+    .swatch { height: 34px; }
+    .label { font-size: 0.88em; max-width: 80px; }
+  }
+
+  .splitter {
+    width: 8px;
+    min-width: 8px;
+    cursor: col-resize;
+    background: linear-gradient(to right, #eee 0%, #ddd 100%);
+    z-index: 10;
+    transition: background 0.18s;
+    margin: 0;
+    border-radius: 7px;
+    height: 100%;
+  }
+  .splitter.dragging {
+    background: linear-gradient(to right, #b7b7ff 0%, #5200FF 100%);
+  }
+
+  .exercise-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #5200FF;
+    color: #fff;
+    font-size: 1.11em;
+    font-weight: bold;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 1px 6px rgba(82,0,255,0.08);
+    opacity: 0.7;
+    position: relative;
+  }
+
+  .exercise-btn.current {
+    background: #fff;
+    color: #5200FF;
+    border: 2px solid #5200FF;
+    box-shadow: 0 0 0 3px #ece6fa;
+    transform: scale(1.13);
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .exercise-btn:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+  }
+
+  .exercise-btn:hover:not(.current) {
+    opacity: 1;
+    background: #3dffd0;
+    color: #5200FF;
+    border: 1.5px solid #5200FF;
+  }
+
+  @media (max-width: 700px) {
+    .exercise-progress { flex-wrap: wrap; gap: 0.32em;}
+    .exercise-btn { width: 26px; height: 26px; font-size: 1em;}
+  }
+
+  .exercise-btn.completed {
+    background: #3dffd0 !important;
+    color: #5200FF !important;
+    border: 2px solid #60ffa2 !important;
+    opacity: 1 !important;
+  }
+
+  .exercise-btn.eval-success {
+    background: #3dffd0 !important;
+    color: #5200FF !important;
+  }
+
+  .exercise-btn.eval-fail {
+    background: #ff1744 !important;
+    color: #fff !important;
+  }
+
+  .modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+  }
+
+  .modal-content {
+    background: #fff;
+    padding: 2em;
+    border-radius: 12px;
+    min-width: 320px;
+    max-width: 94vw;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    position: relative;
+    font-size: 1.09em;
+  }
+
+  .modal-content label {
+    display: block;
+    margin: 0.7em 0 0.2em;
+    font-weight: 500;
+  }
+
+  .modal-content input[type="text"] {
+    width: 100%;
+    padding: 0.5em;
+    font-size: 1em;
+    margin-bottom: 0.7em;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    color: #23272e;
+  }
+
+  #modal-ok {
+    width: 100%;
+    padding: 0.9em 0;
+    font-size: 1.07em;
+    background: #3dffd0;
+    color: #23272e;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 0.6em;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #222;
+    cursor: pointer;
+    z-index: 11;
+  }
+
+  body.dark {
+    background: #161820;
+    color: #fff;
+  }
+
+  body.dark .editor-pane,
+  body.dark .canvas-pane {
+    background: #23272e;
+    color: #fff;
+  }
+
+  body.dark #code-editor {
+    background: #23272e;
+    color: #fff;
+  }
+
+  body.dark .topbar {
+    background: #23272e !important;
+    border-bottom: 1.5px solid #333;
+  }
+
+  body.dark .console-label,
+  body.dark .editor-label,
+  body.dark .canvas-label {
+    color: #fff !important;
+  }
+
+  body.dark #console-output {
+    background: #23272e;
+    color: #fff;
+  }
+
+  body.dark .help-content {
+    background: #23272e;
+    color: #3dffd0;
+  }
+
+  body.dark .help-content h2 {
+    color: #3dffd0;
+  }
+
+  body.dark .help-content code {
+    background: #363c4a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 2px 6px;
+    font-size: 1em;
+    font-family: "Fira Mono", "Consolas", monospace;
+  }
+
+  body.dark .help-content .label,
+  body.dark .help-content .rgb,
+  body.dark .help-content strong {
+    color: #fff !important;
+  }
+
+  body.dark .help-content [style*="color:#333"],
+  body.dark .help-content [style*="color: #333"],
+  body.dark .help-content [style*="color:#000"],
+  body.dark .help-content [style*="color: #000"] {
+    color: #fff !important;
+  }
+
+  body.dark .modal-content {
+    background: #23272e;
+    color: #fff;
+  }
+
+  body.dark .modal {
+    background: rgba(20,24,32,0.7);
+  }
+
+  body.dark .modal-close {
+    color: #3dffd0;
+  }
+
+  body.dark .modal-content input[type="text"] {
+    background: #161820;
+    color: #fff;
+    border: 1px solid #3dffd0;
+  }
+
+  body.dark #modal-ok {
+    background: #3dffd0;
+    color: #23272e;
+  }
+
+  body.dark .swatch {
+    border: 1.1px solid #444;
+  }
+
+  body.dark #opdracht,
+  body.dark #opdracht-tekst,
+  body.dark .opdracht {
+    color: #fff !important;
+  }
+
+  body.dark .toolbar button {
+    color: #23272e;
+  }
+
+  body.dark .toolbar button#toggle-theme {
+    background: #b7ffef;
+  }
+
+  body.dark #export-pdf {
+    background: #ffffff;
+    color: #5200FF;
+  }
+
+  body.dark #saved-toast {
+    background: #5200FF !important;
+    color: #FFFFFF !important;
+  }
+
+  body.dark .splitter {
+    background: linear-gradient(to right, #23272e 0%, #5200FF 100%);
+  }
+
+  body.dark .splitter:hover,
+  body.dark .splitter.dragging {
+    background: linear-gradient(to right, #5200FF 0%, #3dffd0 100%);
+  }
+
+  @media (max-width: 980px) {
+    .main-layout {
+      flex-direction: column;
+      gap: 3.5rem;
+      max-width: 99vw;
+    }
+    .editor-pane,
+    .canvas-pane {
+      width: 98vw !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      padding: 1rem 0.5rem !important;
+    }
+    #turtlecanvas {
+      width: 95vw;
+      height: 60vw;
+    }
+    .help-content {
+      flex-direction: column;
+      width: 99vw;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .topbar, .toolbar {
+      flex-direction: column;
+      gap: 1em;
+    }
+    .help-content {
+      width: 99vw;
+    }
+    #turtlecanvas {
+      height: 60vw;
+    }
+  }
+
+  .exercise-progress {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.65em;
+    margin: 1.2em 0 1.8em 0;
+    padding-left: 4px;
+  }
+
+  #modal-actions {
+    margin-top: 1.5em;
+    text-align: right;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  @media (min-width: 1500px) {
+    .main-layout {
+      max-width: 1800px;
+      padding-left: 5vw;
+      padding-right: 5vw;
+      gap: 3rem;
+    }
+    .editor-pane, .canvas-pane {
+      min-width: 360px;
+    }
+    .editor-pane {
+      max-width: 600px;
+    }
+    .canvas-pane {
+      max-width: 1300px;
+    }
+  }
+
+  .zoom-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1.5em;
+    margin-top: 1em;
+  }
+
+  /* Brand color variables for consistency */
+  :root {
+    --brand-purple: #5200FF;
+    --brand-aqua:   #3dffd0;
+    --brand-white: #ffffff;
+  }
+
+  /* Main circular button style */
+  .zoom-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    font-size: 2rem;
+    font-weight: bold;
+    background: var(--brand-purple);
+    color: var(--brand-white);
+    box-shadow: 0 2px 8px rgba(82, 0, 255, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* Hover and focus: swap to aqua bg and purple text */
+  .zoom-btn:hover,
+  .zoom-btn:focus {
+    background: var(--brand-aqua);
+    color: var(--brand-white);
+    box-shadow: 0 4px 16px rgba(61, 255, 208, 0.18);
+  }
+
+  /* Optional: Remove all extra color tweaks for dark mode, use the same colors always! */
+  @media (prefers-color-scheme: dark) {
+    .zoom-btn {
+      background: var(--brand-purple);
+      color: var(--brand-white);
+      border: 1px solid var(--brand-aqua);
+      box-shadow: 0 2px 8px rgba(61, 255, 208, 0.10);
+    }
+    .zoom-btn:hover,
+    .zoom-btn:focus {
+      background: var(--brand-aqua);
+      color: var(--brand-white);
+      box-shadow: 0 4px 16px rgba(61, 255, 208, 0.22);
+    }
+  }
+
+  .modal, #ask-modal, #confirm-modal, #pdf-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal[style*="flex"], #ask-modal[style*="flex"], #confirm-modal[style*="flex"], #pdf-modal[style*="flex"] {
+    display: flex !important;
+  }
+
+  /* === Modalvenster-stijlen === */
+  .modal-box, #ask-modal > div, #confirm-modal > div, #pdf-modal > .modal-content {
+    background: var(--brand-white);
+    color: #23272e;
+    border-radius: 14px;
+    padding: 2em 2em 1.5em 2em;
+    min-width: 320px;
+    max-width: 94vw;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+    position: relative;
+    font-size: 1.09em;
+    border: none;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  /* === Modale knoppen centreren === */
+  .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2em;
+  }
+
+  /* === VERIFICATIEBLOK IN CONFIRM-MODAL === */
+  .modal-extra {
+    margin-top: 0.8em;
+    font-size: 0.95em;
+    line-height: 1.4;
+  }
+  .modal-extra ul {
+    padding-left: 1.2em;
+    margin: 0.4em 0 0;
+  }
+  .modal-extra p {
+    margin: 0.3em 0;
+  }
+  .modal-extra .verify-detail {
+    margin-top: 0.4em;
+    font-style: italic;
+    opacity: 0.9;
+  }
+  body.dark .modal-extra {
+    color: var(--brand-white);
+  }
+
+  /* === Modale knop-stijlen (licht thema) === */
+  .modal-btn, .modal-box button,
+  #ask-modal button, #confirm-modal button, #pdf-modal button,
+  #modal-ok, #confirm-modal-ok, #confirm-modal-cancel, #ask-modal-ok {
+    background: var(--brand-purple);
+    color: var(--brand-white);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7em 1.5em;
+    font-size: 1.07em;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  /* === Hover-effect (licht thema) === */
+  .modal-btn:hover,
+  .modal-box button:hover,
+  #ask-modal button:hover, #confirm-modal button:hover, #pdf-modal button:hover,
+  #modal-ok:hover, #confirm-modal-ok:hover, #confirm-modal-cancel:hover, #ask-modal-ok:hover {
+    background: var(--brand-aqua);
+    color: #23272e;
+  }
+
+  /* === Donker thema voor modale vensters === */
+  body.dark .modal-box,
+  body.dark #ask-modal > div,
+  body.dark #confirm-modal > div,
+  body.dark #pdf-modal > .modal-content {
+    background: var(--brand-purple) !important;
+    color: var(--brand-white) !important;
+    border: none;
+  }
+
+  /* === Modale knoppen: donker thema (witte knop, paarse tekst) === */
+  body.dark .modal-btn, 
+  body.dark .modal-box button,
+  body.dark #ask-modal button, 
+  body.dark #confirm-modal button,
+  body.dark #pdf-modal button,
+  body.dark #modal-ok,
+  body.dark #confirm-modal-ok,
+  body.dark #confirm-modal-cancel,
+  body.dark #ask-modal-ok {
+    background: var(--brand-white);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-purple);
+  }
+
+  /* === Hover-effect voor knoppen in donker thema === */
+  body.dark .modal-btn:hover, 
+  body.dark .modal-box button:hover,
+  body.dark #ask-modal button:hover, 
+  body.dark #confirm-modal button:hover,
+  body.dark #pdf-modal button:hover,
+  body.dark #modal-ok:hover,
+  body.dark #confirm-modal-ok:hover,
+  body.dark #confirm-modal-cancel:hover,
+  body.dark #ask-modal-ok:hover {
+    background: var(--brand-aqua);
+    color: #23272e;
+    border: 1.5px solid var(--brand-aqua);
+  }
+
+  .brand-btn {
+    background: var(--brand-purple);
+    color: var(--brand-white);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7em 1.5em;
+    font-size: 1.09em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.22s, color 0.22s, border 0.22s;
+    box-shadow: 0 2px 8px rgba(82,0,255,0.10);
+  }
+
+  /* Hover-effect in licht thema */
+  .brand-btn:hover, .brand-btn:focus {
+    background: var(--brand-aqua);
+    color: #23272e;
+    border: 1.5px solid var(--brand-aqua);
+  }
+
+  /* Donker thema: witte knop, paarse tekst, paarse rand */
+  body.dark .brand-btn {
+    background: var(--brand-white);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-purple);
+  }
+
+  /* Donker thema hover */
+  body.dark .brand-btn:hover, 
+  body.dark .brand-btn:focus {
+    background: var(--brand-aqua);
+    color: #23272e;
+    border: 1.5px solid var(--brand-aqua);
+  }
+
+  .toolbar .brand-btn {
+    background: var(--brand-purple);
+    color: var(--brand-white);
+    border: none;
+  }
+
+  body.dark .toolbar .brand-btn {
+    background: var(--brand-white);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-purple);
+  }
+
+  body.dark .toolbar .brand-btn:hover,
+  body.dark .toolbar .brand-btn:focus {
+    background: var(--brand-white);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-purple);
+  }
+
+  /* ======================= */
+  /* Variabelen voor kleuren */
+  /* ======================= */
+  :root {
+    --brand-purple:      #5200FF;
+    --brand-purple-dark: #3700B3;
+    --brand-white:       #FFFFFF;
+    --brand-aqua:        #3dffd0;
+  }
+
+  /* BASISSTIJL VOOR ALLE BRAND-KNOPPEN (lichte modus) */
+  .toolbar .brand-btn,
+  .run-btn {
+    background: var(--brand-purple);
+    color:      var(--brand-white);
+    border:     none;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  /* HOVER + FOCUS (lichte modus) */
+  .toolbar .brand-btn:hover,
+  .run-btn:hover,
+  .toolbar .brand-btn:focus,
+  .run-btn:focus {
+    background: var(--brand-purple-dark);
+    color:      var(--brand-white);
+  }
+
+  /* DONKER THEMA – BASISSTIJL VOOR BRAND-KNOPPEN */
+  body.dark .toolbar .brand-btn,
+  body.dark .run-btn {
+    background: var(--brand-white);
+    color:      var(--brand-purple);
+    border:     1.5px solid var(--brand-purple);
+  }
+
+  /* HOVER + FOCUS (donker thema) */
+  body.dark .toolbar .brand-btn:hover,
+  body.dark .run-btn:hover,
+  body.dark .toolbar .brand-btn:focus,
+  body.dark .run-btn:focus {
+    background: var(--brand-purple);
+    color:      var(--brand-white);
+    border:     none;
+  }
+
+  body.dark .toolbar .brand-btn:hover,
+  body.dark .run-btn:hover {
+    background: var(--brand-aqua) !important;
+    color: var(--brand-purple) !important;
+    border-color: var(--brand-aqua) !important;
+  }
+
+  /* Basis- en hover-stijlen voor menu, help & zoom knoppen */
+  .menu-tab,
+  .help-btn,
+  .zoom-btn {
+    background: var(--brand-purple);
+    color: var(--brand-white);
+    border: 1.5px solid transparent;
+  }
+
+  .menu-tab:hover,
+  .help-btn:hover,
+  .zoom-btn:hover {
+    background: var(--brand-aqua);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-aqua);
+  }
+
+  body.dark .menu-tab,
+  body.dark .help-btn,
+  body.dark .zoom-btn {
+    background: var(--brand-white);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-purple);
+  }
+
+  body.dark .menu-tab:hover,
+  body.dark .help-btn:hover,
+  body.dark .zoom-btn:hover {
+    background: var(--brand-aqua);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-aqua);
+  }
+
+  /* Help-modal: koppen “Formularium” en “Kleuren” altijd wit, ongeacht thema */
+  body.dark .help-content {
+    color: var(--brand-white) !important;
+  }
+
+  .help-content h2 {
+    color: var(--brand-purple) !important;
+  }
+  body.dark .help-content h2 {
+    color: var(--brand-white) !important;
+  }
+
+  /* Speciale stijlen voor confirm-modal knoppen */
+  .modal-btn-primary {
+    background: var(--brand-purple);
+    color: var(--brand-white);
+  }
+
+  .modal-btn-secondary {
+    background: var(--brand-white);
+    color: var(--brand-purple);
+    border: 1.5px solid var(--brand-purple);
+  }
+
+  body.dark .modal-btn-primary {
+    background: var(--brand-purple) !important;
+    color: var(--brand-white) !important;
+    border: none !important;
+  }
+
+  body.dark .modal-btn-secondary {
+    background: var(--brand-white) !important;
+    color: var(--brand-purple) !important;
+    border: 1.5px solid var(--brand-purple) !important;
+  }
+
+  /* VERBERG MENU IN EXAM-MODE */
+  #course-menu,
+  #menu-tab {
+    display: none !important;
+  }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+      const CANVAS_SIZE = 500;
+      let panX = 0;
+      let panY = 0;
+      let zoom = 1.0;
+      function zoomOut() {
+        zoom -= 0.1;
+        if (typeof draw === "function") draw();
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Topbar: opdracht, dark/light toggle en PDF export -->
+    <header class="topbar">
+      <div class="exercise-progress" id="exercise-progress"></div>
+      <div class="opdracht" id="opdracht">
+        <strong></strong> <span id="opdracht-tekst">Schrijf een programma dat een vierkant tekent met de turtle.</span>
+      </div>
+      <div class="toolbar">
+        <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">🌙 / ☀️</button>
+        <button class="brand-btn" id="export-pdf">Exporteren naar PDF</button>
+        <button class="brand-btn" id="reset-progress">Vooruitgang Wissen</button>
+      </div>
+    </header>
+
+    <!-- Slide-in Course Menu (verborgen in exam mode via CSS) -->
+    <div id="course-menu" class="course-menu" tabindex="-1" aria-label="Hoofdmenu">
+      <div class="menu-header">
+        <span class="menu-title">Menu</span>
+        <button id="close-menu" class="close-menu" title="Sluit menu">×</button>
+      </div>
+      <nav class="menu-content">
+        <h3>Inhoud</h3>
+        <ul id="menu-chapters" class="chapter-list"></ul>
+        <div class="menu-footer">
+          <b>Vond je een bug? Neem contact op met Robbe via: robbewulgaert.be/contact </b>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Tab to open menu -->
+    <button id="menu-tab" class="menu-tab" title="Toon menu">Menu</button>
+
+    <main class="main-layout" id="main-layout">
+      <!-- Editor Pane (left) -->
+      <section class="editor-pane" id="editor-pane">
+        <div class="editor-label">Code-editor</div>
+        <div id="code-editor"></div>
+        <br /><br />
+        <button id="run-code" class="brand-btn run-btn">▶️ Uitvoeren</button>
+        <br /><br />
+        <div class="console-label">Console-uitvoer</div>
+        <br />
+        <div id="console-output" class="console-output"></div>
+      </section>
+
+      <!-- The draggable splitter -->
+      <div class="splitter" id="splitter"></div>
+
+      <!-- Canvas Pane (right) -->
+      <section class="canvas-pane" id="canvas-pane">
+        <div class="canvas-header">
+          <span class="canvas-label">Canvas</span>
+          <span id="coords" class="coords"></span>
+        </div>
+        <canvas id="turtlecanvas" width="500" height="500"></canvas>
+        <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
+        <div class="zoom-controls">
+          <button class="zoom-btn" onclick="if (typeof zoomIn==='function') zoomIn();" aria-label="Zoom In">+</button>
+          <button class="zoom-btn" onclick="zoomOut()" aria-label="Zoom Out">–</button>
+        </div>
+      </section>
+
+      <!-- Help button floating right-under -->
+      <button id="help-btn" class="help-btn" title="Toon commando's en uitleg">?</button>
+    </main>
+
+    <!-- Help modal/overlay -->
+    <div id="help-modal" class="help-modal">
+      <div class="help-content twocol">
+        <button id="close-help" class="close-help">Sluiten ✕</button>
+        <div class="help-left">
+          <h2>Formularium</h2>
+          <ul>
+            <li><code>console.log("tekst")</code> - print tekst naar de console</li>
+            <li><code>if (voorwaarde) { ... }</code> - ALS-Statement</li>
+            <li><code>else if (voorwaarde) { ... }</code> - ANDERS ALS-Statement</li>
+            <li><code>else { ... }</code> - ANDERS-Statement</li>
+            <li><code>for (var teller = start; teller kleiner dan eind; teller++){...}</code> - begrensde herhaling</li>
+            <li><code>while (voorwaarde) { ... }</code> - voorwaardelijke herhaling</li>
+            <li><code>prompt (vraag in string) { ... }</code> - vraag stellen aan user, <b>buiten SEB</b></li>
+            <li><code>ask (vraag in string) { ... }</code> - vraag stellen aan user, <b>binnen SEB</b></li>
+            <li><code>moveForward(afstand)</code> – vooruit bewegen</li>
+            <li><code>moveBackward(afstand)</code> – achteruit bewegen</li>
+            <li><code>turnRight(hoek)</code> – draai naar rechts (graden)</li>
+            <li><code>turnLeft(hoek)</code> – draai naar links (graden)</li>
+            <li><code>penUp()</code> – pen omhoog</li>
+            <li><code>penDown()</code> – pen omlaag</li>
+            <li><code>setPenColour(r, g, b)</code> – verander kleur</li>
+            <li><code>setPenColour("naam")</code> – verander kleur met naam</li>
+            <li><code>randomColour()</code> – geeft een willekeurige penkleur terug (als string)</li>
+            <li><code>goTo(x, y)</code> – ga naar positie (x, y)</li>
+            <li><code>showGrid(stapgrootte)</code> – raster tonen</li>
+            <li><code>setLineWidth(breedte)</code> – lijndikte</li>
+            <li><code>resetTurtle()</code> – reset alles</li>
+            <li><code>clearCanvas()</code> – wis tekening</li>
+            <li><code>writeText("tekst")</code> – tekst schrijven</li>
+            <li><code>round(getal, aantal_decimalen)</code> – rond een getal af op zoveel decimalen</li>
+          </ul>
+        </div>
+        <div class="help-right">
+          <h2>Kleuren (naam &amp; RGB)</h2>
+          <div id="dynamic-color-swatches" class="color-swatches"></div>
+          <div style="font-size:0.99em;color:#333;margin-top:1em;">
+            <b>Gebruik:</b><code>setPenColour(r, g, b)</code> of <code>setPenColour("naam")</code><br>
+            <strong>Voorbeeld:</strong> <code>setPenColour("crimson");</code> of <code>setPenColour(220,20,60);</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JS libraries & scripts: CodeMirror always first! -->
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/mode/javascript/javascript.min.js"></script>
+    <script src="rgbcolor.js"></script>
+    <script src="library.js"></script>
+
+    <!-- PDF modal -->
+    <div id="pdf-modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="modal-close" id="close-pdf-modal">&times;</span>
+        <h3>PDF Exporteren</h3>
+        <label for="modal-naam">Naam:</label>
+        <input id="modal-naam" type="text" required autocomplete="off">
+        <label for="modal-klas">Klas:</label>
+        <input id="modal-klas" type="text" required autocomplete="off">
+        <label for="modal-oefening">Oefeningstitel:</label>
+        <input id="modal-oefening" type="text" placeholder="(Laat leeg voor automatische titel)" autocomplete="off">
+        <button id="modal-ok">Exporteren</button>
+      </div>
+    </div>
+
+    <!-- Ask Modal -->
+    <div id="ask-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-box">
+        <div id="ask-modal-msg" class="modal-message"></div>
+        <input id="ask-modal-input" type="text" class="modal-input" autocomplete="off"/>
+        <div class="modal-actions">
+          <button id="ask-modal-ok" class="modal-btn modal-btn-primary">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-box">
+        <div id="confirm-modal-msg" class="modal-message modal-message-warning"></div>
+        <div id="confirm-modal-extra" class="modal-extra"></div>
+        <div class="modal-actions">
+          <button id="confirm-modal-ok" class="modal-btn modal-btn-primary">OK</button>
+          <button id="confirm-modal-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    let dragging = false;
+    let capturedOutput = "";
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const menu = document.getElementById('course-menu');
+      const tab = document.getElementById('menu-tab');
+      const close = document.getElementById('close-menu');
+      if (!menu || !tab || !close) return;
+
+      tab.addEventListener('click', () => {
+        menu.classList.add('open');
+      });
+      close.addEventListener('click', () => {
+        menu.classList.remove('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && !tab.contains(e.target)) {
+          menu.classList.remove('open');
+        }
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const splitter = document.getElementById('splitter');
+      const editorPane = document.getElementById('editor-pane');
+      const canvasPane = document.getElementById('canvas-pane');
+      const mainLayout = document.getElementById('main-layout');
+      let dragging = false;
+
+      splitter.addEventListener('mousedown', function () {
+        if (window.innerWidth < 980) return;
+        dragging = true;
+        splitter.classList.add('dragging');
+        document.body.style.userSelect = 'none';
+      });
+
+      document.addEventListener('mousemove', function (e) {
+        if (!dragging || window.innerWidth < 980) return;
+        const rect = mainLayout.getBoundingClientRect();
+        const minEditorWidth = 220;
+        const minCanvasWidth = 220;
+        const splitterWidth = splitter.offsetWidth;
+        const totalWidth = rect.width;
+        let newEditorWidth = e.clientX - rect.left;
+        const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
+        newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
+        editorPane.style.flex = `0 0 ${newEditorWidth}px`;
+        editorPane.style.width = `${newEditorWidth}px`;
+        canvasPane.style.flex = '1 1 0';
+        canvasPane.style.width = '';
+      });
+
+      document.addEventListener('mouseup', function () {
+        if (dragging) {
+          dragging = false;
+          splitter.classList.remove('dragging');
+          document.body.style.userSelect = '';
+        }
+      });
+
+      window.addEventListener('resize', function () {
+        if (window.innerWidth < 980) {
+          editorPane.style.flex = '';
+          editorPane.style.width = '';
+          canvasPane.style.flex = '';
+          canvasPane.style.width = '';
+          splitter.style.display = 'none';
+        } else {
+          splitter.style.display = 'block';
+        }
+      });
+    });
+
+// --------- NIEUWE DATA VOOR OEFENINGEN --------------
+const chapters = [
+  {
+    title: "JavaScript in de Klas - Examen – Variabelen & Berekeningen",
+    exercises: [
+      {
+        title: "1. Voorstelling met +",
+        starterCode: [
+          "// Gegeven:",
+          '// Gebruik deze variabelen (pas de waarden niet aan):',
+          '- Voornaam klant is Lina;',
+          '- Ze is 14 jaar oud.',
+          '- Ze woont in Gent.',
+          '- De postcode is 9000.'
+          "//",
+          "// Gevraagd:",
+          "// 1. Schrijf één console.log-regel met het + teken om volgende zin te tonen:",
+          "//    Ik ben Lina, ik ben 14 jaar en ik woon in 9000 Gent.",
+          "// 2. Gebruik enkel de variabelen in je console.log, geen losse tekst met andere waarden.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Ik ben Lina, ik ben 14 jaar en ik woon in 9000 Gent."
+      },
+      {
+        title: "2. Weerbericht met komma's",
+        starterCode: [
+          "// Gegeven:",
+          '// Gebruik deze variabelen (pas de waarden niet aan):',
+          'var dag = "maandag";',
+          'var weer = "regenachtig";',
+          'var temperatuur = 9.5;',
+          "//",
+          "// Gevraagd:",
+          "// 1. Schrijf één console.log-regel waarin je verschillende stukken tekst en variabelen",
+          "//    met komma's combineert.",
+          "// 2. Toon exact deze zin in de console:",
+          "//    Vandaag is het maandag, het weer is regenachtig en het is 9.5 graden Celsius.",
+          "// 3. Gebruik enkel de variabelen in je console.log, geen andere vaste waarden.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Vandaag is het maandag, het weer is regenachtig en het is 9.5 graden Celsius."
+      },
+      {
+        title: "3. Zakgeld na het weekend",
+        starterCode: [
+          "// Gegeven:",
+          "// Noor start het weekend met 25.75 euro zakgeld.",
+          "// Ze verdient tweemaal 21 euro bij met klusjes en babysitten.",
+          "// Tijdens het weekend geeft ze 19.25 euro uit.",
+          "//",
+          "// Gevraagd:",
+          "// 1. Maak duidelijke variabelen voor:",
+          "//    - het startbedrag",
+          "//    - het verdiende bedrag",
+          "//    - het uitgegeven bedrag",
+          "// 2. Bereken in een nieuwe variabele hoeveel geld Noor na het weekend nog heeft.",
+          "// 3. Toon het antwoord in deze zin in de console:",
+          "//    Noor heeft na het weekend ... euro over.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Noor heeft na het weekend 48.5 euro over."
+      },
+      {
+        title: "4. Ticketverkoop schoolfeest",
+        starterCode: [
+          "// Gegeven:",
+          "// Voor het schoolfeest kost één ticket 4.5 euro.",
+          "// De leerlingen verkopen 37 tickets.",
+          "// De directie hoopt minstens 200 euro in totaal op te halen.",
+          "//",
+          "// Gevraagd:",
+          "// 1. Maak variabelen voor:",
+          "//    - de prijs per ticket",
+          "//    - het aantal verkochte tickets",
+          "//    - het streefbedrag van de directie",
+          "// 2. Bereken in een nieuwe variabele hoeveel geld er echt wordt verdiend.",
+          "// 3. Bereken in een nieuwe variabele hoeveel euro de school nog te kort komt.",
+          "// 4. Toon het antwoord in deze zin in de console:",
+          "//    De school verdient ... euro en komt ... euro te kort.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De school verdient 166.5 euro en komt 33.5 euro te kort."
+      },
+      {
+        title: "5. Gemiddelde van drie toetsen",
+        starterCode: [
+          "// Gegeven:",
+          "// Een leerling haalt op drie toetsen volgende scores (op 20):",
+          "// toets 1: 13   toets 2: 17   toets 3: 15",
+          "//",
+          "// Gevraagd:",
+          "// 1. Maak aparte variabelen voor de drie scores.",
+          "// 2. Bereken de som van de drie scores in een nieuwe variabele.",
+          "// 3. Bereken de gemiddelde score (op 20) in een nieuwe variabele.",
+          "// 4. Toon het antwoord in deze zin in de console:",
+          "//    De gemiddelde score op de drie toetsen is ... op 20.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De gemiddelde score op de drie toetsen is 15 op 20."
+      },
+      {
+        title: "6. Tuin met terras",
+        starterCode: [
+          "// Gegeven:",
+          "// Een rechthoekige tuin is 10 meter lang en 6 meter breed.",
+          "// In de tuin wordt een rechthoekig terras aangelegd van 4 meter lang en 3 meter breed.",
+          "//",
+          "// Gevraagd:",
+          "// 1. Maak variabelen voor de lengte en breedte van de volledige tuin.",
+          "// 2. Bereken de totale oppervlakte van de tuin in een nieuwe variabele.",
+          "// 3. Maak variabelen voor de lengte en breedte van het terras.",
+          "// 4. Bereken de oppervlakte van het terras in een nieuwe variabele.",
+          "// 5. Bereken in een nieuwe variabele hoeveel vierkante meter gras er overblijft.",
+          "// 6. Toon deze zin in de console:",
+          "//    Het terras is ... vierkante meter en er blijft ... vierkante meter gras over.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het terras is 12 vierkante meter en er blijft 48 vierkante meter gras over."
+      },
+      {
+  title: "7. Volume van een verhuisdoos",
+  starterCode: [
+    "// Gegeven:",
+    "// Een kartonnen verhuisdoos is 50 cm lang, 30 cm breed en 40 cm hoog.",
+    "// De doos is maar 67% gevuld.",
+    "//",
+    "// Gevraagd:",
+    "// 1. Maak variabelen voor lengte, breedte en hoogte.",
+    "// 2. Bereken de inhoud in kubieke centimeter in een nieuwe variabele.",
+    "// 3. Zet dit volume om naar liter in een nieuwe variabele.",
+    "// 4. Bereken in een nieuwe variabele hoeveel liter er in de doos zit als ze maar 67% gevuld is.",
+    "// 5. Toon deze twee aparte zinnen in de console:",
+    "//    De doos heeft een maximaal volume van ... kubieke centimeter, dat is ... liter.",
+    "//    De doos is maar voor ... liter gevuld.",
+    "",
+    "// Schrijf hieronder je code."
+  ].join('\n'),
+  evalOutput: "De doos heeft een maximaal volume van 60000 kubieke centimeter, dat is 60 liter.\nDe doos is maar voor 40.2 liter gevuld."
+}
+    ]
+  }
+];
+// --------- EINDE NIEUWE DATA VOOR OEFENINGEN -------------------------
+
+
+
+    </script>
+
+    <script>
+    /* === EXAM MODE: limit to a single chapter === */
+    const EXAM_MODE = true;
+    const EXAM_KEEP_CHAPTER_IDX = 0;
+
+    if (EXAM_MODE) {
+      const keep = chapters[EXAM_KEEP_CHAPTER_IDX] || chapters[0];
+      chapters.splice(0, chapters.length, keep);
+    }
+    </script>
+
+    <script>
+      // === TEST-CONTEXT: eenmalige reset van localStorage bij toets ===
+  // Leest de instellingen uit het kleine config-blok in <head>
+  const TEST_MODE  = !!window.JSIK_TEST_MODE;                 // true = toets, false = oefening
+  const TEST_LABEL = window.JSIK_TEST_LABEL || "default";     // korte naam, b.v. datum
+  const TEST_ID    = TEST_MODE ? `jsik-test-${TEST_LABEL}`    // unieke id per toets
+                               : `jsik-normal`;
+
+  const TEST_INIT_KEY = `jsprog-test-init-${TEST_ID}`;
+
+  (function firstLoadResetForThisTest() {
+    // In oefenversie nooit automatisch wissen
+    if (!TEST_MODE) return;
+
+    try {
+      // Als deze toets eerder al gestart is in deze browser, dus niet wissen hier. 
+      if (localStorage.getItem(TEST_INIT_KEY)) return;
+
+      // Eerste keer deze toets: wis alle oude jsprog-* sleutels
+      const allKeys = Object.keys(localStorage);
+      for (const key of allKeys) {
+        if (key.startsWith("jsprog-")) {
+          localStorage.removeItem(key);
+        }
+      }
+
+      // Markeer dat de reset voor deze TEST_ID is uitgevoerd
+      localStorage.setItem(TEST_INIT_KEY, "1");
+    } catch (e) {
+      // In SEB of bij beperkte storage: stil negeren
+      console.warn("LocalStorage reset overgeslagen:", e);
+    }
+  })();
+  
+      
+      
+    // === STATE ===
+    let currentChapterIdx = 0;
+    let currentExerciseIdx = 0;
+
+    // === METRICS: Pogingen + Tijd aan de Oefening ===
+    let _workTimer = { running:false, lastStart:0, intervalId:null };
+
+    function exKey(suffix){ 
+      return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
+    }
+
+    function getPogingen(){ 
+      return parseInt(localStorage.getItem(exKey('pogingen')) || '0', 10); 
+    }
+    function incPogingen(){ 
+      const n = getPogingen() + 1;
+      localStorage.setItem(exKey('pogingen'), String(n));
+      return n;
+    }
+
+    function getWerkTijdMs(){ 
+      return parseInt(localStorage.getItem(exKey('werkTijdMs')) || '0', 10); 
+    }
+    function setWerkTijdMs(ms){ 
+      localStorage.setItem(exKey('werkTijdMs'), String(ms)); 
+    }
+    function addWerkTijd(ms){ 
+      setWerkTijdMs(getWerkTijdMs() + ms); 
+    }
+
+    function startWerkTimer(){
+      if (_workTimer.running) return;
+      _workTimer.running = true;
+      _workTimer.lastStart = Date.now();
+      _workTimer.intervalId = setInterval(updateMetricsUI, 1000);
+    }
+
+    function stopWerkTimer(){
+      if(!_workTimer.running) return;
+      const nu = Date.now();
+      addWerkTijd(nu - _workTimer.lastStart);
+      _workTimer.running = false;
+      _workTimer.lastStart = 0;
+      clearInterval(_workTimer.intervalId);
+      _workTimer.intervalId = null;
+      updateMetricsUI();
+    }
+
+    function resetWerkTimerState(){
+      _workTimer.running = false;
+      _workTimer.lastStart = 0;
+      if (_workTimer.intervalId) clearInterval(_workTimer.intervalId);
+      _workTimer.intervalId = null;
+    }
+
+    function formatDuur(ms){
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return (m > 0 ? `${m}m ` : '') + `${r}s`;
+    }
+
+    let metricsEl = null;
+    function ensureMetricsEl(){
+      if (metricsEl) return metricsEl;
+      const header = document.querySelector('.canvas-header');
+      metricsEl = document.createElement('span');
+      metricsEl.id = 'metrics';
+      metricsEl.style.fontFamily = 'monospace';
+      metricsEl.style.marginLeft = '12px';
+      header && header.appendChild(metricsEl);
+      return metricsEl;
+    }
+
+    function updateMetricsUI(){
+      const el = ensureMetricsEl();
+      const basisMs = getWerkTijdMs();
+      const liveMs  = _workTimer.running ? (Date.now() - _workTimer.lastStart) : 0;
+      el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
+    }
+
+    window.addEventListener('blur', stopWerkTimer);
+    window.addEventListener('beforeunload', stopWerkTimer);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopWerkTimer();
+    });
+
+    const opdrachtTekst = document.getElementById('opdracht-tekst');
+    const progressBar = document.getElementById('exercise-progress');
+    const chapterMenuList = document.getElementById('menu-chapters');
+
+    function renderChapterMenu() {
+      if (!chapterMenuList) return;
+      chapterMenuList.innerHTML = '';
+      chapters.forEach((chapter, idx) => {
+        const li = document.createElement('li');
+        li.className = 'menu-chapter-item' + (idx === currentChapterIdx ? ' active' : '');
+        li.textContent = chapter.title;
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        li.onclick = () => switchChapter(idx);
+        li.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') switchChapter(idx); };
+        chapterMenuList.appendChild(li);
+      });
+    }
+      
+    
+
+    function saveUserCode() {
+      const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+      const value = editor.getValue();
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {}
+    }
+
+    function renderExerciseProgress() {
+      progressBar.innerHTML = '';
+      const exercises = chapters[currentChapterIdx].exercises;
+      exercises.forEach((exercise, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'exercise-btn' + (idx === currentExerciseIdx ? ' current' : '');
+
+        const evalKey = `jsprog-eval-${currentChapterIdx}-${idx}`;
+        const evalStatus = localStorage.getItem(evalKey);
+        if (evalStatus === "success") {
+          btn.style.background = '#3dffd0';
+          btn.style.color = '#23272e';
+        } else if (evalStatus === "fail") {
+          btn.style.background = '#ff1744';
+          btn.style.color = '#fff';
+        } else {
+          btn.style.background = '';
+          btn.style.color = '';
+        }
+
+        btn.textContent = idx + 1;
+        btn.type = 'button';
+        btn.title = exercise.title || `Oefening ${idx + 1}`;
+        btn.onclick = () => switchExercise(idx);
+        progressBar.appendChild(btn);
+      });
+    }
+
+    let isDirty = false;
+    function loadExercise() {
+      const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+      opdrachtTekst.innerHTML = `<strong>${exercise.title || "(geen titel)"}</strong>`;
+
+      const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+      let savedCode = localStorage.getItem(key);
+      if (savedCode !== null) {
+        editor.setValue(savedCode);
+      } else if (exercise.starterCode) {
+        editor.setValue(exercise.starterCode);
+      } else {
+        editor.setValue('');
+      }
+      clearConsole();
+      if (window.resetTurtle) window.resetTurtle();
+      if (window.clearCanvas) window.clearCanvas();
+      isDirty = false;
+      stopWerkTimer();
+      resetWerkTimerState();
+      updateMetricsUI();
+    }
+
+    function showSavedToast() {
+      if (document.getElementById('saved-toast')) return;
+      const toast = document.createElement('div');
+      toast.id = 'saved-toast';
+      toast.textContent = "Opgeslagen!";
+      toast.style.position = "fixed";
+      toast.style.bottom = "32px";
+      toast.style.right = "32px";
+      toast.style.background = "#3dffd0";
+      toast.style.color = "#23272e";
+      toast.style.padding = "0.8em 1.2em";
+      toast.style.borderRadius = "8px";
+      toast.style.fontWeight = "bold";
+      toast.style.boxShadow = "0 2px 12px rgba(0,0,0,0.10)";
+      toast.style.zIndex = 3001;
+      toast.style.opacity = "0";
+      toast.style.transition = "opacity 0.25s";
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = "1"; }, 20);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => { toast.remove(); }, 300);
+      }, 900);
+    }
+
+    function switchChapter(chapterIdx, exerciseIdx = 0) {
+      confirmSwitch(() => {
+        currentChapterIdx = chapterIdx;
+        currentExerciseIdx = exerciseIdx;
+        renderChapterMenu();
+        renderExerciseProgress();
+        loadExercise();
+        isDirty = false;
+      });
+    }
+
+    function switchExercise(exIdx) {
+      confirmSwitch(() => {
+        currentExerciseIdx = exIdx;
+        renderExerciseProgress();
+        loadExercise();
+        isDirty = false;
+      });
+    }
+
+    function goToNextExercise() {
+      const exercises = chapters[currentChapterIdx].exercises;
+      if (currentExerciseIdx < exercises.length - 1) {
+        switchExercise(currentExerciseIdx + 1);
+      } else {
+        showToast("Je hebt alle oefeningen van dit hoofdstuk afgewerkt.", true);
+      }
+    }
+
+    window.confirmModal = function(message, options = {}) {
+      return new Promise((resolve) => {
+        const modal    = document.getElementById('confirm-modal');
+        const msgDiv   = document.getElementById('confirm-modal-msg');
+        const extraDiv = document.getElementById('confirm-modal-extra');
+        const okBtn    = document.getElementById('confirm-modal-ok');
+        const cancelBtn= document.getElementById('confirm-modal-cancel');
+
+        const okLabel     = options.okLabel     || "OK";
+        const cancelLabel = options.cancelLabel || "Annuleren";
+
+        okBtn.textContent     = okLabel;
+        cancelBtn.textContent = cancelLabel;
+
+        msgDiv.textContent = message;
+
+        if (extraDiv) {
+          if (options.extraHTML) {
+            extraDiv.innerHTML = options.extraHTML;
+            extraDiv.style.display = "block";
+          } else {
+            extraDiv.innerHTML = "";
+            extraDiv.style.display = "none";
+          }
+        }
+
+        modal.style.display = "flex";
+
+        function cleanup(result) {
+          modal.style.display = "none";
+          okBtn.removeEventListener('click', onOk);
+          cancelBtn.removeEventListener('click', onCancel);
+          document.removeEventListener('keydown', onKeyDown);
+          modal.onclick = null;
+          resolve(result);
+        }
+
+        function onOk()    { cleanup(true); }
+        function onCancel(){ cleanup(false); }
+
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+
+        function onKeyDown(e) {
+          if (e.key === "Escape") cleanup(false);
+          if (e.key === "Enter")  cleanup(true);
+        }
+        document.addEventListener('keydown', onKeyDown);
+
+        modal.onclick = function(e) {
+          if (e.target === modal) cleanup(false);
+        };
+      });
+    };
+
+    function confirmSwitch(callback) {
+      if (!isDirty) {
+        callback();
+        return;
+      }
+      window.confirmModal(
+        "Je hebt jouw code nog niet uitgevoerd of opgeslagen. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
+      ).then((proceed) => {
+        if (proceed) callback();
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      renderChapterMenu();
+      renderExerciseProgress();
+      loadExercise();
+    });
+
+    let editor = CodeMirror(document.getElementById('code-editor'), {
+      value: chapters[0].exercises[0].starterCode,
+      mode: "javascript",
+      lineNumbers: true,
+      theme: "default",
+      tabSize: 2,
+      autofocus: true,
+    });
+
+    editor.on('change', function() {
+      isDirty = true;
+      const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+      localStorage.setItem(key, editor.getValue());
+      startWerkTimer();
+      updateMetricsUI();
+    });
+
+    const consoleDiv = document.getElementById('console-output');
+    function clearConsole() { consoleDiv.textContent = ''; }
+    function appendToConsole(msg) { consoleDiv.textContent += msg + "\n"; }
+      
+// Maakt een veilige console voor de leerlingcode
+function createSafeConsole() {
+  // Bewaar de echte console voor debug in de browser
+  const realConsole = window.console;
+
+  const safeConsole = {};
+
+  // console.log vastzetten als niet-overschrijfbare functie
+  Object.defineProperty(safeConsole, "log", {
+    value: (...args) => {
+      // 1) tekst naar de leerling-console schrijven
+      const str = args.map(String).join(" ");
+      capturedOutput += str + "\n";
+      appendToConsole(str);
+
+      // 2) optioneel ook naar de echte devtools-console loggen
+      if (realConsole && typeof realConsole.log === "function") {
+        realConsole.log(...args);
+      }
+    },
+    writable: false,      // leerling kan console.log niet overschrijven
+    configurable: false,
+    enumerable: true
+  });
+
+  // Optioneel: extra methodes zoals console.error, console.warn, ...
+  // Object.defineProperty(safeConsole, "error", { ... });
+
+  return safeConsole;
+}
+
+
+    const helpModal = document.getElementById('help-modal');
+    document.getElementById('help-btn').onclick = function() {
+      helpModal.style.display = "flex";
+    };
+    document.getElementById('close-help').onclick = function() {
+      helpModal.style.display = "none";
+    };
+    helpModal.onclick = function(e) {
+      if (e.target === helpModal) helpModal.style.display = "none";
+    };
+
+    function renderSwatches() {
+      let simple_colors = null;
+      if (typeof RGBColor === "function") {
+        let match = RGBColor.toString().match(/var\s+simple_colors\s*=\s*({[\s\S]+?});/);
+        if (match) {
+          try { simple_colors = eval('(' + match[1] + ')'); } catch (e) {}
+        }
+        if (!simple_colors && RGBColor.simple_colors) simple_colors = RGBColor.simple_colors;
+      }
+      if (!simple_colors) simple_colors = {red:'ff0000',blue:'0000ff',green:'008000',black:'000000',white:'ffffff'};
+
+      const MAX_COLORS = 32;
+      let names = Object.keys(simple_colors).slice(0, MAX_COLORS);
+
+      let swatchesHTML = '';
+      for (const colorName of names) {
+        const hex = '#' + simple_colors[colorName];
+        const r = parseInt(simple_colors[colorName].substring(0,2), 16);
+        const g = parseInt(simple_colors[colorName].substring(2,4), 16);
+        const b = parseInt(simple_colors[colorName].substring(4,6), 16);
+        const rgbString = `rgb(${r},${g},${b})`;
+        swatchesHTML += `
+          <div class="swatch-container">
+            <div class="swatch" style="background:${hex};"></div>
+            <div class="label">${colorName}<br>
+              <span class="rgb">${rgbString}</span>
+            </div>
+          </div>
+        `;
+      }
+      document.getElementById('dynamic-color-swatches').innerHTML = swatchesHTML;
+    }
+    document.addEventListener("DOMContentLoaded", renderSwatches);
+
+    document.getElementById('toggle-theme').onclick = function() {
+      document.body.classList.toggle('dark');
+    };
+
+    function openPdfModal() {
+      const modal = document.getElementById('pdf-modal');
+      modal.style.display = 'flex';
+
+      document.getElementById('modal-naam').value = '';
+      document.getElementById('modal-klas').value = '';
+      document.getElementById('modal-oefening').value = '';
+
+      document.getElementById('modal-naam').focus();
+    }
+
+    document.getElementById('export-pdf').onclick = openPdfModal;
+
+    document.getElementById('close-pdf-modal').onclick = function() {
+      document.getElementById('pdf-modal').style.display = 'none';
+    };
+    document.getElementById('pdf-modal').onclick = function(e) {
+      if (e.target === this) this.style.display = 'none';
+    };
+
+    const COLOR_PURPLE = [82, 0, 255];
+    const COLOR_GREEN = [61, 255, 208];
+    const COLOR_WHITE = [255, 255, 255];
+
+    document.getElementById('modal-ok').onclick = async function() {
+      const naam = document.getElementById('modal-naam').value.trim();
+      const klas = document.getElementById('modal-klas').value.trim();
+      let oefening = document.getElementById('modal-oefening').value.trim();
+      if (!naam || !klas) {
+        alert("Gelieve je naam en klas in te vullen.");
+        return;
+      }
+      if (!oefening) {
+        oefening = chapters[currentChapterIdx].exercises[currentExerciseIdx].title || "(geen titel)";
+      }
+      document.getElementById('pdf-modal').style.display = 'none';
+
+      const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+      const evalStatus = localStorage.getItem(evalKey);
+      const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+      const expectedOutput = exercise.evalOutput || "";
+
+      const canvas = document.getElementById('turtlecanvas');
+      const canvasImg = await html2canvas(canvas, {
+        backgroundColor: null,
+        scale: 2
+      }).then(cnv => cnv.toDataURL('image/png'));
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 36, contentWidth = 520;
+      let y = margin;
+
+      function setBodyFont()   { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12); }
+      function setHeaderFont() { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); }
+      function setLabelFont()  { pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13); }
+      function setCodeFont()   { pdf.setFont('courier', 'normal'); pdf.setFontSize(10); }
+
+      function ensureRoom(heightNeeded) {
+        if (y + heightNeeded > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+      }
+
+      function addMultilineSection(label, contentLines, color=COLOR_PURPLE, code=false) {
+        pdf.setTextColor(...color); setLabelFont();
+        pdf.text(label, margin, y); y += 16;
+        if (code) { setCodeFont(); }
+        else      { setBodyFont(); }
+        pdf.setTextColor(0, 0, 0);
+        const lineHeight = code ? 13 : 14;
+        for (let i = 0; i < contentLines.length; ) {
+          let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
+          if (linesFit < 1) { pdf.addPage(); y = margin; continue; }
+          let linesThisPage = contentLines.slice(i, i + linesFit);
+          pdf.text(linesThisPage, margin, y);
+          i += linesFit;
+          y += linesThisPage.length * lineHeight;
+          if (i < contentLines.length) { pdf.addPage(); y = margin; }
+        }
+        y += 10;
+      }
+
+      pdf.setTextColor(...COLOR_PURPLE); setHeaderFont();
+      pdf.text('JavaScript in de Klas – Oefening', margin, y); y += 28;
+      pdf.setTextColor(0, 0, 0); setBodyFont();
+      pdf.text(`Naam: ${naam}`, margin, y); y += 18;
+      pdf.text(`Klas: ${klas}`, margin, y); y += 18;
+      pdf.text(`Oefening: ${oefening}`, margin, y); y += 30;
+
+      let opdrachtText = document.getElementById('opdracht-tekst').textContent;
+      let opdrachtLines = pdf.splitTextToSize(opdrachtText, contentWidth);
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Opdracht:", margin, y); y += 20;
+      pdf.setTextColor(0, 0, 0); setBodyFont();
+      pdf.text(opdrachtLines, margin, y); y += opdrachtLines.length * 14 + 18;
+
+      let code = editor.getValue();
+      let codeLines = pdf.splitTextToSize(code, contentWidth);
+      addMultilineSection("Code:", codeLines, COLOR_PURPLE, true);
+
+      let consoleText = document.getElementById('console-output').textContent;
+      let outputLines = pdf.splitTextToSize(consoleText || "(geen uitvoer)", contentWidth);
+      addMultilineSection("Console-uitvoer:", outputLines, COLOR_PURPLE, true);
+
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Status oefening:", margin, y); y += 16;
+
+      pdf.setTextColor(0, 0, 0); setBodyFont();
+      let statusText;
+      if (evalStatus === "success") statusText = "Oefening correct";
+      else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
+      else statusText = "Niet uitgevoerd";
+      pdf.text(statusText, margin, y); y += 16;
+
+      const pogingen = (typeof getPogingen === 'function')
+        ? getPogingen()
+        : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
+
+      const tijdMs = (typeof getWerkTijdMs === 'function')
+        ? getWerkTijdMs()
+        : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
+
+      function _fmt(ms){
+        if (typeof formatDuur === 'function') return formatDuur(ms);
+        const s = Math.max(0, Math.floor((ms || 0)/1000));
+        const m = Math.floor(s/60), r = s % 60;
+        return (m > 0 ? `${m}m ` : '') + `${r}s`;
+      }
+
+      pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
+      pdf.text(`Tijd besteed: ${_fmt(tijdMs)}`, margin, y); y += 24;
+
+      if (expectedOutput && expectedOutput.length > 0) {
+        let expectedLines = pdf.splitTextToSize(expectedOutput, contentWidth);
+        addMultilineSection("Verwachte uitvoer:", expectedLines, COLOR_PURPLE, true);
+      }
+
+      const imgHeight = 210, imgWidth = 210;
+      ensureRoom(imgHeight + 40);
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Canvas:", margin, y); y += 10;
+      pdf.addImage(canvasImg, 'PNG', margin, y, imgWidth, imgHeight); y += imgHeight + 20;
+
+      ensureRoom(250);
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Beoordeling & Feedback leerkracht:", margin, y); y += 18;
+
+      const tableWidth = 520;
+      const criteriumColWidth = 160;
+      const scoreColWidth = 54;
+      const feedbackColWidth = tableWidth - criteriumColWidth - scoreColWidth;
+      const startX = margin;
+      const col1 = startX + criteriumColWidth;
+      const col2 = col1 + scoreColWidth;
+      const headerH = 28;
+      const rowH = 44;
+
+      pdf.setDrawColor(...COLOR_PURPLE); 
+      pdf.setLineWidth(0.8);
+      pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, 'S');
+
+      pdf.setFillColor(...COLOR_PURPLE);
+      pdf.rect(startX, y, tableWidth, headerH, 'F');
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(13);
+      pdf.text("Criterium", startX + 8, y + 19);
+      pdf.text("Score", col1 + 12, y + 19);
+      pdf.text("Feedback", col2 + 12, y + 19);
+
+      pdf.setDrawColor(...COLOR_PURPLE);
+      pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+      pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(12);
+      const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+      for (let i = 0; i < criteria.length; i++) {
+        const rowY = y + headerH + i * rowH;
+        pdf.line(startX, rowY, startX + tableWidth, rowY);
+        pdf.setTextColor(...COLOR_PURPLE);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(criteria[i], startX + 8, rowY + 26);
+      }
+      y += headerH + 5 * rowH + 20;
+
+      pdf.setTextColor(...COLOR_PURPLE);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(13);
+      pdf.text("Algemene feedback:", startX + 8, y);
+      y += 60;
+
+      ensureRoom(90);
+      const now = new Date();
+      const localeStamp = now.toLocaleString('nl-BE');
+      const verifyId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+      const url = window.location.href;
+      const ua  = navigator.userAgent || "Onbekend";
+
+      pdf.setTextColor(...COLOR_PURPLE);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(11);
+      pdf.text("Verificatiegegevens:", startX + 8, y);
+      y += 16;
+
+      pdf.setTextColor(0,0,0);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.text(`Genereerd op: ${localeStamp}`, startX + 8, y); y += 12;
+      pdf.text(`Pagina-URL: ${url}`, startX + 8, y); y += 12;
+      pdf.text(`Browser: ${ua}`, startX + 8, y); y += 12;
+      pdf.text(`Pogingen: ${pogingen} | Tijd besteed: ${_fmt(tijdMs)}`, startX + 8, y); y += 12;
+      pdf.text(`Verificatie-ID: ${verifyId}`, startX + 8, y); y += 16;
+
+      function sanitize(s) { return s.replace(/[^a-zA-Z0-9_\-]/g, "_"); }
+      const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
+      pdf.save(fname);
+    };
+
+    (function () {
+      const coordsSpan = document.getElementById('coords');
+      const canvas = document.getElementById('turtlecanvas');
+
+      function getBorderSizes(el) {
+        const s = getComputedStyle(el);
+        return {
+          left:   parseFloat(s.borderLeftWidth)   || 0,
+          right:  parseFloat(s.borderRightWidth)  || 0,
+          top:    parseFloat(s.borderTopWidth)    || 0,
+          bottom: parseFloat(s.borderBottomWidth) || 0
+        };
+      }
+
+      canvas.addEventListener("mousemove", function (event) {
+        const rect = canvas.getBoundingClientRect();
+        const b = getBorderSizes(canvas);
+
+        const cssX = event.clientX - rect.left - b.left;
+        const cssY = event.clientY - rect.top  - b.top;
+
+        const contentCssWidth  = rect.width  - b.left - b.right;
+        const contentCssHeight = rect.height - b.top  - b.bottom;
+        const scaleX = canvas.width  / contentCssWidth;
+        const scaleY = canvas.height / contentCssHeight;
+
+        const cx = cssX * scaleX;
+        const cy = cssY * scaleY;
+
+        const centerX = canvas.width  / 2;
+        const centerY = canvas.height / 2;
+
+        const worldX = (cx - centerX - panX) / zoom;
+        const worldY = (centerY - cy - panY) / zoom;
+
+        coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
+      });
+
+      canvas.addEventListener("mouseleave", function () {
+        coordsSpan.textContent = "";
+      });
+    })();
+
+    const menuTab = document.getElementById('menu-tab');
+    const courseMenu = document.getElementById('course-menu');
+    const closeMenu = document.getElementById('close-menu');
+
+    if (menuTab && courseMenu && closeMenu) {
+      menuTab.onclick = (e) => {
+        e.stopPropagation();
+        if (courseMenu.classList.contains('open')) {
+          courseMenu.classList.remove('open');
+        } else {
+          courseMenu.classList.add('open');
+          courseMenu.focus();
+        }
+      };
+
+      closeMenu.onclick = () => {
+        courseMenu.classList.remove('open');
+      };
+
+      courseMenu.addEventListener('keydown', e => {
+        if (e.key === 'Escape') courseMenu.classList.remove('open');
+      });
+      document.addEventListener('click', e => {
+        if (
+          courseMenu.classList.contains('open') &&
+          !courseMenu.contains(e.target) &&
+          e.target !== menuTab
+        ) {
+          courseMenu.classList.remove('open');
+        }
+      });
+    }
+
+    document.getElementById('reset-progress').onclick = async function() {
+      const proceed = await window.confirmModal(
+        "Weet je zeker dat je alle voortgang en opgeslagen code wilt wissen?"
+      );
+      if (proceed) {
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith("jsprog-")) localStorage.removeItem(key);
+        });
+        renderExerciseProgress();
+        loadExercise();
+      }
+    };
+
+    function translateError(message) {
+      if (message.includes("Unexpected identifier")) {
+        return "Onverwacht woord in de code. Mogelijk een typfout of een ontbrekende komma. Controleer je regels.";
+      }
+      if (message.includes("is not defined")) {
+        return "Variabele is niet gekend. Heb je de variabele gedeclareerd met 'var'? Of een typfout?";
+      }
+      if (message.includes("missing ) after argument list")) {
+        return "Je mist een haakje. Tel je ( en ) even na!";
+      }
+      if (message.includes("Unexpected token }")) {
+        return "Onverwachte '}'. Mogelijk te veel of te weinig accolades gebruikt.";
+      }
+      if (message.includes("not a function")) {
+        return "Je probeert iets als functie te gebruiken, maar dat klopt niet. Typfout in de functienaam?";
+      }
+      if (message.includes("Cannot read property")) {
+        return "Je probeert iets te gebruiken dat niet bestaat. Controleer je objecten en variabelen.";
+      }
+      if (message.includes("Maximum call stack")) {
+        return "Je code zit mogelijk in een oneindige lus. Controleer je lussen!";
+      }
+      if (message.includes("Invalid or unexpected token")) {
+        return "Er staat een teken in je code dat JavaScript niet herkent. Dit kan een typefout zijn, een vergeten haakje, puntkomma of een vreemd teken.";
+      }
+      if (message.includes("Lus zonder accolades")) {
+        return "Je gebruikt een lus zonder { }. Zet je lus-inhoud tussen accolades: { ... }";
+      }
+      if (message.includes("mogelijk oneindige lus")) {
+        return "Je code lijkt vast te zitten in een (bijna) oneindige lus. Controleer de lusvoorwaarde en zorg dat de variabelen veranderen.";
+      }
+      if (
+  message.includes("Cannot assign to read only property 'log'") ||
+  message.includes("Cannot assign to read only property 'log' of object")
+) {
+  return "Je probeert 'console.log' zelf te veranderen. " +
+         "Waarschijnlijk heb je '=' gebruikt. " +
+         "Gebruik ronde haakjes: console.log(\"tekst\"); " +
+         "en niet console.log = \"tekst\";";
+}
+      return message;
+    }
+
+    const _DEFAULT_NORM_OPTS = {
+      caseInsensitive: true,
+      trim: true,
+      collapseSpaces: true,
+      removePunctuation: false,
+      decimalCommaToDot: true
+    };
+
+    const _IGNORE_LINE_PATTERNS = [
+      /^debug output:/i,
+      /^\s*opgeslagen!$/i
+    ];
+
+    function _shouldIgnoreLine(line) {
+      return _IGNORE_LINE_PATTERNS.some(rx => rx.test(line));
+    }
+
+    function _normalizeText(s, opts = _DEFAULT_NORM_OPTS) {
+      let t = s ?? "";
+      if (opts.decimalCommaToDot) {
+        t = t.replace(/(\d),(\d)/g, '$1.$2');
+      }
+      if (opts.trim) t = t.trim();
+      if (opts.collapseSpaces) t = t.replace(/\s+/g, ' ');
+      if (opts.removePunctuation) t = t.replace(/[.,;:!?…–—\-]/g, '');
+      if (opts.caseInsensitive) t = t.toLowerCase();
+      return t;
+    }
+
+    function _extractNumbers(s) {
+      const norm = (s ?? "").replace(/(\d),(\d)/g, '$1.$2');
+      const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
+      return matches.map(parseFloat);
+    }
+
+    function _nearlyEqual(a, b, eps = 0.01) {
+      return Math.abs(a - b) <= eps;
+    }
+
+    function _looseCompare(expectedRaw, userRaw, opts = _DEFAULT_NORM_OPTS) {
+      const linesE = (expectedRaw ?? '')
+        .split(/\r?\n/)
+        .map(l => l.replace(/\u00A0/g, ' '))
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+
+      const linesU = (userRaw ?? '')
+        .split(/\r?\n/)
+        .map(l => l.replace(/\u00A0/g, ' '))
+        .map(l => l.trim())
+        .filter(l => l.length > 0 && !_shouldIgnoreLine(l));
+
+      if (linesE.length !== linesU.length) {
+        return { ok: false, info: `Regelaantal wijkt af (verwacht ${linesE.length}, gekregen ${linesU.length}).` };
+      }
+
+      for (let i = 0; i < linesE.length; i++) {
+        const e = linesE[i];
+        const u = linesU[i];
+
+        const numsE = _extractNumbers(e);
+        const numsU = _extractNumbers(u);
+
+        if (numsE.length > 0 && numsE.length === numsU.length) {
+          const tol = opts.tolerance ?? 0.01;
+          for (let j = 0; j < numsE.length; j++) {
+            if (!_nearlyEqual(numsE[j], numsU[j], tol)) {
+              return { ok: false, info: `Getal op regel ${i + 1} wijkt af (verwacht ${numsE[j]}, kreeg ${numsU[j]}).` };
+            }
+          }
+          const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
+          const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ''), opts);
+          if (eText !== uText) {
+            return { ok: false, info: `Tekst op regel ${i + 1} wijkt af (we negeren spaties/case/komma-punt).` };
+          }
+        } else {
+          const eN = _normalizeText(e, opts);
+          const uN = _normalizeText(u, opts);
+          if (eN !== uN) {
+            return { ok: false, info: `Regel ${i + 1} wijkt af.` };
+          }
+        }
+      }
+      return { ok: true, info: 'Uitvoer komt overeen.' };
+    }
+
+    function _evalByMode(exercise, userRaw) {
+      const cfg = exercise.eval;
+      if (!cfg || !cfg.type) return null;
+
+      const raw = (userRaw ?? '').replace(/(\d),(\d)/g, '$1.$2');
+
+      if (cfg.type === 'numbers') {
+        const numsU = _extractNumbers(raw);
+        const numsE = (cfg.expected || []).map(Number);
+        const tol = cfg.tolerance ?? 0.01;
+
+        if (cfg.orderInsensitive) {
+          const a = [...numsU].sort((x,y)=>x-y);
+          const b = [...numsE].sort((x,y)=>x-y);
+          if (a.length !== b.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${b.length}, kreeg ${a.length}).` };
+          for (let i=0;i<a.length;i++) if (!_nearlyEqual(a[i], b[i], tol)) {
+            return { ok:false, info:`Getallen wijken af (tolerantie ${tol}).` };
+          }
+          return { ok:true, info:'Getallen kloppen (volgorde genegeerd).' };
+        } else {
+          if (numsU.length !== numsE.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${numsE.length}, kreeg ${numsU.length}).` };
+          for (let i=0;i<numsE.length;i++) if (!_nearlyEqual(numsE[i], numsU[i], tol)) {
+            return { ok:false, info:`Getal #${i+1} wijkt af (verwacht ${numsE[i]}, kreeg ${numsU[i]}).` };
+          }
+          return { ok:true, info:'Getallen kloppen (op volgorde).' };
+        }
+      }
+
+      if (cfg.type === 'regex') {
+        const re = new RegExp(cfg.pattern, cfg.flags || 'i');
+        const ok = re.test(raw.trim());
+        return { ok, info: ok ? 'Patroon komt overeen.' : 'Tekst voldoet niet aan het patroon.' };
+      }
+
+      if (cfg.type === 'contains') {
+        const hay = raw.toLowerCase();
+        const missing = (cfg.substrings || []).filter(s => !hay.includes(String(s).toLowerCase()));
+        if (missing.length === 0) return { ok:true, info:'Alle vereiste woorden/fragmenten aanwezig.' };
+        return { ok:false, info:`Ontbreekt: ${missing.join(', ')}` };
+      }
+
+      return null;
+    }
+
+    function evaluateExercise() {
+      const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+
+      if (!ex || (!ex.evalOutput && !ex.eval)) {
+        window._lastEvalInfo = 'Geen evaluatiesleutel voor deze oefening.';
+        return null;
+      }
+
+      const userRaw = (typeof capturedOutput === 'string') ? capturedOutput : String(capturedOutput || '');
+
+      const modeRes = _evalByMode(ex, userRaw);
+      if (modeRes) {
+        window._lastEvalInfo = modeRes.info;
+        return modeRes.ok;
+      }
+
+      const loose = _looseCompare(ex.evalOutput || '', userRaw, {
+        ..._DEFAULT_NORM_OPTS,
+        tolerance: 0.01,
+        removePunctuation: false
+      });
+
+      window._lastEvalInfo = loose.info;
+      return loose.ok;
+    }
+
+    function showEvalFeedback(isCorrect) {
+      const progressBtns = document.querySelectorAll('.exercise-btn');
+      if (!progressBtns[currentExerciseIdx]) return;
+
+      if (isCorrect === null) {
+        progressBtns[currentExerciseIdx].style.background = '';
+        progressBtns[currentExerciseIdx].style.color = '';
+        return;
+      }
+
+      const extraInfo = window._lastEvalInfo || '';
+      const exercise  = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+
+      if (isCorrect) {
+        progressBtns[currentExerciseIdx].style.background = '#3dffd0';
+        progressBtns[currentExerciseIdx].style.color = '#23272e';
+
+        const pogingen = (typeof getPogingen === 'function')
+          ? getPogingen()
+          : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
+
+        const tijdMs = (typeof getWerkTijdMs === 'function')
+          ? getWerkTijdMs()
+          : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
+
+        const tijdLabel = (typeof formatDuur === 'function')
+          ? formatDuur(tijdMs)
+          : `${Math.max(0, Math.floor((tijdMs || 0)/1000))}s`;
+
+        if (typeof window.confirmModal === 'function') {
+          const extraHtml = `
+            <div class="verify-block">
+              <ul>
+                <li>Exporteer jouw oplossing naar jouw device.</li>
+                <li>Sla het PDF-bestand op.</li>
+                <li>Selecteer een opslagplaats op jouw device die je eenvoudig kan terugvinden.</li>
+                <li><i>Bijvoorbeeld: in jouw IW-map op jouw OneDrive of de Downloadmap.</i></li>
+              </ul>
+              <p><strong>Statistiek:</strong> Pogingen: ${pogingen} · Tijd: ${tijdLabel}</p>
+              ${extraInfo ? `<p class="verify-detail">${extraInfo}</p>` : ""}
+            </div>
+          `;
+
+          window.confirmModal(
+            "Goed gedaan! Je uitvoer is correct.\n\nWat nu?",
+            {
+              okLabel: "Exporteren naar PDF",
+              cancelLabel: "Ga naar de volgende oefening",
+              extraHTML: extraHtml
+            }
+          ).then(goExport => {
+            if (goExport) {
+              if (typeof openPdfModal === 'function') openPdfModal();
+            } else {
+              goToNextExercise();
+            }
+          });
+        } else {
+          showToast("Goed gedaan! " + (extraInfo || "Je output is correct."), true);
+        }
+
+      } else {
+        progressBtns[currentExerciseIdx].style.background = '#ff1744';
+        progressBtns[currentExerciseIdx].style.color = '#fff';
+
+        const expected = exercise.evalOutput
+          ? ("\n\nVerwachte uitvoer:\n" + exercise.evalOutput)
+          : "";
+
+        showToast("Niet helemaal goed. " + (extraInfo || "") + expected, false);
+      }
+    }
+
+    function showToast(message, success) {
+      let toast = document.getElementById('eval-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'eval-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '42px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.padding = '1em 2em';
+        toast.style.fontSize = '1.1em';
+        toast.style.fontWeight = 'bold';
+        toast.style.borderRadius = '12px';
+        toast.style.zIndex = 9999;
+        toast.style.boxShadow = '0 4px 16px rgba(0,0,0,0.16)';
+        toast.style.maxWidth = '85vw';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.style.background = success ? '#e6fff8' : '#fff0f0';
+      toast.style.color = success ? '#04695c' : '#c81c1c';
+      toast.style.display = 'block';
+      clearTimeout(window.evalToastTimeout);
+      window.evalToastTimeout = setTimeout(() => {
+        toast.style.display = 'none';
+      }, 4000);
+    }
+
+    function customPrompt(question, callback) {
+      const modal = document.getElementById('custom-modal');
+      if (!modal) return;
+      document.getElementById('modal-body').innerHTML = `<label>${question}</label><br><input type="text" id="modal-input" style="width:100%;margin-top:1em;">`;
+      document.getElementById('modal-actions').innerHTML =
+        `<button id="modal-ok">OK</button>`;
+      modal.style.display = 'flex';
+
+      document.getElementById('modal-close').onclick = () => modal.style.display = 'none';
+
+      document.getElementById('modal-ok').onclick = function() {
+        const val = document.getElementById('modal-input').value;
+        modal.style.display = 'none';
+        callback(val);
+      };
+      document.getElementById('modal-input').onkeydown = function(e) {
+        if (e.key === "Enter") document.getElementById('modal-ok').click();
+      };
+      document.getElementById('modal-input').focus();
+    }
+
+    function customConfirm(question, callback) {
+      const modal = document.getElementById('custom-modal');
+      if (!modal) return;
+      document.getElementById('modal-body').innerHTML = `<p>${question}</p>`;
+      document.getElementById('modal-actions').innerHTML =
+        `<button id="modal-yes">Ja</button> <button id="modal-no">Nee</button>`;
+      modal.style.display = 'flex';
+      document.getElementById('modal-close').onclick = () => { modal.style.display = 'none'; callback(false); };
+      document.getElementById('modal-no').onclick = () => { modal.style.display = 'none'; callback(false); };
+      document.getElementById('modal-yes').onclick = () => { modal.style.display = 'none'; callback(true); };
+    }
+
+    window.ask = function(boodschap) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('ask-modal');
+        const msgDiv = document.getElementById('ask-modal-msg');
+        const input = document.getElementById('ask-modal-input');
+        const okBtn = document.getElementById('ask-modal-ok');
+
+        msgDiv.textContent = boodschap;
+        input.value = '';
+        modal.style.display = 'flex';
+        input.focus();
+
+        function cleanup() {
+          modal.style.display = 'none';
+          okBtn.removeEventListener('click', onOk);
+          input.removeEventListener('keydown', onEnter);
+        }
+
+        function onOk() {
+          cleanup();
+          resolve(input.value);
+        }
+
+        function onEnter(e) {
+          if (e.key === 'Enter') onOk();
+        }
+
+        okBtn.addEventListener('click', onOk);
+        input.addEventListener('keydown', onEnter);
+      });
+    };
+
+    function applyLoopGuard(source, options = {}) {
+      const MAX_ITERS = options.maxIters ?? 200000;
+      const MAX_MS    = options.maxMs   ?? 2000;
+
+      if (/^\s*\/\*\s*@no-guard\s*\*\//.test(source)) return source;
+
+      const bracelessLoop = /(for|while)\s*\([^)]*\)\s*(?!\{)/;
+      if (bracelessLoop.test(source)) {
+        throw new Error("Lus zonder accolades gedetecteerd. Gebruik { } rond de code in je for/while-lus.");
+      }
+
+      const prelude = `
+        const __GUARD_MAX_ITERS = ${MAX_ITERS};
+        const __GUARD_MAX_MS = ${MAX_MS};
+        let __guard_iters = 0;
+        const __guard_start = Date.now();
+        function __tick() {
+          __guard_iters++;
+          if ((__guard_iters & 1023) === 0) {
+            if (Date.now() - __guard_start > __GUARD_MAX_MS) {
+              throw new Error("Tijdslimiet overschreden (mogelijk oneindige lus).");
+            }
+          }
+          if (__guard_iters > __GUARD_MAX_ITERS) {
+            throw new Error("Te veel iteraties (mogelijk oneindige lus).");
+          }
+        }
+      `;
+
+      let code = source;
+
+      code = code.replace(/do\s*\{/g, match => `${match} __tick(); `);
+
+      code = code.replace(
+        /while\s*\(([^)]*)\)\s*\{/g,
+        (m, cond) => `while ((__tick(), (${cond}))) { __tick(); `
+      );
+
+      code = code.replace(
+        /for\s*\(([^;]*);([^;]*);([^\)]*)\)\s*\{/g,
+        (m, init, cond, step) => `for (${init}; (__tick(), (${cond})); ${step}) { __tick(); `
+      );
+
+      code = code.replace(/for\s*\(\s*;\s*;\s*\)\s*\{/g, 'for (;;){ __tick(); ');
+
+      return prelude + "\n" + code;
+    }
+
+
+function checkConsoleMisuse(source) {
+  const re = /console\s*\.\s*log\s*=/;
+  if (re.test(source)) {
+    throw new Error(
+      "Je gebruikt '=' na console.log. " +
+      "Schrijf bijvoorbeeld: console.log(\"Hallo\"); " +
+      "en niet console.log = \"Hallo\";"
+    );
+  }
+}
+
+window.runStudentCode = function(studentCode) {
+
+  checkConsoleMisuse(studentCode);
+
+
+  let transformed = studentCode.replace(/ask\s*\(/g, 'await ask(');
+
+ 
+  transformed = applyLoopGuard(transformed, {
+    maxIters: 200000,
+    maxMs:    2000
+  });
+
+
+  const safeConsole = createSafeConsole();
+
+
+  const wrapper = `
+    "use strict";
+    return (async function __student_main__() {
+      ${transformed}
+    })();
+  `;
+
+ 
+  return new Function('console', 'ask', wrapper)(safeConsole, window.ask);
+};
+document.getElementById('run-code').onclick = async function() {
+  // Tel poging wanneer er effectief aan de code gewerkt is
+  if (isDirty && typeof incPogingen === 'function') incPogingen();
+  if (typeof stopWerkTimer === 'function') stopWerkTimer();
+  if (typeof updateMetricsUI === 'function') updateMetricsUI();
+
+  clearConsole();
+  capturedOutput = "";
+
+  try {
+    if (window.resetTurtle) window.resetTurtle();
+    if (window.clearCanvas) window.clearCanvas();
+
+    const code = editor.getValue();
+    const key  = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    localStorage.setItem(key, code);
+    isDirty = false;
+    showSavedToast();
+
+    await runStudentCode(code);
+
+  } catch (e) {
+    const msg = e && e.message ? e.message : String(e);
+    const uitleg = translateError(msg);
+    appendToConsole("Fout: " + uitleg);
+  } finally {
+    if (typeof updateMetricsUI === 'function') updateMetricsUI();
+
+    const isCorrect = evaluateExercise();
+    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+    if (isCorrect === true) {
+      localStorage.setItem(evalKey, "success");
+    } else if (isCorrect === false) {
+      localStorage.setItem(evalKey, "fail");
+    } else {
+      localStorage.removeItem(evalKey);
+    }
+    renderExerciseProgress();
+    showEvalFeedback(isCorrect);
+  }
+};
+   
+
+    </script>
+  </body>
+  </html>
