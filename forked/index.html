@@ -91,7 +91,8 @@
       font-size:1.02em;
       line-height:1.35;
     }
-
+    #opdracht-tekst { display:none; }
+    
     .main-layout{
       display:flex;
       flex-direction:row;
@@ -2973,8 +2974,9 @@ document.addEventListener("visibilitychange", () => {
       const opdrachtTitleEl = document.getElementById("opdracht-titel");
       const opdrachtTextEl  = document.getElementById("opdracht-tekst");
       if (opdrachtTitleEl) opdrachtTitleEl.textContent = exercise.title || "(geen titel)";
-      const assignmentText = extractAssignmentTextFromStarterCode(exercise.starterCode);
-      if (opdrachtTextEl) opdrachtTextEl.textContent = assignmentText || "";
+      //const assignmentText = extractAssignmentTextFromStarterCode(exercise.starterCode);
+      //if (opdrachtTextEl) opdrachtTextEl.textContent = assignmentText || "";
+      if (opdrachtTextEl) opdrachtTextEl.textContent = "";
 
       const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
       const savedCode = localStorage.getItem(key);
