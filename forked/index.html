@@ -3365,7 +3365,52 @@ if (includeExpected){
             pdf.text("(Kon canvas-afbeelding niet toevoegen.)", margin, y); y += 16;
           }
         }
+// ===== Rubric scaffold (teacher) =====
+y = ensureRoom(y, 250);
 
+pdf.setTextColor(82,0,255); setLabelFont();
+pdf.text("Beoordeling & feedback leerkracht:", margin, y); y += 18;
+
+const tableWidth = 520;
+const criteriumColWidth = 160;
+const scoreColWidth = 54;
+const headerH = 28;
+const rowH = 44;
+
+const startX = margin;
+const col1 = startX + criteriumColWidth;
+const col2 = col1 + scoreColWidth;
+
+pdf.setDrawColor(82,0,255);
+pdf.setLineWidth(0.8);
+pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, "S");
+
+pdf.setFillColor(82,0,255);
+pdf.rect(startX, y, tableWidth, headerH, "F");
+
+pdf.setTextColor(255,255,255);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(13);
+pdf.text("Criterium", startX + 8, y + 19);
+pdf.text("Score", col1 + 12, y + 19);
+pdf.text("Feedback", col2 + 12, y + 19);
+
+pdf.setDrawColor(82,0,255);
+pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(12);
+const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+for (let i=0;i<criteria.length;i++){
+  const rowY = y + headerH + i * rowH;
+  pdf.line(startX, rowY, startX + tableWidth, rowY);
+  pdf.setTextColor(82,0,255);
+  pdf.setFont("helvetica", "bold");
+  pdf.text(criteria[i], startX + 8, rowY + 26);
+}
+
+y += headerH + 5 * rowH + 20;
         // Verification
         y = ensureRoom(y, 80);
         pdf.setTextColor(82,0,255); setLabelFont();
