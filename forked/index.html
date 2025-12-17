@@ -702,7 +702,7 @@
 
     <div class="toolbar">
       <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">🌙 / ☀️</button>
-      <button class="brand-btn" id="export-pdf">Exporteren naar PDF</button>
+      <button class="brand-btn" id="export-pdf">Reeks exporteren naar PDF</button>
       <button class="brand-btn" id="reset-progress">Vooruitgang wissen</button>
     </div>
   </header>
@@ -2782,7 +2782,7 @@
             <ul>
               <li>Optie 1: exporteer enkel deze oefening naar PDF.</li>
               <li>Optie 2: bewaar deze oefening lokaal en ga door naar de volgende.</li>
-              <li>Later kan je bovenaan alles exporteren van vandaag via <b>Exporteren naar PDF</b>.</li>
+              <li>Later kan je bovenaan alles exporteren van vandaag via <b>Reeks exporteren naar PDF</b>.</li>
             </ul>
             <p><strong>Statistiek:</strong> Pogingen: ${pogingen} · Tijd: ${tijdLabel}</p>
             ${extraInfo ? `<p class="verify-detail">${extraInfo}</p>` : ""}
@@ -2890,7 +2890,7 @@
       document.getElementById('modal-naam').focus();
     }
 
-    // Top-right: altijd bundel export van vandaag
+ 
     document.getElementById('export-pdf').onclick = () => openPdfModal("batch");
     document.getElementById("close-pdf-modal").onclick = () => (document.getElementById("pdf-modal").style.display = "none");
     document.getElementById("pdf-modal").onclick = function(e){ if (e.target === this) this.style.display = "none"; };
@@ -3145,7 +3145,7 @@
       // Cover / inhoud
       let y = margin;
       pdf.setTextColor(82,0,255); setHeaderFont();
-      pdf.text("JavaScript in de Klas – Bundel (bewaar & export)", margin, y); y += 28;
+      pdf.text("JavaScript in de Klas – Gebundelde export", margin, y); y += 28;
       pdf.setTextColor(0,0,0); setBodyFont();
       pdf.text(`Naam: ${naam}`, margin, y); y += 18;
       pdf.text(`Klas: ${klas}`, margin, y); y += 18;
