@@ -2848,24 +2848,24 @@ document.addEventListener("visibilitychange", () => {
     }
 
     function evaluateExercise(){
-      const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-      if (!ex || (!ex.evalOutput && !ex.eval)){
-        window._lastEvalInfo = "Geen evaluatiesleutel voor deze oefening.";
-        return null;
-      }
+  const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+  if (!ex || (!ex.evalOutput && !ex.eval)){
+    window._lastEvalInfo = "Geen evaluatiesleutel voor deze oefening.";
+    return null;
+  }
 
-      const userRaw = (typeof capturedOutput === "string") ? capturedOutput : String(capturedOutput || "");
+  const userRaw = (typeof capturedOutput === "string") ? capturedOutput : String(capturedOutput || "");
 
-      const modeRes = _evalByMode(ex, userRaw);
-      if (modeRes){
-        window._lastEvalInfo = REVEAL_EXPECTED_ON_FAIL ? modeRes.info : "Uitvoer wijkt af.";
-        return modeRes.ok;
-      }
+  const modeRes = _evalByMode(ex, userRaw);
+  if (modeRes){
+    window._lastEvalInfo = modeRes.info;     // <-- ALWAYS store real info
+    return modeRes.ok;
+  }
 
-      const loose = _looseCompare(ex.evalOutput || "", userRaw, _DEFAULT_NORM_OPTS);
-      window._lastEvalInfo = REVEAL_EXPECTED_ON_FAIL ? loose.info : "Uitvoer wijkt af.";
-      return loose.ok;
-    }
+  const loose = _looseCompare(ex.evalOutput || "", userRaw, _DEFAULT_NORM_OPTS);
+  window._lastEvalInfo = loose.info;         // <-- ALWAYS store real info
+  return loose.ok;
+}
 
     function showToast(message, success){
       const toast = document.getElementById("eval-toast");
@@ -2908,7 +2908,6 @@ document.addEventListener("visibilitychange", () => {
               <li>Later kan je bovenaan alles exporteren van vandaag via <b>Reeks exporteren naar PDF</b>.</li>
             </ul>
             <p><strong>Statistiek:</strong> Pogingen: ${pogingen} · Tijd: ${tijdLabel}</p>
-            ${extraInfo ? `<p class="verify-detail">${extraInfo}</p>` : ""}
           </div>
         `;
 
