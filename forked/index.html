@@ -104,7 +104,7 @@
 
     .editor-pane{
       flex:0 0 420px;
-      min-width:220px;
+      min-width:0px;
       background:var(--panel);
       border-radius:18px 0 0 18px;
       padding:1.2rem;
@@ -114,7 +114,7 @@
 
     .canvas-pane{
       flex:1 1 0;
-      min-width:220px;
+      min-width:0px;
       background:var(--panel);
       border-radius:0 18px 18px 0;
       padding:1.2rem;
@@ -679,7 +679,12 @@
         border-radius:18px !important;
       }
       .splitter{ display:none !important; }
-      #turtlecanvas{ width:95vw; height:60vw; }
+      #turtlecanvas{
+  width:100%;
+  max-width:500px;
+  height:auto;
+  aspect-ratio:1/1;
+}
       .help-content{ flex-direction:column; width:99vw; }
     }
 
@@ -697,8 +702,9 @@
     <div class="exercise-progress" id="exercise-progress"></div>
 
     <div class="opdracht" id="opdracht">
-      <strong></strong> <span id="opdracht-tekst">—</span>
-    </div>
+  <strong id="opdracht-titel">—</strong>
+  <span id="opdracht-tekst">—</span>
+</div>
 
     <div class="toolbar">
       <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">🌙 / ☀️</button>
@@ -827,7 +833,7 @@
     </div>
   </div>
 
-  <!-- Confirm modal (met extraHTML) -->
+  <!-- Confirm modal-->
   <div id="confirm-modal" class="modal">
     <div class="modal-box">
       <div id="confirm-modal-msg" class="modal-message"></div>
@@ -835,6 +841,21 @@
       <div class="modal-actions">
         <button id="confirm-modal-ok" class="modal-btn">OK</button>
         <button id="confirm-modal-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
+      </div>
+    </div>
+  </div>
+  
+    <!-- Reset modal -->
+  <div id="reset-modal" class="modal">
+    <div class="modal-box">
+      <div class="modal-message" style="font-weight:900;margin-bottom:0.6em;">Vooruitgang wissen</div>
+      <div class="modal-extra" style="display:block;">
+        Kies wat je wil wissen.
+      </div>
+      <div class="modal-actions">
+        <button id="reset-current" class="modal-btn">Alleen huidige oefening</button>
+        <button id="reset-all" class="modal-btn modal-btn-secondary">Volledige cursus</button>
+        <button id="reset-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
       </div>
     </div>
   </div>
@@ -1984,6 +2005,7 @@
     const TEST_LABEL = window.JSIK_TEST_LABEL || "default";
     const TEST_ID    = TEST_MODE ? `jsik-test-${TEST_LABEL}` : `jsik-normal`;
     const TEST_INIT_KEY = `jsprog-test-init-${TEST_ID}`;
+    const REVEAL_EXPECTED_ON_FAIL = !!window.JSIK_REVEAL_EXPECTED_ON_FAIL;
 
     /* =======================
        SNAPSHOT STORAGE (voor batch export)
@@ -2042,75 +2064,127 @@
       _writeSaveIndex(keys);
     }
 
-    function saveCompletedExerciseSnapshot(){
-      const ex = chapters[currentChapterIdx]?.exercises?.[currentExerciseIdx];
-      if (!ex) return { ok:false, reason:"no exercise" };
+function _hashDjb2(str){
+  let h = 5381;
+  for (let i = 0; i < str.length; i++){
+    h = ((h << 5) + h) + str.charCodeAt(i);
+    h = h | 0;
+  }
+  return String(h);
+}
 
-      const dateKey = _dateKeyLocal(new Date());
-      const storageKey = `${_SAVE_PREFIX}-${dateKey}-${currentChapterIdx}-${currentExerciseIdx}`;
+function saveCompletedExerciseSnapshot(status /* "success" | "fail" */){
+  const ex = chapters[currentChapterIdx]?.exercises?.[currentExerciseIdx];
+  if (!ex) return { ok:false, reason:"no exercise" };
+  if (status !== "success" && status !== "fail") return { ok:false, reason:"bad status" };
 
-      const canvas = document.getElementById('turtlecanvas');
-      const canvasDataUrl = canvas ? _canvasToJpegDataUrl(canvas) : "";
+  const dateKey = _dateKeyLocal(new Date());
+  const storageKey = `${_SAVE_PREFIX}-${dateKey}-${currentChapterIdx}-${currentExerciseIdx}-${status}-latest`;
 
-      const pogingen = (typeof getPogingen === 'function')
-        ? getPogingen()
-        : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
+  const canvas = document.getElementById('turtlecanvas');
 
-      const tijdMs = (typeof getWerkTijdMs === 'function')
-        ? getWerkTijdMs()
-        : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
+  // Fail snapshots: lighter image to protect quota; success keeps your current quality
+  const canvasDataUrl = canvas
+    ? _canvasToJpegDataUrl(canvas, status === "fail" ? 0.55 : 0.72, status === "fail" ? 320 : 420)
+    : "";
 
-      const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
-      const evalStatus = localStorage.getItem(evalKey) || "unknown";
+  const pogingen = (typeof getPogingen === 'function')
+    ? getPogingen()
+    : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
 
-      const rec = {
-        version: 1,
-        testId: TEST_ID,
-        dateKey,
-        savedAt: new Date().toISOString(),
-        chapterIdx: currentChapterIdx,
-        exerciseIdx: currentExerciseIdx,
-        chapterTitle: chapters[currentChapterIdx]?.title || "",
-        exerciseTitle: ex.title || "",
-        opdrachtText: (document.getElementById('opdracht-tekst')?.textContent || "").trim(),
-        code: editor?.getValue?.() || "",
-        console: (document.getElementById('console-output')?.textContent || ""),
-        canvasDataUrl,
-        evalStatus,
-        expectedOutput: ex.evalOutput || "",
-        pogingen,
-        tijdMs,
-        pageUrl: window.location.href,
-        userAgent: navigator.userAgent || ""
-      };
+  const tijdMs = (typeof getWerkTijdMs === 'function')
+    ? getWerkTijdMs()
+    : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
 
-      try{
-        localStorage.setItem(storageKey, JSON.stringify(rec));
-        _upsertIndexKey(storageKey);
-        return { ok:true, key:storageKey };
-      } catch(e){
-        return { ok:false, reason:"quota" };
+  const code = editor?.getValue?.() || "";
+  const consoleText = (document.getElementById('console-output')?.textContent || "");
+  const evalInfo = (window._lastEvalInfo || "");
+
+  // De-dupe: if nothing meaningful changed, don’t rewrite the record
+  const fingerprint = _hashDjb2(`${status}\n${code}\n---\n${consoleText}\n---\n${evalInfo}`);
+
+  try{
+    const prevRaw = localStorage.getItem(storageKey);
+    if (prevRaw){
+      const prev = JSON.parse(prevRaw);
+      if (prev && prev.fingerprint === fingerprint){
+        return { ok:true, key:storageKey, skipped:true };
       }
     }
+  } catch(e){}
+
+  const rec = {
+    version: 2,
+    testId: TEST_ID,
+    dateKey,
+    savedAt: new Date().toISOString(),
+    chapterIdx: currentChapterIdx,
+    exerciseIdx: currentExerciseIdx,
+    chapterTitle: chapters[currentChapterIdx]?.title || "",
+    exerciseTitle: ex.title || "",
+    opdrachtTitle: (document.getElementById('opdracht-titel')?.textContent || "").trim(),
+    opdrachtText:  (document.getElementById('opdracht-tekst')?.textContent  || "").trim(),
+    code,
+    console: consoleText,
+    canvasDataUrl,
+    evalStatus: status,
+    evalInfo,
+    expectedOutput: ex.evalOutput || "",
+    pogingen,
+    tijdMs,
+    pageUrl: window.location.href,
+    userAgent: navigator.userAgent || "",
+    fingerprint
+  };
+
+  try{
+    localStorage.setItem(storageKey, JSON.stringify(rec));
+    _upsertIndexKey(storageKey);
+    return { ok:true, key:storageKey, skipped:false };
+  } catch(e){
+    return { ok:false, reason:"quota" };
+  }
+}
 
     function getSavedSnapshotsForDate(dateKey){
-      const keys = _loadSaveIndex();
-      const out = [];
-      for (const k of keys){
-        if (!k.startsWith(`${_SAVE_PREFIX}-${dateKey}-`)) continue;
-        try{
-          const rec = JSON.parse(localStorage.getItem(k) || "null");
-          if (rec) out.push(rec);
-        } catch(e){}
+  const keys = _loadSaveIndex();
+  const picked = new Map(); 
+
+  for (const k of keys){
+    if (!k.startsWith(`${_SAVE_PREFIX}-${dateKey}-`)) continue;
+    try{
+      const rec = JSON.parse(localStorage.getItem(k) || "null");
+      if (!rec) continue;
+
+      const id = `${rec.chapterIdx}-${rec.exerciseIdx}`;
+      const prev = picked.get(id);
+
+      if (!prev){
+        picked.set(id, rec);
+        continue;
       }
-      // stable ordering: chapter/exercise first, savedAt tie-break
-      out.sort((a,b)=>{
-        if (a.chapterIdx !== b.chapterIdx) return a.chapterIdx - b.chapterIdx;
-        if (a.exerciseIdx !== b.exerciseIdx) return a.exerciseIdx - b.exerciseIdx;
-        return String(a.savedAt||"").localeCompare(String(b.savedAt||""));
-      });
-      return out;
-    }
+
+      // Prefer success over fail
+      if (prev.evalStatus !== "success" && rec.evalStatus === "success"){
+        picked.set(id, rec);
+        continue;
+      }
+
+      // Same status: keep newest
+      if (String(rec.savedAt||"") > String(prev.savedAt||"")){
+        picked.set(id, rec);
+      }
+    } catch(e){}
+  }
+
+  const out = Array.from(picked.values());
+  out.sort((a,b)=>{
+    if (a.chapterIdx !== b.chapterIdx) return a.chapterIdx - b.chapterIdx;
+    if (a.exerciseIdx !== b.exerciseIdx) return a.exerciseIdx - b.exerciseIdx;
+    return String(a.savedAt||"").localeCompare(String(b.savedAt||""));
+  });
+  return out;
+}
 
     (function firstLoadResetForThisTest(){
       if (!TEST_MODE) return;
@@ -2199,11 +2273,19 @@
       el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
     }
 
-    window.addEventListener("blur", stopWerkTimer);
-    window.addEventListener("beforeunload", stopWerkTimer);
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) stopWerkTimer();
-    });
+window.addEventListener("blur", stopWerkTimer);
+window.addEventListener("beforeunload", stopWerkTimer);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopWerkTimer();
+});
+
+// Resume timing when they return
+window.addEventListener("focus", () => {
+  if (!document.hidden) startWerkTimer();
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) startWerkTimer();
+});
 
     /* =========================================================
        4) UI refs + menu
@@ -2342,6 +2424,44 @@
       });
     };
 
+    function resetChoiceModal(){
+  return new Promise((resolve) => {
+    const modal = document.getElementById("reset-modal");
+    const btnCurrent = document.getElementById("reset-current");
+    const btnAll = document.getElementById("reset-all");
+    const btnCancel = document.getElementById("reset-cancel");
+
+    modal.style.display = "flex";
+
+    function cleanup(choice){
+      modal.style.display = "none";
+      btnCurrent.removeEventListener("click", onCurrent);
+      btnAll.removeEventListener("click", onAll);
+      btnCancel.removeEventListener("click", onCancel);
+      document.removeEventListener("keydown", onKey);
+      modal.onclick = null;
+      resolve(choice);
+    }
+
+    function onCurrent(){ cleanup("current"); }
+    function onAll(){ cleanup("all"); }
+    function onCancel(){ cleanup(null); }
+
+    function onKey(e){
+      if (e.key === "Escape") cleanup(null);
+    }
+
+    btnCurrent.addEventListener("click", onCurrent);
+    btnAll.addEventListener("click", onAll);
+    btnCancel.addEventListener("click", onCancel);
+    document.addEventListener("keydown", onKey);
+
+    modal.onclick = (e) => { if (e.target === modal) cleanup(null); };
+  });
+}
+    
+    
+    
     /* =========================================================
        6) Editor init + autosave + isDirty gating
        ========================================================= */
@@ -2558,8 +2678,7 @@
     window.runStudentCode = function(studentCode){
       checkConsoleMisuse(studentCode);
 
-      // ask("...") -> await ask("...") zodat input werkt in async wrapper
-      let transformed = studentCode.replace(/ask\s*\(/g, "await ask(");
+      let transformed = studentCode.replace(/\bask\s*\(/g, "await ask(");
 
       transformed = applyLoopGuard(transformed, { maxIters:200000, maxMs:2000 });
 
@@ -2580,6 +2699,9 @@
        ========================================================= */
 
     function translateError(message){
+      if (message.includes("Cannot read properties of")) return "Je gebruikt iets dat niet bestaat (undefined/null). Controleer je variabelen en objecten.";
+      if (message.includes("Unexpected token")) return "Er staat een fout teken in je code. Controleer haakjes, komma’s en accolades.";
+      if (message.includes("Identifier") && message.includes("has already been declared")) return "Je declareert een variabele dubbel. Gebruik 1 keer 'var' per naam.";
       if (message.includes("Unexpected identifier")) return "Onverwacht woord in de code. Mogelijk een typfout of een ontbrekende komma.";
       if (message.includes("is not defined")) return "Variabele is niet gekend. Heb je de variabele gedeclareerd met 'var'? Of een typfout?";
       if (message.includes("missing ) after argument list")) return "Je mist een haakje. Tel je ( en ) even na!";
@@ -2735,12 +2857,12 @@
 
       const modeRes = _evalByMode(ex, userRaw);
       if (modeRes){
-        window._lastEvalInfo = modeRes.info;
+        window._lastEvalInfo = REVEAL_EXPECTED_ON_FAIL ? modeRes.info : "Uitvoer wijkt af.";
         return modeRes.ok;
       }
 
       const loose = _looseCompare(ex.evalOutput || "", userRaw, _DEFAULT_NORM_OPTS);
-      window._lastEvalInfo = loose.info;
+      window._lastEvalInfo = REVEAL_EXPECTED_ON_FAIL ? loose.info : "Uitvoer wijkt af.";
       return loose.ok;
     }
 
@@ -2814,16 +2936,14 @@
           goToNextExercise();
         });
 
-      } else {
+            } else {
         progressBtns[currentExerciseIdx].style.background = "#ff1744";
         progressBtns[currentExerciseIdx].style.color = "#fff";
 
-        const reveal = !!window.JSIK_REVEAL_EXPECTED_ON_FAIL && !TEST_MODE;
-        const expected = (reveal && exercise.evalOutput)
-          ? `\n\nVerwachte uitvoer:\n${exercise.evalOutput}`
-          : `\n\nHerlees de opgave en debug jouw code!`;
-
-        showToast("Niet helemaal goed. " + (extraInfo || "") + expected, false);
+        const hint = "Herlees de opgave en debug jouw code.";
+        const safeInfo = REVEAL_EXPECTED_ON_FAIL ? (extraInfo || "") : "";
+        const msg = safeInfo ? `Niet helemaal goed. ${safeInfo}\n${hint}` : `Niet helemaal goed.\n${hint}`;
+        showToast(msg, false);
       }
     }
 
@@ -2831,9 +2951,30 @@
        10) Oefeningen inladen
        ========================================================= */
 
+    function extractAssignmentTextFromStarterCode(starterCode){
+  const src = String(starterCode || "");
+  const lines = src.split(/\r?\n/);
+  const out = [];
+  for (const line of lines){
+    const t = line.trim();
+    if (t === "") { if (out.length) break; else continue; }
+    if (!t.startsWith("//")) break;
+    const cleaned = t.replace(/^\/\/\s?/, "");
+    out.push(cleaned);
+  }
+
+  if (!out.length) return "";
+
+  return out.join("\n").trim();
+}
+    
     function loadExercise(){
       const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
-      opdrachtTekst.innerHTML = `<strong>${exercise.title || "(geen titel)"}</strong>`;
+      const opdrachtTitleEl = document.getElementById("opdracht-titel");
+      const opdrachtTextEl  = document.getElementById("opdracht-tekst");
+      if (opdrachtTitleEl) opdrachtTitleEl.textContent = exercise.title || "(geen titel)";
+      const assignmentText = extractAssignmentTextFromStarterCode(exercise.starterCode);
+      if (opdrachtTextEl) opdrachtTextEl.textContent = assignmentText || "";
 
       const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
       const savedCode = localStorage.getItem(key);
@@ -2851,6 +2992,7 @@
       isDirty = false;
       stopWerkTimer();
       resetWerkTimerState();
+      startWerkTimer(); 
       updateMetricsUI();
     }
 
@@ -2860,6 +3002,16 @@
 
     // ===== PDF EXPORT STATE (single vs batch) =====
     let _pdfExportMode = "single"; // "single" | "batch"
+    
+    function _breakLongTokensForPdf(text, chunk = 60){
+  const s = String(text ?? "");
+  return s.split("\n").map(line => {
+    return line.replace(new RegExp(`\\S{${chunk},}`, "g"), (m) => {
+      const parts = m.match(new RegExp(`.{1,${chunk}}`, "g")) || [m];
+      return parts.join(" ");
+    });
+  }).join("\n");
+}
 
     function openPdfModal(mode = "single") {
       _pdfExportMode = mode;
@@ -2900,7 +3052,7 @@
       const klas = document.getElementById("modal-klas").value.trim();
 
       if (!naam || !klas){
-        alert("Gelieve je naam en klas in te vullen.");
+        showToast("Vul naam en klas in om te exporteren.", false);
         return;
       }
 
@@ -2978,8 +3130,10 @@
       pdf.text(`Oefening: ${oefening}`, margin, y); y += 24;
 
       // Opdracht
-      const opdrachtText = document.getElementById("opdracht-tekst").textContent || "";
-      const opdrachtLines = pdf.splitTextToSize(opdrachtText, contentWidth);
+      const opdrachtTitle = document.getElementById("opdracht-titel")?.textContent || "";
+      const opdrachtText  = document.getElementById("opdracht-tekst")?.textContent || "";
+      const opdrachtFull  = (opdrachtTitle ? (opdrachtTitle + "\n") : "") + opdrachtText;
+      const opdrachtLines = pdf.splitTextToSize(_breakLongTokensForPdf(opdrachtFull, 80), contentWidth);
       pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
       pdf.text("Opdracht:", margin, y); y += 20;
       pdf.setTextColor(0,0,0); setBodyFont();
@@ -2987,10 +3141,14 @@
 
       // Code + output
       const code = editor.getValue();
-      addMultilineSection("Code:", pdf.splitTextToSize(code, contentWidth), COLOR_PURPLE, true);
-
+      addMultilineSection("Code:", pdf.splitTextToSize(_breakLongTokensForPdf(code, 80), contentWidth), COLOR_PURPLE, true);
       const consoleText = document.getElementById("console-output").textContent;
-      addMultilineSection("Console-uitvoer:", pdf.splitTextToSize(consoleText || "(geen uitvoer)", contentWidth), COLOR_PURPLE, true);
+      addMultilineSection(
+  "Console-uitvoer:",
+  pdf.splitTextToSize(_breakLongTokensForPdf(consoleText || "(geen uitvoer)", 80), contentWidth),
+  COLOR_PURPLE,
+  true
+);
 
       // Status
       pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
@@ -3008,10 +3166,15 @@
       pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
       pdf.text(`Tijd besteed: ${formatDuur(tijdMs)}`, margin, y); y += 18;
 
-      // Verwachte uitvoer: in main branch nuttig, maar niet in toetsmodus
-      if (!TEST_MODE && expectedOutput && expectedOutput.length > 0){
-        addMultilineSection("Verwachte uitvoer:", pdf.splitTextToSize(expectedOutput, contentWidth), COLOR_PURPLE, true);
-      }
+
+if (!TEST_MODE && REVEAL_EXPECTED_ON_FAIL && expectedOutput && expectedOutput.length > 0){
+  addMultilineSection(
+    "Verwachte uitvoer:",
+    pdf.splitTextToSize(_breakLongTokensForPdf(expectedOutput, 80), contentWidth),
+    COLOR_PURPLE,
+    true
+  );
+}
 
       // Canvas
       const imgH = 210, imgW = 210;
@@ -3083,8 +3246,10 @@
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(9);
       pdf.text(`Genereerd op: ${localeStamp}`, startX + 8, y); y += 12;
-      pdf.text(`Pagina-URL: ${url}`, startX + 8, y); y += 12;
-      pdf.text(`Browser: ${ua}`, startX + 8, y); y += 12;
+      const urlLines = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${url}`, 80), contentWidth);
+      pdf.text(urlLines, startX + 8, y); y += urlLines.length * 12;
+      const uaLines  = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${ua}`, 80), contentWidth);
+      pdf.text(uaLines, startX + 8, y); y += uaLines.length * 12;
       pdf.text(`Pogingen: ${pogingen} | Tijd besteed: ${formatDuur(tijdMs)}`, startX + 8, y); y += 12;
       pdf.text(`Verificatie-ID: ${verifyId}`, startX + 8, y); y += 16;
 
@@ -3125,7 +3290,8 @@
         pdf.text(label, margin, y); y += 16;
         pdf.setTextColor(0,0,0);
         code ? setCodeFont() : setBodyFont();
-        const lines = pdf.splitTextToSize(text || "", contentWidth);
+        const safeText = _breakLongTokensForPdf(text || "", 80);
+        const lines = pdf.splitTextToSize(safeText, contentWidth);
         const lh = code ? 13 : 14;
 
         let i = 0;
@@ -3186,12 +3352,14 @@
         y = addMultiline("Opdracht:", r.opdrachtText || "", y, false);
         y = addMultiline("Code:", r.code || "", y, true);
         y = addMultiline("Console-uitvoer:", r.console || "(geen uitvoer)", y, true);
+const includeExpected =
+  (!TEST_MODE) &&
+  REVEAL_EXPECTED_ON_FAIL &&
+  (r.expectedOutput && String(r.expectedOutput).length > 0);
 
-        // Verwachte uitvoer alleen buiten toetsmodus
-        const includeExpected = (!TEST_MODE) && (r.expectedOutput && r.expectedOutput.length > 0);
-        if (includeExpected){
-          y = addMultiline("Verwachte uitvoer:", r.expectedOutput, y, true);
-        }
+if (includeExpected){
+  y = addMultiline("Verwachte uitvoer:", r.expectedOutput, y, true);
+}
 
         // Canvas image
         if (r.canvasDataUrl){
@@ -3213,8 +3381,10 @@
         pdf.text("Verificatiegegevens:", margin, y); y += 16;
         pdf.setTextColor(0,0,0); pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
         pdf.text(`Bewaard op: ${r.savedAt || ""}`, margin, y); y += 12;
-        pdf.text(`Pagina-URL: ${r.pageUrl || ""}`, margin, y); y += 12;
-        pdf.text(`Browser: ${r.userAgent || ""}`, margin, y); y += 12;
+        const bUrl = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${r.pageUrl || ""}`, 80), contentWidth);
+        pdf.text(bUrl, margin, y); y += bUrl.length * 12;
+        const bUa  = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${r.userAgent || ""}`, 80), contentWidth);
+        pdf.text(bUa, margin, y); y += bUa.length * 12;
       }
 
       function sanitize(s){ return String(s||"").replace(/[^a-zA-Z0-9_\-]/g, "_"); }
@@ -3253,7 +3423,7 @@
 
     document.getElementById("run-code").onclick = async function(){
       // Poging telt enkel als er effectief gewijzigd is
-      if (isDirty) incPogingen();
+      incPogingen();
       stopWerkTimer();
       updateMetricsUI();
 
@@ -3276,32 +3446,73 @@
         const uitleg = translateError(msg);
         appendToConsole("Fout: " + uitleg);
       }finally{
-        updateMetricsUI();
-
         const isCorrect = evaluateExercise();
-        const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
-        if (isCorrect === true) localStorage.setItem(evalKey, "success");
-        else if (isCorrect === false) localStorage.setItem(evalKey, "fail");
-        else localStorage.removeItem(evalKey);
+const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+if (isCorrect === true) localStorage.setItem(evalKey, "success");
+else if (isCorrect === false) localStorage.setItem(evalKey, "fail");
+else localStorage.removeItem(evalKey);
 
-        renderExerciseProgress();
-        showEvalFeedback(isCorrect);
+// Save “latest fail” or “latest success”
+if (isCorrect === true || isCorrect === false){
+  const status = isCorrect ? "success" : "fail";
+  const res = saveCompletedExerciseSnapshot(status);
+  if (!res.ok){
+    showToast(
+      res.reason === "quota"
+        ? "Opslaan mislukt: localStorage is vol. Exporteer vaker naar PDF."
+        : "Opslaan mislukt.",
+      false
+    );
+  }
+}
+
+renderExerciseProgress();
+showEvalFeedback(isCorrect);
       }
     };
 
     /* =========================================================
        13) Reset progress
        ========================================================= */
-
+    
     document.getElementById("reset-progress").onclick = async function(){
-      const proceed = await window.confirmModal("Weet je zeker dat je alle voortgang en opgeslagen code wilt wissen?");
-      if (proceed){
-        // Wis alles van dit project: voortgang + snapshots/index
-        Object.keys(localStorage).forEach(k => { if (k.startsWith("jsprog-")) localStorage.removeItem(k); });
-        renderExerciseProgress();
-        loadExercise();
-      }
-    };
+  const choice = await resetChoiceModal();
+  if (!choice) return;
+
+  if (choice === "current"){
+    // Wis enkel deze oefening (code + metrics + eval + snapshot van vandaag)
+    const codeKey = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+    localStorage.removeItem(codeKey);
+    localStorage.removeItem(evalKey);
+    localStorage.removeItem(exKey("pogingen"));
+    localStorage.removeItem(exKey("werkTijdMs"));
+
+    // Wis snapshot van vandaag voor deze oefening (batch)
+    const today = _dateKeyLocal(new Date());
+    const snapKey = `${_SAVE_PREFIX}-${today}-${currentChapterIdx}-${currentExerciseIdx}-latest`;
+    try{ localStorage.removeItem(snapKey); }catch(e){}
+    try{
+      const keys = _loadSaveIndex().filter(k => k !== snapKey);
+      _writeSaveIndex(keys);
+    }catch(e){}
+
+    renderExerciseProgress();
+    loadExercise();
+    return;
+  }
+
+  if (choice === "all"){
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith("jsprog-")) localStorage.removeItem(k);
+      if (k.startsWith(_SAVE_PREFIX)) localStorage.removeItem(k);
+      if (k === _SAVE_INDEX_KEY) localStorage.removeItem(k);
+    });
+
+    renderExerciseProgress();
+    loadExercise();
+  }
+};
 
     /* =========================================================
        14) Help 
@@ -3407,7 +3618,7 @@
 
         const rect = mainLayout.getBoundingClientRect();
         const minEditorWidth = 220;
-        const minCanvasWidth = 220;
+        const minCanvasWidth = Math.max(0, parseFloat(getComputedStyle(canvasPane).minWidth) || 0);
         const splitterWidth = splitter.offsetWidth;
         const totalWidth = rect.width;
 
