@@ -2923,16 +2923,6 @@ document.addEventListener("visibilitychange", () => {
             openPdfModal("single");
             return;
           }
-
-          const res = saveCompletedExerciseSnapshot();
-          if (!res.ok){
-            showToast(
-              res.reason === "quota"
-                ? "Opslaan mislukt: localStorage is vol. Exporteer vaker naar PDF."
-                : "Opslaan mislukt.",
-              false
-            );
-          }
           goToNextExercise();
         });
 
