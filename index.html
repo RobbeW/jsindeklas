@@ -1197,195 +1197,252 @@
         },
       ]
     },
-    {
-      title: "Hoofdstuk 3: De Selectie",
-      exercises: [
-        {
-          title: "1. Gelijk Aan",
-          starterCode: [
-            "// Voer onderstaande code uit.",
-            "// Merk op: binnen de code vind je enkele en dubbele gelijkheidstekens.",
-            "// Noteer naast de dubbele forward slash de functie van beiden.",
-            "// Pas daarna de code aan zodat je oneven getallen kan opsporen.",
-            " ",
-            "var getal = X ;",
-            "// Vul aan: een enkelvoudig gelijkheidsteken ...",
-            " ",
-            "if (getal % 2 == 0  ) {",
-            "// Vul aan: een dubbel gelijkheidsteken ...",
-            "console.log('Het getal ' + getal + ' is een even getal.' );",
-            "}",
-          ].join('\n'),
-          evalOutput: "Het getal 4 is een even getal."
-        },
-        {
-          title: "2. Else Statement",
-          starterCode: [
-            "// Pas onderstaande code aan zodat je even of oven getallen kan vinden.",
-            "// Gebruik hiervoor slechts 1 if-statement en 1 else-statement.",
-            " ",
-            "// Pas daarna de code aan zodat je oneven getallen kan opsporen.",
-            " ",
-            "var getal = X ;",
-            "if (getal % 2 == 0  ) { ",
-            "console.log('Het getal ' + getal + ' is een even getal.' );",
-            "}",
-          ].join('\n'),
-          evalOutput: "Het getal 7 is een oneven getal."
-        },
-        {
-          title: "3. Else If Statement",
-          starterCode: [
-            "// In de vorige oefening maakten we een algoritme dat",
-            "// even of oneven getallen kan opsporen. Maar wat met het getal 0?",
-            "// Pas jouw algoritme aan zodat hij drie mogelijke uitkomsten kan bereiken:",
-            "// even, oneven of het getal is gelijk aan nul.",
-            "// Gebruik onderstaande structuur als startpunt:",
-            " ",
-            "if (voorwaarde WAAR is) {",
-            "console.log(...);",
-            "}",
-            "else if (nieuwe voorwaarde {)",
-            "console.log(...);",
-            "}",
-            "else {",
-            "console.log(...);",
-            "}",
-          ].join('\n'),
-          evalOutput: "Het getal is gelijk aan nul."
-        },
-        {
-          title: "4. Tolwegen in Frankrijk",
-          starterCode: [
-            "// Tolwegen zijn wegen die heel goed onderhouden zijn, maar waar je moet betalen voordat je ze mag gebruiken.",
-            "// Tijdens de rondrit moet Fred zo een tolweg gebruiken.",
-            "// Hij staat aan een tussenstop en bekijkt de tarieflijst.",
-            "// * Auto met verbrandingsmotor: 11.60 euro;",
-            "// * Auto met elektrische motor: 8.90 euro;",
-            "// * Lichte vracht: 14.50 euro;",
-            "// * Vrachtwagen: 19.20 euro.",
-            " ",
-            "// Schrijf een algoritme en code waarmee je kan bepalen hoeveel moet worden betaald;",
-            "// Maak gebruik van de IF, ELSE en ELSE IF-statements;",
-            "var type = 'Auto met elektrische motor';",
-            "if ... ",
-          ].join('\n'),
-          evalOutput: "Te betalen: 8.90 euro."
-        },
-        {
-          title: "5. Aanmelden",
-          starterCode: [
-            "// Op zijn camping nabij Nice maakt hij verbinding met een Wi-Fi Access Point. ",
-            "// Het wachtwoord is: @B0nJ0uR!",
-            " ",
-            "// Schrijf een algoritme en code waar je een wachtwoord moet invullen.",
-            "// Wanneer het wachtwoord correct is ingevuld, verschijnt op het scherm 'Verbinding gelukt';",
-            "// Wanneer het wachtwoord niet correct is ingevuld, verschijnt op het scherm 'Verbinding mislukt'; ",
-          ].join('\n'),
-          evalOutput: "Verbinding gelukt"
-        },
-        {
-          title: "6. Madame Boulangère",
-          starterCode: [
-            "// Fred trakteert zijn vrienden op taart.",
-            "// Omdat ze met 30 personen zijn, besluiten ze vijf taarten met zich mee te brengen.",
-            "// Bij de bakker vinden ze volgende formule:",
-            "// * Taart (voor 10 personen) = 29.5 euro.",
-            "// * 2 taarten: -5 euro.",
-            "// * 3 taarten: 10% korting.",
-            "// * 4 of meer taarten: 32% korting.",
-            " ",
-            "// Maak een algoritme dat de totaalprijs voor X-taarten kan berekenen.",
-            "// Test jouw algoritme door te berekening te maken voor 2 taarten, 3 taarten en 5 taarten",
-            "// Print jouw antwoord telkens naar het scherm in volgende vorm:",
-            "console.log('Voor X taarten betalen ze ... euro.')",
-          ].join('\n'),
-          evalOutput: "Voor 5 taarten betalen ze 100.30000000000001 euro."
-        },
-        {
-          title: "7. Hittegolf",
-          starterCode: [
-            "// Pas onderstaande code aan zodat je even of oven getallen kan vinden.",
-            "// Gebruik hiervoor slechts 1 if-statement en 1 else-statement.",
-            " ",
-            "// Pas daarna de code aan zodat je oneven getallen kan opsporen.",
-            " ",
-            "var getal = X ;",
-            "if (getal % 2 == 0  ) { ",
-            "console.log('Het getal ' + getal + ' is een even getal.' );",
-            "}",
-          ].join('\n'),
-          evalOutput: "Het getal 14 is een even getal."
-        },
-        {
-          title: "8. Korting Museumbezoek",
-          starterCode: [
-            "// Tijdens het reizen bezoekt Fred een aantal musea. ",
-            "// Hij kan er, doordat hij nog relatief jong is (25 jaar), vrij goedkoop binnen. ",
-            "// De toegangsprijzen voor een museum:",
-            "// * volwassene (26 jaar of ouder): 10 euro.",
-            "// * Jongvolwassene (18 of ouder, maar jonger dan 26): 4 euro.",
-            "// * Jongere (jonger dan 18 jaar): 2 euro. ",
-            " ",
-            "// Schrijf een algoritme en code waarmee je kan bepalen hoeveel een bezoeker moet betalen.",
-            "// Test jouw algoritme gronding voor de drie scenario’s.",
-            "// Zorg voor een verzorgde volzin bij elke uitkomst: De toegangsprijs is ... euro.",
-          ].join('\n'),
-          evalOutput: "De toegangsprijs is 4 euro."
-        },
-        {
-          title: "9. Feestpleinen Gentse Feesten",
-          starterCode: [
-            "// Sinds dit jaar maken de organisatoren van de feesten gebruik van een computerprogramma met camera’s",
-            "// die de drukte op de pleinen kunnen nagaan. De pleinen sluiten wanneer ze:",
-            "// * volzet zijn (maximumcapaciteit is bereikt), OF;",
-            "// * het sluitingsuur bereikt is.",
-            "// Bijvoorbeeld: Korenmarkt: maximum 40.000 personen OF sluit om 23 uur; ",
-            " ",
-            "// Schrijf een oplossing waarbij de gebruiker een uur (=geheel getal) en het aantal personen moet invoeren.",
-            "// Print het resultaat (plein sluiten of open houden) op het scherm met een correcte volzin, bv.:",
-            "// 'Het plein moet sluiten.' of 'Het plein kan open blijven.'",
-            " ",
-            "if (voorwaarde_1 || voorwaarde_2) { actie; }",
-            "// de twee streepjes || betekenen OR, in het Nederlands OF",
-          ].join('\n'),
-          evalOutput: "Het plein moet sluiten."
-        },
-        {
-          title: "10. Herhalingsoefening If-Statement",
-          starterCode: [
-            "// Schrijf een algoritme dat: ",
-            "// * De gebruiker vraagt naar zijn/haar/hun leeftijd.",
-            "// * Stel de prijs voor het toegangsticket voor het museum van de oudheden in Leiden in op 10 euro.",
-            "// * ALS de leeftijd lager is dan 19 jaar, verminder je de prijs met 5.5 euro.",
-            "// * Print de prijs naar het scherm in een volzin.",
-          ].join('\n'),
-          evalOutput: "De toegangsprijs is 4.5 euro."
-        },
-        {
-          title: "11. Herhalingsoefening Else-Statement",
-          starterCode: [
-            "// Schrijf een programma dat de gebruiker vraagt om zijn/haar/hun leeftijd in te voeren.",
-            "// Vervolgens controleert of hij/zij oud genoeg is om te stemmen.",
-            "// Als de gebruiker 18 jaar of ouder is, moet het programma “Je bent oud genoeg om te stemmen!” afdrukken.",
-            "// Anders de gebruiker jonger is dan 18 jaar, moet het programma “Sorry, je bent nog niet oud genoeg om te stemmen” afdrukken.",
-          ].join('\n'),
-          evalOutput: "Je bent oud genoeg om te stemmen!"
-        },
-        {
-          title: "12. Herhalingsoefening Else If-Statement",
-          starterCode: [
-            "// Schrijf een algoritme dat:",
-            "// * De gebruiker vraagt om twee getallen (getal1 en getal2) in te voeren en ",
-            "// * Controleert of het eerste getal groter is dan het tweede getal.",
-            "// * Als het eerste getal groter is dan het tweede getal, moet het programma “Het eerste getal is groter” afdrukken.",
-            "// * Anders als het tweede getal groter is dan het eerste getal, moet het programma “Het tweede getal is groter” afdrukken.",
-            "// * Als de twee getallen gelijk zijn, moet het programma “De twee getallen zijn gelijk” afdrukken.",
-          ].join('\n'),
-          evalOutput: "Het tweede getal is groter."
-        },
-      ]
-    },
+  {
+    title: "Hoofdstuk 3: De Selectie",
+    exercises: [
+      {
+        title: "1. Kookt het water?",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur van het water is 105°C.",
+          "",
+          "// Gevraagd:",
+          "// ALS de temperatuur 100°C of hoger is, print je exact:",
+          "// Het water kookt.",
+          "// Anders print je niets.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het water kookt."
+      },
+      {
+        title: "2. Vriest het water of niet?",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur van het water is -3°C.",
+          "var temp = -3;",
+          "",
+          "// Gevraagd:",
+          "// ALS de temperatuur 0°C of lager is, print je exact:",
+          "// Het water vriest.",
+          "// ANDERS print je exact:",
+          "// Het water vriest niet.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het water vriest."
+      },
+      {
+        title: "3. Waterstatus (bevroren / vloeibaar / kookt)",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur van het water is 20°C.",
+          "var temp = 20;",
+          "",
+          "// Gevraagd:",
+          "// Maak een selectie met if / else if / else.",
+          "// - temp <= 0  : Het water is bevroren.",
+          "// - temp >= 100: Het water kookt.",
+          "// - anders     : Het water is vloeibaar.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het water is vloeibaar."
+      },
+      {
+        title: "4. Exact 100°C (strikte gelijkheid)",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is exact 100°C.",
+          "var temp = 100;",
+          "",
+          "// Gevraagd:",
+          "// Controleer of temp exact 100 is met ===",
+          "// Print exact:",
+          "// Exact 100°C.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Exact 100°C."
+      },
+      {
+        title: "5. Te koud / OK / Te heet",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is 92°C.",
+          "var temp = 92;",
+          "",
+          "// Gevraagd:",
+          "// Gebruik if / else if / else om exact één zin te printen:",
+          "// - temp < 60         : Te koud.",
+          "// - temp >= 60 en < 90: OK.",
+          "// - anders            : Te heet.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Te heet."
+      },
+      {
+        title: "6. Stemrecht (>= en <)",
+        starterCode: [
+          "// Gegeven:",
+          "// De leeftijd is 17 jaar.",
+          "var leeftijd = 17;",
+          "",
+          "// Gevraagd:",
+          "// ALS leeftijd 18 of ouder is, print je exact:",
+          "// Je mag stemmen.",
+          "// ANDERS print je exact:",
+          "// Je mag nog niet stemmen.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Je mag nog niet stemmen."
+      },
+      {
+        title: "7. Scorecheck (if / else if / else)",
+        starterCode: [
+          "// Gegeven:",
+          "// Een leerling scoort 14 op 20.",
+          "var score = 14;",
+          "",
+          "// Gevraagd:",
+          "// Print exact één van deze zinnen:",
+          "// - score >= 16: Uitstekend.",
+          "// - score >= 10: Voldoende.",
+          "// - anders    : Onvoldoende.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Voldoende."
+      },
+      {
+        title: "8. Vergelijk twee getallen (>, <, ===)",
+        starterCode: [
+          "// Gegeven:",
+          "var a = 7;",
+          "var b = 7;",
+          "",
+          "// Gevraagd:",
+          "// Vergelijk a en b met if / else if / else.",
+          "// Print exact één zin:",
+          "// - a > b  : Het eerste getal is groter.",
+          "// - a < b  : Het tweede getal is groter.",
+          "// - anders : De twee getallen zijn gelijk.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De twee getallen zijn gelijk."
+      },
+      {
+        title: "9. Canvas: kleur kiezen op basis van temperatuur",
+        starterCode: [
+          "// Gegeven:",
+          "// Je gebruikt het canvas (turtle).",
+          "// De temperatuur is 105°C.",
+          "var temp = 105;",
+          "",
+          "// Gevraagd:",
+          "// 1) Kies een penkleur met selectie:",
+          "//    - temp <= 0   : blauw",
+          "//    - temp >= 100 : rood",
+          "//    - anders      : groen",
+          "// 2) Print exact:",
+          "// Kleur ingesteld: rood.",
+          "// 3) Teken een lijn van 200 pixels vooruit.",
+          "",
+          "// Tip: setPenColour(\"red\"); moveForward(200);",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Kleur ingesteld: rood."
+      },
+      {
+        title: "10. Canvas: stoplicht",
+        starterCode: [
+          "// Gegeven:",
+          "// code betekent:",
+          "// 1 = rood, 2 = oranje, 3 = groen",
+          "var code = 2;",
+          "",
+          "// Gevraagd:",
+          "// 1) Gebruik if / else if / else.",
+          "// 2) Zet de penkleur correct:",
+          "//    rood/oranje/groen",
+          "// 3) Print exact:",
+          "// Stoplicht: oranje.",
+          "// 4) Teken een vierkant van 80 pixels (4 keer forward + 90° draaien).",
+          "",
+          "// Tip: setPenColour(\"orange\"); turnRight(90);",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Stoplicht: oranje."
+      },
+      {
+        title: "11. Canvas: bevroren of niet",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is -2°C.",
+          "var temp = -2;",
+          "",
+          "// Gevraagd:",
+          "// ALS temp <= 0:",
+          "//   - print exact: Status: bevroren.",
+          "//   - schrijf op het canvas: BEVROREN",
+          "// ANDERS:",
+          "//   - print exact: Status: niet bevroren.",
+          "//   - schrijf op het canvas: NIET BEVROREN",
+          "",
+          "// Tip: writeText(\"BEVROREN\");",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Status: bevroren."
+      },
+      {
+        title: "12. Canvas: route kiezen",
+        starterCode: [
+          "// Gegeven:",
+          "// Een robot kiest een route op basis van batterij (%).",
+          "var batterij = 18;",
+          "",
+          "// Gevraagd:",
+          "// ALS batterij < 20:",
+          "//   - print exact: Route: kort.",
+          "//   - teken: 80 vooruit, 90 rechts, 80 vooruit.",
+          "// ANDERS:",
+          "//   - print exact: Route: lang.",
+          "//   - teken: 140 vooruit, 90 links, 140 vooruit.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Route: kort."
+      },
+      {
+        title: "13. Canvas: mini-thermostaat",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is 20°C.",
+          "var temp = 20;",
+          "",
+          "// Gevraagd:",
+          "// Gebruik if / else if / else.",
+          "// - temp <= 0   : print exact: Thermostaat: blauw.",
+          "//                penkleur blauw, teken een klein vierkant (40).",
+          "// - temp >= 100 : print exact: Thermostaat: rood.",
+          "//                penkleur rood, teken een groot vierkant (120).",
+          "// - anders      : print exact: Thermostaat: groen.",
+          "//                penkleur groen, teken een medium vierkant (80).",
+          "",
+          "// Teken een vierkant zonder lussen (4 keer forward + 90° draaien).",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Thermostaat: groen."
+      }
+    ]
+  },
     {
       title: "Hoofdstuk 4: Figuren Plotten",
       exercises: [
