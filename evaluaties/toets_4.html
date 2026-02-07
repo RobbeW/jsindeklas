@@ -1,0 +1,2774 @@
+<!--Auteur: Robbe Wulgaert / aiindeklas.be-->
+<!-- Copyright 2025 - Gebruik vrij voor educatie -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JavaScript in de Klas</title>
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
+
+  <!-- === CONFIGURATIE === -->
+  <script>
+    // Zet op true als dit een SEB/toetsversie is, op false voor de gewone oefenversie
+    // In main branch staat dit standaard op false.
+    window.JSIK_TEST_MODE  = true;
+    window.JSIK_TEST_LABEL = "09-01-2026"; // bv. "10-12-2025"
+
+    // In oefenmodus wil je vaak wél de verwachte uitvoer tonen bij fout.
+    // In toetsmodus zet je dit best op false.
+    window.JSIK_REVEAL_EXPECTED_ON_FAIL = false;
+
+    // Optioneel: menu uitschakelen (bv. in een toets-fork). Main branch = menu aan.
+    window.JSIK_ENABLE_MENU = false;
+  </script>
+
+  <!-- PDF export libs -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root{
+      --brand-purple:#5200FF;
+      --brand-purple-dark:#3700B3;
+      --brand-aqua:#3dffd0;
+      --brand-white:#ffffff;
+
+      --bg:#f3f5f8;
+      --panel:#f7f8fa;
+      --ink:#23272e;
+      --muted:#9aa3b2;
+
+      --card:#ffffff;
+      --border:#ececf3;
+      --shadow:0 2px 12px rgba(82,0,255,0.08);
+    }
+
+    html, body{
+      height:100%;
+      margin:0;
+      padding:0;
+      background:#fff;
+      color:var(--ink);
+      font-family:'Roboto', Arial, Helvetica, sans-serif;
+      min-height:100vh;
+    }
+
+    body{
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+    }
+
+    /* Soepele transities */
+    .topbar, .editor-pane, .canvas-pane, .main-layout,
+    .modal-content, .modal-box,
+    .help-content, .toolbar button, .exercise-btn, .menu-tab,
+    #console-output, #code-editor, .course-menu, .help-modal,
+    .swatch, .label, .close-menu, .brand-btn, .zoom-btn, .help-btn,
+    .splitter {
+      transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .topbar{
+      width:100%;
+      box-sizing:border-box;
+      background:#fff;
+      border-bottom:1.5px solid #eee;
+      padding:0.8rem 1.2rem;
+      display:flex;
+      gap:1rem;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .opdracht{
+      flex:1 1 auto;
+      min-width:220px;
+      font-size:1.02em;
+      line-height:1.35;
+    }
+
+    /* UI: opdracht-tekst tijdelijk niet tonen bovenaan.
+       Belangrijk: we vullen het wel nog in (voor PDF/export/snapshots). */
+    #opdracht-tekst { display:none; }
+
+    .main-layout{
+      display:flex;
+      flex-direction:row;
+      width:100vw;
+      height:100vh;
+      min-height:0;
+      overflow:hidden;
+      background:var(--bg);
+    }
+
+    .editor-pane{
+      flex:0 0 420px;
+      min-width:0px;
+      background:var(--panel);
+      border-radius:18px 0 0 18px;
+      padding:1.2rem;
+      box-sizing:border-box;
+      overflow:auto;
+    }
+
+    .canvas-pane{
+      flex:1 1 0;
+      min-width:0px;
+      background:var(--panel);
+      border-radius:0 18px 18px 0;
+      padding:1.2rem;
+      box-sizing:border-box;
+      overflow:auto;
+    }
+
+    .editor-label, .console-label, .canvas-label{
+      font-weight:900;
+      font-size:1.12em;
+      color:var(--brand-purple);
+      margin-bottom:0.5rem;
+    }
+
+    #code-editor{
+      height:320px;
+      border-radius:8px;
+      overflow:hidden;
+      border:1.5px solid var(--brand-purple);
+      background:#fff;
+    }
+
+    #console-output{
+      background:#161820;
+      color:#fff;
+      min-height:60px;
+      border-radius:8px;
+      padding:0.65rem 1rem;
+      font-family:monospace;
+      font-size:1em;
+      white-space:pre-line;
+      box-shadow:0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .canvas-header{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:0.8rem;
+      margin-bottom:0.5rem;
+      flex-wrap:wrap;
+    }
+
+    #coords{
+      font-family:monospace;
+      color:var(--ink);
+      font-size:1em;
+      min-width:120px;
+    }
+
+    #metrics{
+      font-family:monospace;
+      color:var(--ink);
+      font-size:1em;
+      opacity:0.95;
+      white-space:nowrap;
+    }
+
+    #turtlecanvas{
+      background:#fff;
+      border:2px solid var(--brand-purple);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      display:block;
+      margin:0 auto;
+      width:500px;
+      height:500px;
+      max-width:90vw;
+      max-height:60vw;
+    }
+
+    #imagecanvas{ display:none; }
+
+    .toolbar{
+      display:flex;
+      gap:0.6rem;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .brand-btn{
+      background:var(--brand-purple);
+      color:var(--brand-white);
+      border:none;
+      border-radius:8px;
+      padding:0.7em 1.1em;
+      font-size:1.02em;
+      font-weight:bold;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(82,0,255,0.10);
+    }
+    .brand-btn:hover, .brand-btn:focus{
+      background:var(--brand-purple-dark);
+      color:var(--brand-white);
+    }
+
+    .run-btn{
+      width:160px;
+    }
+
+    .exercise-progress{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:0.65em;
+      padding-left:4px;
+      flex:0 0 auto;
+    }
+
+    .exercise-btn{
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      background:var(--brand-purple);
+      color:#fff;
+      font-size:1.11em;
+      font-weight:bold;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 1px 6px rgba(82,0,255,0.08);
+      opacity:0.7;
+      position:relative;
+    }
+    .exercise-btn.current{
+      background:#fff;
+      color:var(--brand-purple);
+      border:2px solid var(--brand-purple);
+      box-shadow:0 0 0 3px #ece6fa;
+      transform:scale(1.13);
+      opacity:1;
+      z-index:2;
+    }
+    .exercise-btn:hover:not(.current){
+      opacity:1;
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    .exercise-btn:disabled{
+      opacity:0.32;
+      cursor:not-allowed;
+    }
+
+    /* Splitter */
+    .splitter{
+      width:8px;
+      min-width:8px;
+      cursor:col-resize;
+      background:linear-gradient(to right, #eee 0%, #ddd 100%);
+      z-index:10;
+      border-radius:7px;
+      height:100%;
+    }
+    .splitter.dragging{
+      background:linear-gradient(to right, #b7b7ff 0%, var(--brand-purple) 100%);
+    }
+
+    /* Zoom controls */
+    .zoom-controls{
+      display:flex;
+      justify-content:center;
+      gap:1.2em;
+      margin-top:1em;
+    }
+    .zoom-btn{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      border:none;
+      font-size:2rem;
+      font-weight:bold;
+      background:var(--brand-purple);
+      color:var(--brand-white);
+      box-shadow:0 2px 8px rgba(82,0,255,0.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      outline:none;
+    }
+    .zoom-btn:hover, .zoom-btn:focus{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      box-shadow:0 4px 16px rgba(61,255,208,0.18);
+    }
+
+    /* Help button */
+    .help-btn{
+      position:fixed;
+      right:32px;
+      bottom:32px;
+      z-index:1500;
+      background:var(--brand-purple);
+      color:#fff;
+      font-size:2em;
+      border:none;
+      border-radius:50%;
+      width:54px;
+      height:54px;
+      cursor:pointer;
+      box-shadow:0 2px 10px rgba(82,0,255,0.11);
+    }
+    .help-btn:hover{ background:var(--brand-purple-dark); }
+
+    /* Help modal */
+    .help-modal{
+      display:none;
+      position:fixed;
+      left:0; top:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.52);
+      z-index:2000;
+      align-items:center;
+      justify-content:center;
+    }
+    .help-modal[style*="flex"], .help-modal.active{ display:flex !important; }
+
+    .help-content{
+      background:#fff;
+      color:var(--ink);
+      border-radius:14px;
+      padding:2.2rem 2.0rem 1.6rem 2.0rem;
+      width:900px;
+      max-width:98vw;
+      box-shadow:0 6px 40px rgba(82,0,255,0.17);
+      position:relative;
+      display:flex;
+      gap:2.0rem;
+      flex-direction:row;
+    }
+    .help-left{ width:44%; min-width:200px; max-height:60vh; overflow-y:auto; }
+    .help-right{ width:52%; min-width:170px; max-height:60vh; overflow-y:auto; }
+
+    .help-content h2{
+      color:var(--brand-purple);
+      font-weight:900;
+      margin-top:0;
+    }
+    .help-content ul{
+      padding-left:1.3em;
+      font-size:1.05em;
+      line-height:1.5;
+    }
+    .help-content code{
+      background:#f2f0fd;
+      padding:2px 6px;
+      border-radius:5px;
+      font-size:1em;
+    }
+    .close-help{
+      position:absolute;
+      top:1rem;
+      right:1rem;
+      background:none;
+      border:none;
+      font-size:1.1em;
+      cursor:pointer;
+      color:var(--ink);
+      font-weight:700;
+    }
+
+    /* Swatches */
+    .color-swatches{
+      display:flex;
+      flex-wrap:wrap;
+      gap:18px 14px;
+      min-width:320px;
+      max-width:98vw;
+      justify-content:flex-start;
+    }
+    .swatch-container{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      width:130px;
+      margin-bottom:10px;
+    }
+    .swatch{
+      width:110px;
+      height:40px;
+      border-radius:8px;
+      border:1.2px solid #eee;
+      margin-bottom:6px;
+    }
+    .label{
+      color:var(--ink);
+      font-size:1em;
+      font-weight:500;
+      line-height:1.23;
+      text-align:center;
+      word-break:break-all;
+      max-width:130px;
+      overflow-wrap:break-word;
+    }
+
+    /* Menu */
+    .course-menu{
+      position:fixed;
+      top:0;
+      right:-340px;
+      width:320px;
+      height:100vh;
+      background:var(--brand-purple);
+      color:#fff;
+      z-index:3000;
+      box-shadow:-3px 0 24px rgba(0,0,0,0.10);
+      border-radius:16px 0 0 16px;
+      display:flex;
+      flex-direction:column;
+      transition:right 0.33s cubic-bezier(.4,.2,.2,1);
+      max-width:95vw;
+    }
+    .course-menu.open{ right:0; }
+
+    .menu-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:1.4em 1.1em 1em 1.3em;
+      border-bottom:1.5px solid #fff3;
+    }
+    .menu-title{
+      font-size:1.32em;
+      font-weight:900;
+      letter-spacing:1px;
+    }
+    .close-menu{
+      background:none;
+      border:none;
+      color:#fff;
+      font-size:2em;
+      font-weight:700;
+      cursor:pointer;
+      padding:0 0.1em;
+      margin-left:8px;
+      border-radius:50%;
+      line-height:1;
+    }
+    .close-menu:hover{ background:#fff2; }
+
+    .menu-content{
+      flex:1 1 auto;
+      overflow-y:auto;
+      padding:1.3em 1.3em 1em 1.3em;
+      font-size:1.07em;
+    }
+    .menu-content h3{
+      margin-top:0.3em;
+      margin-bottom:1em;
+      font-size:1.09em;
+      font-weight:bold;
+      letter-spacing:1px;
+      color:#fff;
+    }
+    .chapter-list{
+      padding-left:0.5em;
+      margin-bottom:1.9em;
+    }
+    .chapter-list li{
+      margin:0.65em 0;
+      list-style:none;
+      font-size:1em;
+      cursor:pointer;
+      padding:0.45em 0.5em;
+      border-radius:8px;
+    }
+    .menu-chapter-item.active{
+      background:#fff2;
+      color:var(--brand-aqua);
+      font-weight:bold;
+    }
+    .menu-footer{
+      border-top:1.3px solid #fff2;
+      margin-top:2em;
+      padding-top:1.2em;
+      text-align:left;
+    }
+
+    .menu-tab{
+      position:fixed;
+      top:46%;
+      right:0;
+      background:var(--brand-purple);
+      color:#fff;
+      font-size:1.13em;
+      font-weight:900;
+      border:none;
+      border-radius:14px 0 0 14px;
+      box-shadow:-1px 2px 10px rgba(0,0,0,0.07);
+      padding:1.06em 1.35em 1.06em 1.15em;
+      cursor:pointer;
+      z-index:3010;
+      letter-spacing:1px;
+      writing-mode:vertical-lr;
+    }
+    .menu-tab:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+    }
+
+    /* Modals */
+    .modal, #ask-modal, #confirm-modal, #pdf-modal{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.3);
+      z-index:10000;
+      justify-content:center;
+      align-items:center;
+    }
+    .modal[style*="flex"], #ask-modal[style*="flex"], #confirm-modal[style*="flex"], #pdf-modal[style*="flex"]{
+      display:flex !important;
+    }
+
+    .modal-content, .modal-box{
+      background:var(--brand-white);
+      color:var(--ink);
+      border-radius:14px;
+      padding:2em 2em 1.5em 2em;
+      min-width:320px;
+      max-width:94vw;
+      box-shadow:0 8px 32px rgba(0,0,0,0.16);
+      position:relative;
+      font-size:1.09em;
+      border:none;
+    }
+
+    .modal-close{
+      position:absolute;
+      top:16px;
+      right:18px;
+      font-size:2rem;
+      font-weight:bold;
+      color:#222;
+      cursor:pointer;
+      z-index:11;
+    }
+
+    .modal-actions{
+      display:flex;
+      justify-content:center;
+      gap:1rem;
+      margin-top:2em;
+    }
+
+    .modal-extra{
+      margin-top:0.8em;
+      font-size:0.95em;
+      line-height:1.4;
+    }
+    .modal-extra ul{
+      padding-left:1.2em;
+      margin:0.4em 0 0;
+    }
+    .modal-extra p{
+      margin:0.3em 0;
+    }
+    .modal-extra .verify-detail{
+      margin-top:0.4em;
+      font-style:italic;
+      opacity:0.9;
+    }
+
+    .modal-btn, #modal-ok, #confirm-modal-ok, #confirm-modal-cancel, #ask-modal-ok{
+      background:var(--brand-purple);
+      color:var(--brand-white);
+      border:none;
+      border-radius:8px;
+      padding:0.7em 1.5em;
+      font-size:1.07em;
+      cursor:pointer;
+      font-weight:bold;
+    }
+    .modal-btn:hover, #modal-ok:hover, #confirm-modal-ok:hover, #confirm-modal-cancel:hover, #ask-modal-ok:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+    }
+
+    .modal-btn-secondary{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    .modal-btn-secondary:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-aqua);
+    }
+
+    /* Toast */
+    #eval-toast{
+      position:fixed;
+      bottom:42px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:1em 2em;
+      font-size:1.1em;
+      font-weight:bold;
+      border-radius:12px;
+      z-index:9999;
+      box-shadow:0 4px 16px rgba(0,0,0,0.16);
+      max-width:85vw;
+      display:none;
+      white-space:pre-line;
+    }
+
+    /* Dark theme */
+    body.dark{
+      background:#161820;
+      color:#fff;
+    }
+    body.dark .main-layout{ background:#23272e; }
+    body.dark .topbar{ background:#23272e !important; border-bottom:1.5px solid #333; }
+    body.dark .editor-pane, body.dark .canvas-pane{ background:#23272e; color:#fff; }
+    body.dark .editor-label, body.dark .console-label, body.dark .canvas-label{ color:#fff !important; }
+    body.dark #console-output{ background:#fff !important; color:#23272e !important; border-color:var(--brand-aqua) !important; }
+    body.dark #coords, body.dark #metrics{ color:#fff !important; }
+
+    body.dark .brand-btn, body.dark .zoom-btn, body.dark .help-btn{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    body.dark .brand-btn:hover, body.dark .zoom-btn:hover, body.dark .help-btn:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border-color:var(--brand-aqua);
+    }
+
+    body.dark .help-content{ background:#23272e; color:#fff; }
+    body.dark .help-content h2{ color:#fff; }
+    body.dark .help-content code{ background:#363c4a; color:#fff; border:1px solid #444; }
+
+    body.dark .modal-content, body.dark .modal-box{
+      background:var(--brand-purple) !important;
+      color:var(--brand-white) !important;
+    }
+    body.dark .modal-close{ color:var(--brand-aqua); }
+    body.dark .modal-btn, body.dark #modal-ok, body.dark #confirm-modal-ok, body.dark #ask-modal-ok{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    body.dark .modal-btn:hover, body.dark #modal-ok:hover, body.dark #confirm-modal-ok:hover, body.dark #ask-modal-ok:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border-color:var(--brand-aqua);
+    }
+    body.dark .modal-btn-secondary, body.dark #confirm-modal-cancel{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+
+    @media (max-width:980px){
+      .main-layout{ flex-direction:column; gap:2.2rem; }
+      .editor-pane, .canvas-pane{
+        width:98vw !important;
+        min-width:0 !important;
+        padding:1rem 0.6rem !important;
+        border-radius:18px !important;
+      }
+      .splitter{ display:none !important; }
+      #turtlecanvas{
+        width:100%;
+        max-width:500px;
+        height:auto;
+        aspect-ratio:1/1;
+      }
+      .help-content{ flex-direction:column; width:99vw; }
+    }
+
+    @media (max-width:640px){
+      .topbar{ flex-direction:column; align-items:stretch; }
+      .toolbar{ justify-content:flex-start; }
+      .help-content{ width:99vw; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Topbar: voortgang, opdracht, knoppen -->
+  <header class="topbar">
+    <div class="exercise-progress" id="exercise-progress"></div>
+
+    <div class="opdracht" id="opdracht">
+      <strong id="opdracht-titel">—</strong>
+      <span id="opdracht-tekst">—</span>
+    </div>
+
+    <div class="toolbar">
+      <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">🌙 / ☀️</button>
+      <button class="brand-btn" id="export-pdf">Reeks exporteren naar PDF</button>
+      <button class="brand-btn" id="reset-progress">Vooruitgang wissen</button>
+    </div>
+  </header>
+
+  <!-- Slide-in Course Menu -->
+  <div id="course-menu" class="course-menu" tabindex="-1" aria-label="Hoofdmenu">
+    <div class="menu-header">
+      <span class="menu-title">Menu</span>
+      <button id="close-menu" class="close-menu" title="Sluit menu">×</button>
+    </div>
+    <nav class="menu-content">
+      <h3>Inhoud</h3>
+      <ul id="menu-chapters" class="chapter-list"></ul>
+      <div class="menu-footer">
+        <b>Bug gevonden? Contact: robbewulgaert.be/contact</b>
+      </div>
+    </nav>
+  </div>
+
+  <button id="menu-tab" class="menu-tab" title="Toon menu">Menu</button>
+
+  <main class="main-layout" id="main-layout">
+    <!-- Editor -->
+    <section class="editor-pane" id="editor-pane">
+      <div class="editor-label">Code-editor</div>
+      <div id="code-editor"></div>
+      <br><br>
+      <button id="run-code" class="brand-btn run-btn">▶️ Uitvoeren</button>
+      <br><br>
+      <div class="console-label">Console-uitvoer</div>
+      <br>
+      <div id="console-output" class="console-output"></div>
+    </section>
+
+    <div class="splitter" id="splitter"></div>
+
+    <!-- Canvas -->
+    <section class="canvas-pane" id="canvas-pane">
+      <div class="canvas-header">
+        <span class="canvas-label">Canvas</span>
+        <span id="coords" class="coords"></span>
+        <span id="metrics"></span>
+      </div>
+      <canvas id="turtlecanvas" width="500" height="500"></canvas>
+      <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
+
+      <div class="zoom-controls">
+        <button class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
+        <button class="zoom-btn" id="zoom-out" aria-label="Zoom out">–</button>
+      </div>
+    </section>
+
+    <button id="help-btn" class="help-btn" title="Toon commando's en uitleg">?</button>
+  </main>
+
+  <!-- Help modal -->
+  <div id="help-modal" class="help-modal">
+    <div class="help-content">
+      <button id="close-help" class="close-help">Sluiten ✕</button>
+      <div class="help-left">
+        <h2>Formularium</h2>
+        <ul>
+          <li><code>console.log("tekst")</code> - print tekst naar de console</li>
+          <li><code>if (voorwaarde) { ... }</code> - ALS-statement</li>
+          <li><code>else if (voorwaarde) { ... }</code> - ANDERS ALS-statement</li>
+          <li><code>else { ... }</code> - ANDERS-statement</li>
+          <li><code>for (...) { ... }</code> - begrensde herhaling</li>
+          <li><code>while (voorwaarde) { ... }</code> - voorwaardelijke herhaling</li>
+          <li><code>ask("vraag")</code> - vraag stellen aan user (SEB-proof)</li>
+          <li><code>moveForward(afstand)</code> – vooruit bewegen</li>
+          <li><code>moveBackward(afstand)</code> – achteruit bewegen</li>
+          <li><code>turnRight(hoek)</code> – draai naar rechts</li>
+          <li><code>turnLeft(hoek)</code> – draai naar links</li>
+          <li><code>penUp()</code> – pen omhoog</li>
+          <li><code>penDown()</code> – pen omlaag</li>
+          <li><code>setPenColour(r,g,b)</code> – verander kleur</li>
+          <li><code>setPenColour("naam")</code> – kleur op naam</li>
+          <li><code>randomColour()</code> – willekeurige kleur (string)</li>
+          <li><code>goTo(x,y)</code> – ga naar positie</li>
+          <li><code>showGrid(stap)</code> – raster tonen</li>
+          <li><code>setLineWidth(b)</code> – lijndikte</li>
+          <li><code>resetTurtle()</code> – reset alles</li>
+          <li><code>clearCanvas()</code> – wis canvas</li>
+          <li><code>writeText("tekst")</code> – tekst schrijven</li>
+          <li><code>round(getal, dec)</code> – afronden (indien voorzien in jouw library)</li>
+        </ul>
+      </div>
+      <div class="help-right">
+        <h2>Kleuren (naam &amp; RGB)</h2>
+        <div id="dynamic-color-swatches" class="color-swatches"></div>
+        <div style="font-size:0.99em;color:#333;margin-top:1em;">
+          <b>Gebruik:</b><code>setPenColour(r,g,b)</code> of <code>setPenColour("naam")</code><br>
+          <strong>Voorbeeld:</strong> <code>setPenColour("crimson");</code> of <code>setPenColour(220,20,60);</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF modal -->
+  <div id="pdf-modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" id="close-pdf-modal">&times;</span>
+      <h3>PDF exporteren</h3>
+      <label for="modal-naam">Naam:</label>
+      <input id="modal-naam" type="text" required autocomplete="off">
+      <label for="modal-klas">Klas:</label>
+      <input id="modal-klas" type="text" required autocomplete="off">
+      <label for="modal-oefening">Oefeningstitel:</label>
+      <input id="modal-oefening" type="text" placeholder="(Laat leeg voor automatische titel)" autocomplete="off">
+      <button id="modal-ok">Exporteren</button>
+    </div>
+  </div>
+
+  <!-- Ask modal -->
+  <div id="ask-modal" class="modal">
+    <div class="modal-box">
+      <div id="ask-modal-msg" class="modal-message"></div>
+      <input id="ask-modal-input" type="text" class="modal-input" autocomplete="off"/>
+      <div class="modal-actions">
+        <button id="ask-modal-ok" class="modal-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm modal-->
+  <div id="confirm-modal" class="modal">
+    <div class="modal-box">
+      <div id="confirm-modal-msg" class="modal-message"></div>
+      <div id="confirm-modal-extra" class="modal-extra"></div>
+      <div class="modal-actions">
+        <button id="confirm-modal-ok" class="modal-btn">OK</button>
+        <button id="confirm-modal-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset modal -->
+  <div id="reset-modal" class="modal">
+    <div class="modal-box">
+      <div class="modal-message" style="font-weight:900;margin-bottom:0.6em;">Vooruitgang wissen</div>
+      <div class="modal-extra" style="display:block;">
+        Kies wat je wil wissen.
+      </div>
+      <div class="modal-actions">
+        <button id="reset-current" class="modal-btn">Alleen huidige oefening</button>
+        <button id="reset-all" class="modal-btn modal-btn-secondary">Volledige cursus</button>
+        <button id="reset-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="eval-toast"></div>
+
+  <!-- JS libs -->
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/mode/javascript/javascript.min.js"></script>
+  <script src="rgbcolor.js"></script>
+  <script src="library.js"></script>
+
+  <script>
+  // --------- DATA VOOR OEFENINGEN --------------
+  const chapters = [
+    {
+      title: "Toets Hoofdstuk 3: De Selectie",
+exercises: [
+  {
+    title: "1. Korting vanaf ...",
+    starterCode: [
+      "// Gegeven:",
+      "// Het aankoopbedrag is 64 euro.",
+      "",
+      "// Gevraagd:",
+      "// ALS bedrag 60 of hoger is, print je exact:",
+      "// Korting toegepast.",
+      "// Anders print je niets.",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Korting toegepast."
+  },
+  {
+    title: "2. Gratis verzending",
+    starterCode: [
+      "// Gegeven:",
+      "// Het aankoopbedrag is 46 euro.",
+      "",
+      "// Gevraagd:",
+      "// ALS bedrag 50 of hoger is, print je exact:",
+      "// Gratis verzending.",
+      "// ANDERS print je exact:",
+      "// Verzendkosten betalen.",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Verzendkosten betalen."
+  },
+  {
+    title: "3. Kassa: pas bedrag aan",
+    starterCode: [
+      "// Gegeven:",
+      "// Het aankoopbedrag is 64 euro.",
+      "",
+      "// Gevraagd:",
+      "// ALS bedrag 60 of hoger is:",
+      "//   verlaag bedrag met 10%.",
+      "// ANDERS:",
+      "//   verhoog bedrag met 5%.",
+      "// Print daarna exact:",
+      "// Nieuw bedrag: ...",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Nieuw bedrag: 57.6"
+  },
+  {
+    title: "4. Weerbericht",
+    starterCode: [
+      "// Gegeven:",
+      "// De buitentemperatuur is 28°C.",
+      "",
+      "// Gevraagd:",
+      "// Gebruik de selectie om exact één zin te printen:",
+      "// - temp < 18 : Koud.",
+      "// - temp < 25 : Aangenaam.",
+      "// - anders    : Warm.",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Warm."
+  },
+  {
+    title: "5. Batterijstatus",
+    starterCode: [
+      "// Gegeven:",
+      "// De batterij is 9%.",
+      "",
+      "// Gevraagd:",
+      "// Print exact één zin:",
+      "// - batterij <= 5   : Batterij leeg.",
+      "// - batterij <= 20  : Batterij laag.",
+      "// - anders          : Batterij ok.",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Batterij laag."
+  },
+  {
+    title: "6. Exact nul",
+    starterCode: [
+      "// Gegeven:",
+      "// De snelheid is 0 km/u.",
+      "",
+      "// Gevraagd:",
+      "// Controleer met === of snelheid exact 0 is.",
+      "// ALS dat zo is, print je exact:",
+      "// Stilstand.",
+      "// ANDERS print je exact:",
+      "// In beweging.",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Stilstand."
+  },
+  {
+    title: "7. Postcode",
+    starterCode: [
+      "// Gegeven:",
+      "// De postcode is '9000'.",
+      "",
+      "// Gevraagd:",
+      "// Print exact één zin:",
+      "// - Postcode 9000 is voor Gent (stad).",
+      "// - Postcode 9080 is voor Lochristi.",
+      "// - Postcode 9940 is voor Evergem.",
+      "// - anders         : Onbekende postcode.",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Postcode 9000 is voor Gent (stad)."
+  },
+  {
+    title: "8. Attractiepark",
+    starterCode: [
+      "// Gegeven:",
+      "// Lengte = 132 cm. Begeleider = false.",
+      "",
+      "// Gevraagd:",
+      "// Je wil weten of iemand op de attractie mag.",
+      "// Het park volgt deze regels:",
+      "// 1) ALS lengte 140 cm of meer is: toegang toegestaan.",
+      "// 2) ANDERS (dus kleiner dan 140):",
+      "//    - ALS er een begeleider is: toegang toegestaan.",
+      "//    - ANDERS: geen toegang.",
+      "//",
+      "// Print daarna exact één zin:",
+      "// Toegang toegestaan.",
+      "// of",
+      "// Geen toegang.",
+      "",
+      "// Schrijf hieronder je code."
+
+    ].join('\n'),
+    evalOutput: "Geen toegang."
+  },
+  {
+    title: "9. Beoordeling via percentage",
+    starterCode: [
+      "// Gegeven:",
+      "// Een leerling heeft 37 punten op 50.",
+      "",
+      "// Gevraagd:",
+      "// Bereken percentage als (punten * 100) / max.",
+      "// Ken daarna de correcte letter toe via volgende regels",
+      "// - percentage >= 85 : letter = \"A\"",
+      "// - percentage >= 70 : letter = \"B\"",
+      "// - percentage >= 50 : letter = \"C\"",
+      "// - anders           : letter = \"D\"",
+      "",
+      "// Schrijf hieronder je code."
+    ].join('\n'),
+    evalOutput: "Beoordeling: B."
+  }
+]
+}
+  ];
+  // --------- EINDE  DATA VOOR OEFENINGEN -------------------------
+
+  /* =========================================================
+     2) TOETS-CONTEXT: eenmalige reset van localStorage per TEST_ID
+     ========================================================= */
+
+  const TEST_MODE  = !!window.JSIK_TEST_MODE;
+  const TEST_LABEL = window.JSIK_TEST_LABEL || "default";
+  const TEST_ID    = TEST_MODE ? `jsik-test-${TEST_LABEL}` : `jsik-normal`;
+  const TEST_INIT_KEY = `jsprog-test-init-${TEST_ID}`;
+  const REVEAL_EXPECTED_ON_FAIL = !!window.JSIK_REVEAL_EXPECTED_ON_FAIL;
+
+  /* =======================
+     SNAPSHOT STORAGE (voor batch export)
+     ======================= */
+
+  function _dateKeyLocal(d = new Date()){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+
+  const _SAVE_PREFIX = `jsprog-saved-${TEST_ID}`;
+  const _SAVE_INDEX_KEY = `${_SAVE_PREFIX}-index`;
+
+  // Downscale + JPEG to reduce localStorage bloat
+  function _canvasToJpegDataUrl(canvas, quality = 0.72, maxEdge = 420){
+    try{
+      const w = canvas.width, h = canvas.height;
+      const scale = Math.min(1, maxEdge / Math.max(w, h));
+      if (scale >= 1){
+        return canvas.toDataURL('image/jpeg', quality);
+      }
+      const tmp = document.createElement('canvas');
+      tmp.width = Math.max(1, Math.round(w * scale));
+      tmp.height = Math.max(1, Math.round(h * scale));
+      const ctx = tmp.getContext('2d');
+      ctx.drawImage(canvas, 0, 0, tmp.width, tmp.height);
+      return tmp.toDataURL('image/jpeg', quality);
+    } catch (e){
+      return "";
+    }
+  }
+
+  function _loadSaveIndex(){
+    try{
+      const raw = localStorage.getItem(_SAVE_INDEX_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e){
+      return [];
+    }
+  }
+
+  function _writeSaveIndex(keys){
+    try{
+      localStorage.setItem(_SAVE_INDEX_KEY, JSON.stringify(keys));
+    } catch(e){}
+  }
+
+  function _upsertIndexKey(key){
+    const keys = _loadSaveIndex();
+    const i = keys.indexOf(key);
+    if (i !== -1) keys.splice(i, 1);
+    keys.push(key); // newest last
+    _writeSaveIndex(keys);
+  }
+
+  function _hashDjb2(str){
+    let h = 5381;
+    for (let i = 0; i < str.length; i++){
+      h = ((h << 5) + h) + str.charCodeAt(i);
+      h = h | 0;
+    }
+    return String(h);
+  }
+
+  function saveCompletedExerciseSnapshot(status /* "success" | "fail" */){
+    const ex = chapters[currentChapterIdx]?.exercises?.[currentExerciseIdx];
+    if (!ex) return { ok:false, reason:"no exercise" };
+    if (status !== "success" && status !== "fail") return { ok:false, reason:"bad status" };
+
+    const dateKey = _dateKeyLocal(new Date());
+    const storageKey = `${_SAVE_PREFIX}-${dateKey}-${currentChapterIdx}-${currentExerciseIdx}-${status}-latest`;
+
+    const canvas = document.getElementById('turtlecanvas');
+
+    // Fail snapshots: lighter image to protect quota; success keeps your current quality
+    const canvasDataUrl = canvas
+      ? _canvasToJpegDataUrl(canvas, status === "fail" ? 0.55 : 0.72, status === "fail" ? 320 : 420)
+      : "";
+
+    const pogingen = (typeof getPogingen === 'function')
+      ? getPogingen()
+      : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
+
+    const tijdMs = (typeof getWerkTijdMs === 'function')
+      ? getWerkTijdMs()
+      : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
+
+    const code = editor?.getValue?.() || "";
+    const consoleText = (document.getElementById('console-output')?.textContent || "");
+    const evalInfo = (window._lastEvalInfo || "");
+
+    // De-dupe: if nothing meaningful changed, don’t rewrite the record
+    const fingerprint = _hashDjb2(`${status}\n${code}\n---\n${consoleText}\n---\n${evalInfo}`);
+
+    try{
+      const prevRaw = localStorage.getItem(storageKey);
+      if (prevRaw){
+        const prev = JSON.parse(prevRaw);
+        if (prev && prev.fingerprint === fingerprint){
+          return { ok:true, key:storageKey, skipped:true };
+        }
+      }
+    } catch(e){}
+
+    const rec = {
+      version: 2,
+      testId: TEST_ID,
+      dateKey,
+      savedAt: new Date().toISOString(),
+      chapterIdx: currentChapterIdx,
+      exerciseIdx: currentExerciseIdx,
+      chapterTitle: chapters[currentChapterIdx]?.title || "",
+      exerciseTitle: ex.title || "",
+      opdrachtTitle: (document.getElementById('opdracht-titel')?.textContent || "").trim(),
+      opdrachtText:  (document.getElementById('opdracht-tekst')?.textContent  || "").trim(),
+      code,
+      console: consoleText,
+      canvasDataUrl,
+      evalStatus: status,
+      evalInfo,
+      expectedOutput: ex.evalOutput || "",
+      pogingen,
+      tijdMs,
+      pageUrl: window.location.href,
+      userAgent: navigator.userAgent || "",
+      fingerprint
+    };
+
+    try{
+      localStorage.setItem(storageKey, JSON.stringify(rec));
+      _upsertIndexKey(storageKey);
+      return { ok:true, key:storageKey, skipped:false };
+    } catch(e){
+      return { ok:false, reason:"quota" };
+    }
+  }
+
+  function getSavedSnapshotsForDate(dateKey){
+    const keys = _loadSaveIndex();
+    const picked = new Map();
+
+    for (const k of keys){
+      if (!k.startsWith(`${_SAVE_PREFIX}-${dateKey}-`)) continue;
+      try{
+        const rec = JSON.parse(localStorage.getItem(k) || "null");
+        if (!rec) continue;
+
+        const id = `${rec.chapterIdx}-${rec.exerciseIdx}`;
+        const prev = picked.get(id);
+
+        if (!prev){
+          picked.set(id, rec);
+          continue;
+        }
+
+        // Prefer success over fail
+        if (prev.evalStatus !== "success" && rec.evalStatus === "success"){
+          picked.set(id, rec);
+          continue;
+        }
+
+        // Same status: keep newest
+        if (String(rec.savedAt||"") > String(prev.savedAt||"")){
+          picked.set(id, rec);
+        }
+      } catch(e){}
+    }
+
+    const out = Array.from(picked.values());
+    out.sort((a,b)=>{
+      if (a.chapterIdx !== b.chapterIdx) return a.chapterIdx - b.chapterIdx;
+      if (a.exerciseIdx !== b.exerciseIdx) return a.exerciseIdx - b.exerciseIdx;
+      return String(a.savedAt||"").localeCompare(String(b.savedAt||""));
+    });
+    return out;
+  }
+
+  (function firstLoadResetForThisTest(){
+    if (!TEST_MODE) return;
+    try{
+      if (localStorage.getItem(TEST_INIT_KEY)) return;
+
+      const keys = Object.keys(localStorage);
+      for (const k of keys){
+        if (k.startsWith("jsprog-")) localStorage.removeItem(k);
+        if (k.startsWith(_SAVE_PREFIX)) localStorage.removeItem(k);
+        if (k === _SAVE_INDEX_KEY) localStorage.removeItem(k);
+      }
+      localStorage.setItem(TEST_INIT_KEY, "1");
+    }catch(e){
+      console.warn("LocalStorage reset overgeslagen:", e);
+    }
+  })();
+
+  /* =========================================================
+     3) STATE + METRICS (Pogingen + Tijd) per oefening
+     ========================================================= */
+
+  let currentChapterIdx = 0;
+  let currentExerciseIdx = 0;
+
+  let _workTimer = { running:false, lastStart:0, intervalId:null };
+
+  function exKey(suffix){
+    return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
+  }
+
+  function getPogingen(){
+    return parseInt(localStorage.getItem(exKey("pogingen")) || "0", 10);
+  }
+  function incPogingen(){
+    const n = getPogingen() + 1;
+    localStorage.setItem(exKey("pogingen"), String(n));
+    return n;
+  }
+
+  function getWerkTijdMs(){
+    return parseInt(localStorage.getItem(exKey("werkTijdMs")) || "0", 10);
+  }
+  function setWerkTijdMs(ms){
+    localStorage.setItem(exKey("werkTijdMs"), String(ms));
+  }
+  function addWerkTijd(ms){
+    setWerkTijdMs(getWerkTijdMs() + ms);
+  }
+
+  function formatDuur(ms){
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return (m > 0 ? `${m}m ` : "") + `${r}s`;
+  }
+
+  function startWerkTimer(){
+    if (_workTimer.running) return;
+    _workTimer.running = true;
+    _workTimer.lastStart = Date.now();
+    _workTimer.intervalId = setInterval(updateMetricsUI, 1000);
+  }
+
+  function stopWerkTimer(){
+    if(!_workTimer.running) return;
+    const nu = Date.now();
+    addWerkTijd(nu - _workTimer.lastStart);
+    _workTimer.running = false;
+    _workTimer.lastStart = 0;
+    clearInterval(_workTimer.intervalId);
+    _workTimer.intervalId = null;
+    updateMetricsUI();
+  }
+
+  function resetWerkTimerState(){
+    _workTimer.running = false;
+    _workTimer.lastStart = 0;
+    if (_workTimer.intervalId) clearInterval(_workTimer.intervalId);
+    _workTimer.intervalId = null;
+  }
+
+  function updateMetricsUI(){
+    const el = document.getElementById("metrics");
+    if (!el) return;
+    const basisMs = getWerkTijdMs();
+    const liveMs  = _workTimer.running ? (Date.now() - _workTimer.lastStart) : 0;
+    el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
+  }
+
+  window.addEventListener("blur", stopWerkTimer);
+  window.addEventListener("beforeunload", stopWerkTimer);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopWerkTimer();
+  });
+
+  // Resume timing when they return (plaatsing: bij de andere window listeners hierboven)
+  window.addEventListener("focus", () => {
+    if (!document.hidden) startWerkTimer();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) startWerkTimer();
+  });
+
+  /* =========================================================
+     4) UI refs + menu
+     ========================================================= */
+
+  const opdrachtTekst = document.getElementById("opdracht-tekst");
+  const progressBar = document.getElementById("exercise-progress");
+  const chapterMenuList = document.getElementById("menu-chapters");
+
+  function renderChapterMenu(){
+    if (!chapterMenuList) return;
+    chapterMenuList.innerHTML = "";
+    chapters.forEach((chapter, idx) => {
+      const li = document.createElement("li");
+      li.className = "menu-chapter-item" + (idx === currentChapterIdx ? " active" : "");
+      li.textContent = chapter.title;
+      li.tabIndex = 0;
+      li.setAttribute("role", "button");
+      li.onclick = () => switchChapter(idx);
+      li.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") switchChapter(idx); };
+      chapterMenuList.appendChild(li);
+    });
+  }
+
+  function renderExerciseProgress(){
+    progressBar.innerHTML = "";
+    const exercises = chapters[currentChapterIdx].exercises;
+
+    exercises.forEach((exercise, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "exercise-btn" + (idx === currentExerciseIdx ? " current" : "");
+      btn.textContent = idx + 1;
+      btn.type = "button";
+      btn.title = exercise.title || `Oefening ${idx + 1}`;
+
+      const evalKey = `jsprog-eval-${currentChapterIdx}-${idx}`;
+      const evalStatus = localStorage.getItem(evalKey);
+      if (evalStatus === "success") {
+        btn.style.background = "#3dffd0";
+        btn.style.color = "#23272e";
+      } else if (evalStatus === "fail") {
+        btn.style.background = "#ff1744";
+        btn.style.color = "#fff";
+      }
+
+      btn.onclick = () => switchExercise(idx);
+      progressBar.appendChild(btn);
+    });
+  }
+
+  /* =========================================================
+     5) Confirm modal (met extraHTML) + ask modal
+     ========================================================= */
+
+  window.confirmModal = function(message, options = {}) {
+    return new Promise((resolve) => {
+      const modal    = document.getElementById("confirm-modal");
+      const msgDiv   = document.getElementById("confirm-modal-msg");
+      const extraDiv = document.getElementById("confirm-modal-extra");
+      const okBtn    = document.getElementById("confirm-modal-ok");
+      const cancelBtn= document.getElementById("confirm-modal-cancel");
+
+      okBtn.textContent     = options.okLabel     || "OK";
+      cancelBtn.textContent = options.cancelLabel || "Annuleren";
+
+      msgDiv.textContent = message;
+
+      if (extraDiv) {
+        if (options.extraHTML) {
+          extraDiv.innerHTML = options.extraHTML;
+          extraDiv.style.display = "block";
+        } else {
+          extraDiv.innerHTML = "";
+          extraDiv.style.display = "none";
+        }
+      }
+
+      modal.style.display = "flex";
+
+      function cleanup(result){
+        modal.style.display = "none";
+        okBtn.removeEventListener("click", onOk);
+        cancelBtn.removeEventListener("click", onCancel);
+        document.removeEventListener("keydown", onKeyDown);
+        modal.onclick = null;
+        resolve(result);
+      }
+
+      function onOk(){ cleanup(true); }
+      function onCancel(){ cleanup(false); }
+
+      okBtn.addEventListener("click", onOk);
+      cancelBtn.addEventListener("click", onCancel);
+
+      function onKeyDown(e){
+        if (e.key === "Escape") cleanup(false);
+        if (e.key === "Enter") cleanup(true);
+      }
+      document.addEventListener("keydown", onKeyDown);
+
+      modal.onclick = function(e){
+        if (e.target === modal) cleanup(false);
+      };
+    });
+  };
+
+  window.ask = function(boodschap){
+    return new Promise((resolve) => {
+      const modal = document.getElementById("ask-modal");
+      const msgDiv = document.getElementById("ask-modal-msg");
+      const input = document.getElementById("ask-modal-input");
+      const okBtn = document.getElementById("ask-modal-ok");
+
+      msgDiv.textContent = boodschap;
+      input.value = "";
+      modal.style.display = "flex";
+      input.focus();
+
+      function cleanup(){
+        modal.style.display = "none";
+        okBtn.removeEventListener("click", onOk);
+        input.removeEventListener("keydown", onEnter);
+      }
+
+      function onOk(){
+        cleanup();
+        resolve(input.value);
+      }
+
+      function onEnter(e){
+        if (e.key === "Enter") onOk();
+      }
+
+      okBtn.addEventListener("click", onOk);
+      input.addEventListener("keydown", onEnter);
+    });
+  };
+
+  function resetChoiceModal(){
+    return new Promise((resolve) => {
+      const modal = document.getElementById("reset-modal");
+      const btnCurrent = document.getElementById("reset-current");
+      const btnAll = document.getElementById("reset-all");
+      const btnCancel = document.getElementById("reset-cancel");
+
+      modal.style.display = "flex";
+
+      function cleanup(choice){
+        modal.style.display = "none";
+        btnCurrent.removeEventListener("click", onCurrent);
+        btnAll.removeEventListener("click", onAll);
+        btnCancel.removeEventListener("click", onCancel);
+        document.removeEventListener("keydown", onKey);
+        modal.onclick = null;
+        resolve(choice);
+      }
+
+      function onCurrent(){ cleanup("current"); }
+      function onAll(){ cleanup("all"); }
+      function onCancel(){ cleanup(null); }
+
+      function onKey(e){
+        if (e.key === "Escape") cleanup(null);
+      }
+
+      btnCurrent.addEventListener("click", onCurrent);
+      btnAll.addEventListener("click", onAll);
+      btnCancel.addEventListener("click", onCancel);
+      document.addEventListener("keydown", onKey);
+
+      modal.onclick = (e) => { if (e.target === modal) cleanup(null); };
+    });
+  }
+
+  /* =========================================================
+     6) Editor init + autosave + isDirty gating
+     ========================================================= */
+
+  let editor = null;
+  let isDirty = false;
+
+  function saveUserCode(){
+    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    try{ localStorage.setItem(key, editor.getValue()); }catch(e){}
+  }
+
+  function confirmSwitch(callback){
+    if (!isDirty){
+      callback();
+      return;
+    }
+    window.confirmModal(
+      "Je hebt jouw code nog niet uitgevoerd of opgeslagen. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
+    ).then((proceed) => {
+      if (proceed) callback();
+    });
+  }
+
+  function switchChapter(chapterIdx, exerciseIdx = 0){
+    confirmSwitch(() => {
+      currentChapterIdx = chapterIdx;
+      currentExerciseIdx = exerciseIdx;
+      renderChapterMenu();
+      renderExerciseProgress();
+      loadExercise();
+      isDirty = false;
+    });
+  }
+
+  function switchExercise(exIdx){
+    confirmSwitch(() => {
+      currentExerciseIdx = exIdx;
+      renderExerciseProgress();
+      loadExercise();
+      isDirty = false;
+    });
+  }
+
+  function goToNextExercise(){
+    const exercises = chapters[currentChapterIdx].exercises;
+    if (currentExerciseIdx < exercises.length - 1){
+      switchExercise(currentExerciseIdx + 1);
+    } else {
+      showToast("Je hebt alle oefeningen van dit hoofdstuk afgewerkt.", true);
+    }
+  }
+
+  /* =========================================================
+     7) Canvas view controls + coords (zoom/pan hook)
+     ========================================================= */
+
+  const CANVAS_SIZE = 500;
+  let panX = 0;
+  let panY = 0;
+  let zoom = 1.0;
+
+  function zoomIn(){
+    zoom = Math.min(3.0, zoom + 0.1);
+    if (typeof window.draw === "function") window.draw();
+  }
+  function zoomOut(){
+    zoom = Math.max(0.3, zoom - 0.1);
+    if (typeof window.draw === "function") window.draw();
+  }
+
+  (function bindCoords(){
+    const coordsSpan = document.getElementById("coords");
+    const canvas = document.getElementById("turtlecanvas");
+    if (!coordsSpan || !canvas) return;
+
+    function getBorderSizes(el){
+      const s = getComputedStyle(el);
+      return {
+        left: parseFloat(s.borderLeftWidth) || 0,
+        right: parseFloat(s.borderRightWidth) || 0,
+        top: parseFloat(s.borderTopWidth) || 0,
+        bottom: parseFloat(s.borderBottomWidth) || 0
+      };
+    }
+
+    canvas.addEventListener("mousemove", function(event){
+      const rect = canvas.getBoundingClientRect();
+      const b = getBorderSizes(canvas);
+
+      const cssX = event.clientX - rect.left - b.left;
+      const cssY = event.clientY - rect.top  - b.top;
+
+      const contentCssWidth  = rect.width  - b.left - b.right;
+      const contentCssHeight = rect.height - b.top  - b.bottom;
+
+      const scaleX = canvas.width  / contentCssWidth;
+      const scaleY = canvas.height / contentCssHeight;
+
+      const cx = cssX * scaleX;
+      const cy = cssY * scaleY;
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      const worldX = (cx - centerX - panX) / zoom;
+      const worldY = (centerY - cy - panY) / zoom;
+
+      coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
+    });
+
+    canvas.addEventListener("mouseleave", function(){
+      coordsSpan.textContent = "";
+    });
+  })();
+
+  /* =========================================================
+     8) Safe console + loop guard + run pipeline (port exam fork)
+     ========================================================= */
+
+  const consoleDiv = document.getElementById("console-output");
+  let capturedOutput = "";
+
+  function clearConsole(){ consoleDiv.textContent = ""; }
+  function appendToConsole(msg){ consoleDiv.textContent += msg + "\n"; }
+
+  function createSafeConsole(){
+    const realConsole = window.console;
+    const safeConsole = {};
+
+    Object.defineProperty(safeConsole, "log", {
+      value: (...args) => {
+        const str = args.map(String).join(" ");
+        capturedOutput += str + "\n";
+        appendToConsole(str);
+
+        if (realConsole && typeof realConsole.log === "function") {
+          realConsole.log(...args);
+        }
+      },
+      writable:false,
+      configurable:false,
+      enumerable:true
+    });
+
+    return safeConsole;
+  }
+
+  function checkConsoleMisuse(source){
+    const re = /console\s*\.\s*log\s*=/;
+    if (re.test(source)){
+      throw new Error(
+        "Je gebruikt '=' na console.log. " +
+        "Schrijf bijvoorbeeld: console.log(\"Hallo\"); " +
+        "en niet console.log = \"Hallo\";"
+      );
+    }
+  }
+
+  function applyLoopGuard(source, options = {}){
+    const MAX_ITERS = options.maxIters ?? 200000;
+    const MAX_MS    = options.maxMs   ?? 2000;
+
+    // Opt-out: zet bovenaan de code: /* @no-guard */
+    if (/^\s*\/\*\s*@no-guard\s*\*\//.test(source)) return source;
+
+    // Geen lussen zonder accolades toelaten
+    const bracelessLoop = /(for|while)\s*\([^)]*\)\s*(?!\{)/;
+    if (bracelessLoop.test(source)) {
+      throw new Error("Lus zonder accolades gedetecteerd. Gebruik { } rond de code in je for/while-lus.");
+    }
+
+    const prelude = `
+      const __GUARD_MAX_ITERS = ${MAX_ITERS};
+      const __GUARD_MAX_MS = ${MAX_MS};
+      let __guard_iters = 0;
+      const __guard_start = Date.now();
+      function __tick() {
+        __guard_iters++;
+        if ((__guard_iters & 1023) === 0) {
+          if (Date.now() - __guard_start > __GUARD_MAX_MS) {
+            throw new Error("Tijdslimiet overschreden (mogelijk oneindige lus).");
+          }
+        }
+        if (__guard_iters > __GUARD_MAX_ITERS) {
+          throw new Error("Te veel iteraties (mogelijk oneindige lus).");
+        }
+      }
+    `;
+
+    let code = source;
+
+    code = code.replace(/do\s*\{/g, (m) => `${m} __tick(); `);
+
+    code = code.replace(
+      /while\s*\(([^)]*)\)\s*\{/g,
+      (m, cond) => `while ((__tick(), (${cond}))) { __tick(); `
+    );
+
+    code = code.replace(
+      /for\s*\(([^;]*);([^;]*);([^\)]*)\)\s*\{/g,
+      (m, init, cond, step) => `for (${init}; (__tick(), (${cond})); ${step}) { __tick(); `
+    );
+
+    code = code.replace(/for\s*\(\s*;\s*;\s*\)\s*\{/g, "for (;;){ __tick(); ");
+
+    return prelude + "\n" + code;
+  }
+
+  window.runStudentCode = function(studentCode){
+    checkConsoleMisuse(studentCode);
+
+    let transformed = studentCode.replace(/\bask\s*\(/g, "await ask(");
+    transformed = applyLoopGuard(transformed, { maxIters:200000, maxMs:2000 });
+
+    const safeConsole = createSafeConsole();
+
+    const wrapper = `
+      "use strict";
+      return (async function __student_main__() {
+        ${transformed}
+      })();
+    `;
+
+    return new Function("console", "ask", wrapper)(safeConsole, window.ask);
+  };
+
+  /* =========================================================
+     9) Evaluator: tolerant matching + eval modes (port exam fork)
+     ========================================================= */
+
+  function translateError(message){
+    if (message.includes("Cannot read properties of")) return "Je gebruikt iets dat niet bestaat (undefined/null). Controleer je variabelen en objecten.";
+    if (message.includes("Unexpected token")) return "Er staat een fout teken in je code. Controleer haakjes, komma’s en accolades.";
+    if (message.includes("Identifier") && message.includes("has already been declared")) return "Je declareert een variabele dubbel. Gebruik 1 keer 'var' per naam.";
+    if (message.includes("Unexpected identifier")) return "Onverwacht woord in de code. Mogelijk een typfout of een ontbrekende komma.";
+    if (message.includes("is not defined")) return "Variabele is niet gekend. Heb je de variabele gedeclareerd met 'var'? Of een typfout?";
+    if (message.includes("missing ) after argument list")) return "Je mist een haakje. Tel je ( en ) even na!";
+    if (message.includes("Unexpected token }")) return "Onverwachte '}'. Mogelijk te veel of te weinig accolades gebruikt.";
+    if (message.includes("not a function")) return "Je probeert iets als functie te gebruiken, maar dat klopt niet. Typfout in de functienaam?";
+    if (message.includes("Cannot read property")) return "Je probeert iets te gebruiken dat niet bestaat. Controleer je objecten en variabelen.";
+    if (message.includes("Maximum call stack")) return "Je code zit mogelijk in een oneindige lus. Controleer je lussen!";
+    if (message.includes("Invalid or unexpected token")) return "Er staat een teken in je code dat JavaScript niet herkent.";
+    if (message.includes("Lus zonder accolades")) return "Je gebruikt een lus zonder { }. Zet je lus-inhoud tussen accolades: { ... }";
+    if (message.includes("mogelijk oneindige lus")) return "Je code lijkt vast te zitten in een (bijna) oneindige lus.";
+    if (
+      message.includes("Cannot assign to read only property 'log'") ||
+      message.includes("Cannot assign to read only property 'log' of object")
+    ) {
+      return "Je probeert 'console.log' zelf te veranderen. Gebruik console.log(\"tekst\"); en niet console.log = ...";
+    }
+    return message;
+  }
+
+  const _DEFAULT_NORM_OPTS = {
+    caseInsensitive:true,
+    trim:true,
+    collapseSpaces:true,
+    removePunctuation:false,
+    decimalCommaToDot:true,
+    tolerance:0.01
+  };
+
+  const _IGNORE_LINE_PATTERNS = [
+    /^debug output:/i,
+    /^\s*opgeslagen!\s*$/i,
+    /^fout:\s*/i
+  ];
+
+  function _shouldIgnoreLine(line){
+    return _IGNORE_LINE_PATTERNS.some(rx => rx.test(line));
+  }
+
+  function _normalizeText(s, opts = _DEFAULT_NORM_OPTS){
+    let t = s ?? "";
+    if (opts.decimalCommaToDot) t = t.replace(/(\d),(\d)/g, "$1.$2");
+    if (opts.trim) t = t.trim();
+    if (opts.collapseSpaces) t = t.replace(/\s+/g, " ");
+    if (opts.removePunctuation) t = t.replace(/[.,;:!?…–—\-]/g, "");
+    if (opts.caseInsensitive) t = t.toLowerCase();
+    return t;
+  }
+
+  function _extractNumbers(s){
+    const norm = (s ?? "").replace(/(\d),(\d)/g, "$1.$2");
+    const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
+    return matches.map(parseFloat);
+  }
+
+  function _nearlyEqual(a, b, eps){
+    return Math.abs(a - b) <= eps;
+  }
+
+  function _looseCompare(expectedRaw, userRaw, opts = _DEFAULT_NORM_OPTS){
+    const linesE = (expectedRaw ?? "")
+      .split(/\r?\n/)
+      .map(l => l.replace(/\u00A0/g, " ").trim())
+      .filter(l => l.length > 0);
+
+    const linesU = (userRaw ?? "")
+      .split(/\r?\n/)
+      .map(l => l.replace(/\u00A0/g, " ").trim())
+      .filter(l => l.length > 0 && !_shouldIgnoreLine(l));
+
+    if (linesE.length !== linesU.length){
+      return { ok:false, info:`Regelaantal wijkt af (verwacht ${linesE.length}, gekregen ${linesU.length}).` };
+    }
+
+    for (let i=0;i<linesE.length;i++){
+      const e = linesE[i];
+      const u = linesU[i];
+
+      const numsE = _extractNumbers(e);
+      const numsU = _extractNumbers(u);
+
+      if (numsE.length > 0 && numsE.length === numsU.length){
+        const tol = opts.tolerance ?? 0.01;
+        for (let j=0;j<numsE.length;j++){
+          if (!_nearlyEqual(numsE[j], numsU[j], tol)){
+            return { ok:false, info:`Getal op regel ${i+1} wijkt af (verwacht ${numsE[j]}, kreeg ${numsU[j]}).` };
+          }
+        }
+        const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ""), opts);
+        const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ""), opts);
+        if (eText !== uText){
+          return { ok:false, info:`Tekst op regel ${i+1} wijkt af (we negeren spaties/case/komma-punt).` };
+        }
+      } else {
+        const eN = _normalizeText(e, opts);
+        const uN = _normalizeText(u, opts);
+        if (eN !== uN){
+          return { ok:false, info:`Regel ${i+1} wijkt af.` };
+        }
+      }
+    }
+
+    return { ok:true, info:"Uitvoer komt overeen." };
+  }
+
+  function _evalByMode(exercise, userRaw){
+    const cfg = exercise.eval;
+    if (!cfg || !cfg.type) return null;
+
+    const raw = (userRaw ?? "").replace(/(\d),(\d)/g, "$1.$2");
+
+    if (cfg.type === "numbers"){
+      const numsU = _extractNumbers(raw);
+      const numsE = (cfg.expected || []).map(Number);
+      const tol = cfg.tolerance ?? 0.01;
+
+      if (cfg.orderInsensitive){
+        const a = [...numsU].sort((x,y)=>x-y);
+        const b = [...numsE].sort((x,y)=>x-y);
+        if (a.length !== b.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${b.length}, kreeg ${a.length}).` };
+        for (let i=0;i<a.length;i++) if (!_nearlyEqual(a[i], b[i], tol)) return { ok:false, info:`Getallen wijken af (tolerantie ${tol}).` };
+        return { ok:true, info:"Getallen kloppen (volgorde genegeerd)." };
+      } else {
+        if (numsU.length !== numsE.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${numsE.length}, kreeg ${numsU.length}).` };
+        for (let i=0;i<numsE.length;i++) if (!_nearlyEqual(numsE[i], numsU[i], tol)) return { ok:false, info:`Getal #${i+1} wijkt af (verwacht ${numsE[i]}, kreeg ${numsU[i]}).` };
+        return { ok:true, info:"Getallen kloppen (op volgorde)." };
+      }
+    }
+
+    if (cfg.type === "regex"){
+      const re = new RegExp(cfg.pattern, cfg.flags || "i");
+      const ok = re.test(raw.trim());
+      return { ok, info: ok ? "Patroon komt overeen." : "Tekst voldoet niet aan het patroon." };
+    }
+
+    if (cfg.type === "contains"){
+      const hay = raw.toLowerCase();
+      const missing = (cfg.substrings || []).filter(s => !hay.includes(String(s).toLowerCase()));
+      if (missing.length === 0) return { ok:true, info:"Alle vereiste woorden/fragmenten aanwezig." };
+      return { ok:false, info:`Ontbreekt: ${missing.join(", ")}` };
+    }
+
+    return null;
+  }
+
+  // PATCH: _lastEvalInfo mag nooit "Uitvoer wijkt af." zijn wanneer ok === true
+  function evaluateExercise(){
+    const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+    if (!ex || (!ex.evalOutput && !ex.eval)){
+      window._lastEvalInfo = "Geen evaluatiesleutel voor deze oefening.";
+      return null;
+    }
+
+    const userRaw = (typeof capturedOutput === "string") ? capturedOutput : String(capturedOutput || "");
+
+    const modeRes = _evalByMode(ex, userRaw);
+    if (modeRes){
+      window._lastEvalInfo = modeRes.ok
+        ? "Uitvoer komt overeen."
+        : (REVEAL_EXPECTED_ON_FAIL ? modeRes.info : "Uitvoer wijkt af.");
+      return modeRes.ok;
+    }
+
+    const loose = _looseCompare(ex.evalOutput || "", userRaw, _DEFAULT_NORM_OPTS);
+    window._lastEvalInfo = loose.ok
+      ? "Uitvoer komt overeen."
+      : (REVEAL_EXPECTED_ON_FAIL ? loose.info : "Uitvoer wijkt af.");
+    return loose.ok;
+  }
+
+  function showToast(message, success){
+    const toast = document.getElementById("eval-toast");
+    toast.textContent = message;
+    toast.style.background = success ? "#e6fff8" : "#fff0f0";
+    toast.style.color = success ? "#04695c" : "#c81c1c";
+    toast.style.display = "block";
+    clearTimeout(window.evalToastTimeout);
+    window.evalToastTimeout = setTimeout(() => {
+      toast.style.display = "none";
+    }, 4000);
+  }
+
+  function showEvalFeedback(isCorrect){
+    const progressBtns = document.querySelectorAll(".exercise-btn");
+    if (!progressBtns[currentExerciseIdx]) return;
+
+    if (isCorrect === null){
+      progressBtns[currentExerciseIdx].style.background = "";
+      progressBtns[currentExerciseIdx].style.color = "";
+      return;
+    }
+
+    const extraInfo = window._lastEvalInfo || "";
+    const exercise  = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+
+    if (isCorrect){
+      progressBtns[currentExerciseIdx].style.background = "#3dffd0";
+      progressBtns[currentExerciseIdx].style.color = "#23272e";
+
+      const pogingen = getPogingen();
+      const tijdMs = getWerkTijdMs();
+      const tijdLabel = formatDuur(tijdMs);
+
+      // PATCH: geen "Uitvoer komt overeen." / "Uitvoer wijkt af." detail in success modal
+      const extraHtml = `
+        <div class="verify-block">
+          <ul>
+            <li>Optie 1: exporteer enkel deze oefening naar PDF.</li>
+            <li>Optie 2: bewaar deze oefening lokaal en ga door naar de volgende.</li>
+            <li>Later kan je bovenaan alles exporteren van vandaag via <b>Reeks exporteren naar PDF</b>.</li>
+          </ul>
+          <p><strong>Statistiek:</strong> Pogingen: ${pogingen} · Tijd: ${tijdLabel}</p>
+        </div>
+      `;
+
+      window.confirmModal(
+        "Goed gedaan! Je uitvoer is correct.\n\nKies wat je nu doet:",
+        {
+          okLabel:"Exporteer deze oefening",
+          cancelLabel:"Bewaar en ga verder",
+          extraHTML: extraHtml
+        }
+      ).then((doExportSingle) => {
+        if (doExportSingle){
+          openPdfModal("single");
+          return;
+        }
+
+        // PATCH: NIET opnieuw saven hier (werd al gesaved in run-handler)
+        goToNextExercise();
+      });
+
+    } else {
+      progressBtns[currentExerciseIdx].style.background = "#ff1744";
+      progressBtns[currentExerciseIdx].style.color = "#fff";
+
+      const hint = "Herlees de opgave en debug jouw code.";
+      const safeInfo = REVEAL_EXPECTED_ON_FAIL ? (extraInfo || "") : "";
+      const msg = safeInfo ? `Niet helemaal goed. ${safeInfo}\n${hint}` : `Niet helemaal goed.\n${hint}`;
+      showToast(msg, false);
+    }
+  }
+
+  /* =========================================================
+     10) Oefeningen inladen
+     ========================================================= */
+
+  function extractAssignmentTextFromStarterCode(starterCode){
+    const src = String(starterCode || "");
+    const lines = src.split(/\r?\n/);
+    const out = [];
+    for (const line of lines){
+      const t = line.trim();
+      if (t === "") { if (out.length) break; else continue; }
+      if (!t.startsWith("//")) break;
+      const cleaned = t.replace(/^\/\/\s?/, "");
+      out.push(cleaned);
+    }
+    if (!out.length) return "";
+    return out.join("\n").trim();
+  }
+
+  function loadExercise(){
+    const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+    const opdrachtTitleEl = document.getElementById("opdracht-titel");
+    const opdrachtTextEl  = document.getElementById("opdracht-tekst");
+
+    if (opdrachtTitleEl) opdrachtTitleEl.textContent = exercise.title || "(geen titel)";
+
+    // PATCH: opdracht-tekst blijft verborgen (CSS), maar we vullen hem wél voor export/snapshots.
+    const assignmentText = extractAssignmentTextFromStarterCode(exercise.starterCode);
+    if (opdrachtTextEl) opdrachtTextEl.textContent = assignmentText || "";
+
+    const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    const savedCode = localStorage.getItem(key);
+
+    if (savedCode !== null) editor.setValue(savedCode);
+    else if (exercise.starterCode) editor.setValue(exercise.starterCode);
+    else editor.setValue("");
+
+    clearConsole();
+    capturedOutput = "";
+
+    if (window.resetTurtle) window.resetTurtle();
+    if (window.clearCanvas) window.clearCanvas();
+
+    isDirty = false;
+    stopWerkTimer();
+    resetWerkTimerState();
+    startWerkTimer();
+    updateMetricsUI();
+  }
+
+  /* =========================================================
+     11) PDF export
+     ========================================================= */
+
+  // ===== PDF EXPORT STATE (single vs batch) =====
+  let _pdfExportMode = "single"; // "single" | "batch"
+
+  function _breakLongTokensForPdf(text, chunk = 60){
+    const s = String(text ?? "");
+    return s.split("\n").map(line => {
+      return line.replace(new RegExp(`\\S{${chunk},}`, "g"), (m) => {
+        const parts = m.match(new RegExp(`.{1,${chunk}}`, "g")) || [m];
+        return parts.join(" ");
+      });
+    }).join("\n");
+  }
+
+  function openPdfModal(mode = "single") {
+    _pdfExportMode = mode;
+
+    const modal = document.getElementById('pdf-modal');
+    modal.style.display = 'flex';
+
+    // reset fields
+    document.getElementById('modal-naam').value = '';
+    document.getElementById('modal-klas').value = '';
+    document.getElementById('modal-oefening').value = '';
+
+    // UI tweaks per mode
+    const titleEl = modal.querySelector('h3');
+    const oefLabel = modal.querySelector('label[for="modal-oefening"]');
+    const oefInput = document.getElementById('modal-oefening');
+
+    if (_pdfExportMode === "batch") {
+      if (titleEl) titleEl.textContent = "PDF Exporteren (alle bewaarde oefeningen van vandaag)";
+      if (oefLabel) oefLabel.style.display = "none";
+      if (oefInput) oefInput.style.display = "none";
+    } else {
+      if (titleEl) titleEl.textContent = "PDF Exporteren";
+      if (oefLabel) oefLabel.style.display = "";
+      if (oefInput) oefInput.style.display = "";
+    }
+
+    document.getElementById('modal-naam').focus();
+  }
+
+  document.getElementById('export-pdf').onclick = () => openPdfModal("batch");
+  document.getElementById("close-pdf-modal").onclick = () => (document.getElementById("pdf-modal").style.display = "none");
+  document.getElementById("pdf-modal").onclick = function(e){ if (e.target === this) this.style.display = "none"; };
+
+  document.getElementById("modal-ok").onclick = async function(){
+    const naam = document.getElementById("modal-naam").value.trim();
+    const klas = document.getElementById("modal-klas").value.trim();
+
+    if (!naam || !klas){
+      showToast("Vul naam en klas in om te exporteren.", false);
+      return;
+    }
+
+    document.getElementById("pdf-modal").style.display = "none";
+
+    // Batch: alle bewaarde oefeningen van vandaag exporteren
+    if (_pdfExportMode === "batch"){
+      await exportSavedExercisesToPdf_Batch(naam, klas);
+      return;
+    }
+
+    // Single: huidige oefening exporteren
+    let oefening = document.getElementById("modal-oefening").value.trim();
+    if (!oefening){
+      oefening = chapters[currentChapterIdx].exercises[currentExerciseIdx].title || "(geen titel)";
+    }
+
+    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+    const evalStatus = localStorage.getItem(evalKey);
+    const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+    const expectedOutput = exercise.evalOutput || "";
+
+    const canvas = document.getElementById("turtlecanvas");
+    const canvasImg = await html2canvas(canvas, { backgroundColor:null, scale:2 })
+      .then(cnv => cnv.toDataURL("image/png"));
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:"portrait", unit:"pt", format:"a4" });
+
+    const pageHeight = pdf.internal.pageSize.height;
+    const margin = 36, contentWidth = 520;
+    let y = margin;
+
+    const COLOR_PURPLE = [82,0,255];
+    const COLOR_WHITE  = [255,255,255];
+
+    function setBodyFont(){ pdf.setFont("helvetica", "normal"); pdf.setFontSize(12); }
+    function setHeaderFont(){ pdf.setFont("helvetica", "bold"); pdf.setFontSize(18); }
+    function setLabelFont(){ pdf.setFont("helvetica", "bold"); pdf.setFontSize(13); }
+    function setCodeFont(){ pdf.setFont("courier", "normal"); pdf.setFontSize(10); }
+
+    function ensureRoom(h){
+      if (y + h > pageHeight - margin){
+        pdf.addPage();
+        y = margin;
+      }
+    }
+
+    function addMultilineSection(label, contentLines, color=COLOR_PURPLE, code=false){
+      pdf.setTextColor(...color); setLabelFont();
+      pdf.text(label, margin, y); y += 16;
+      if (code) setCodeFont(); else setBodyFont();
+      pdf.setTextColor(0,0,0);
+
+      const lineHeight = code ? 13 : 14;
+      for (let i=0; i<contentLines.length; ){
+        let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
+        if (linesFit < 1){ pdf.addPage(); y = margin; continue; }
+        let linesThisPage = contentLines.slice(i, i + linesFit);
+        pdf.text(linesThisPage, margin, y);
+        i += linesFit;
+        y += linesThisPage.length * lineHeight;
+        if (i < contentLines.length){ pdf.addPage(); y = margin; }
+      }
+      y += 10;
+    }
+
+    // Header
+    pdf.setTextColor(...COLOR_PURPLE); setHeaderFont();
+    pdf.text("JavaScript in de Klas – Oefening", margin, y); y += 28;
+
+    pdf.setTextColor(0,0,0); setBodyFont();
+    pdf.text(`Naam: ${naam}`, margin, y); y += 18;
+    pdf.text(`Klas: ${klas}`, margin, y); y += 18;
+    pdf.text(`Oefening: ${oefening}`, margin, y); y += 24;
+
+    // Opdracht
+    const opdrachtTitle = document.getElementById("opdracht-titel")?.textContent || "";
+    const opdrachtText  = document.getElementById("opdracht-tekst")?.textContent || "";
+    const opdrachtFull  = (opdrachtTitle ? (opdrachtTitle + "\n") : "") + opdrachtText;
+    const opdrachtLines = pdf.splitTextToSize(_breakLongTokensForPdf(opdrachtFull, 80), contentWidth);
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Opdracht:", margin, y); y += 20;
+    pdf.setTextColor(0,0,0); setBodyFont();
+    pdf.text(opdrachtLines, margin, y); y += opdrachtLines.length * 14 + 18;
+
+    // Code + output
+    const code = editor.getValue();
+    addMultilineSection("Code:", pdf.splitTextToSize(_breakLongTokensForPdf(code, 80), contentWidth), COLOR_PURPLE, true);
+    const consoleText = document.getElementById("console-output").textContent;
+    addMultilineSection(
+      "Console-uitvoer:",
+      pdf.splitTextToSize(_breakLongTokensForPdf(consoleText || "(geen uitvoer)", 80), contentWidth),
+      COLOR_PURPLE,
+      true
+    );
+
+    // Status
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Status oefening:", margin, y); y += 16;
+
+    pdf.setTextColor(0,0,0); setBodyFont();
+    let statusText = "Niet uitgevoerd";
+    if (evalStatus === "success") statusText = "Oefening correct";
+    else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
+    pdf.text(statusText, margin, y); y += 18;
+
+    // Metrics
+    const pogingen = getPogingen();
+    const tijdMs = getWerkTijdMs();
+    pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
+    pdf.text(`Tijd besteed: ${formatDuur(tijdMs)}`, margin, y); y += 18;
+
+    if (!TEST_MODE && REVEAL_EXPECTED_ON_FAIL && expectedOutput && expectedOutput.length > 0){
+      addMultilineSection(
+        "Verwachte uitvoer:",
+        pdf.splitTextToSize(_breakLongTokensForPdf(expectedOutput, 80), contentWidth),
+        COLOR_PURPLE,
+        true
+      );
+    }
+
+    // Canvas
+    const imgH = 210, imgW = 210;
+    ensureRoom(imgH + 40);
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Canvas:", margin, y); y += 10;
+    pdf.addImage(canvasImg, "PNG", margin, y, imgW, imgH);
+    y += imgH + 20;
+
+    // Rubric scaffold
+    ensureRoom(250);
+    pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+    pdf.text("Beoordeling & feedback leerkracht:", margin, y); y += 18;
+
+    const tableWidth = 520;
+    const criteriumColWidth = 160;
+    const scoreColWidth = 54;
+    const headerH = 28;
+    const rowH = 44;
+
+    const startX = margin;
+    const col1 = startX + criteriumColWidth;
+    const col2 = col1 + scoreColWidth;
+
+    pdf.setDrawColor(...COLOR_PURPLE);
+    pdf.setLineWidth(0.8);
+    pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, "S");
+
+    pdf.setFillColor(...COLOR_PURPLE);
+    pdf.rect(startX, y, tableWidth, headerH, "F");
+
+    pdf.setTextColor(...COLOR_WHITE);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(13);
+    pdf.text("Criterium", startX + 8, y + 19);
+    pdf.text("Score", col1 + 12, y + 19);
+    pdf.text("Feedback", col2 + 12, y + 19);
+
+    pdf.setDrawColor(...COLOR_PURPLE);
+    pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+    pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(12);
+    const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+    for (let i=0;i<criteria.length;i++){
+      const rowY = y + headerH + i * rowH;
+      pdf.line(startX, rowY, startX + tableWidth, rowY);
+      pdf.setTextColor(...COLOR_PURPLE);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(criteria[i], startX + 8, rowY + 26);
+    }
+    y += headerH + 5 * rowH + 20;
+
+    // Verificatiegegevens
+    ensureRoom(90);
+    const now = new Date();
+    const localeStamp = now.toLocaleString("nl-BE");
+    const verifyId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const url = window.location.href;
+    const ua  = navigator.userAgent || "Onbekend";
+
+    pdf.setTextColor(...COLOR_PURPLE);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(11);
+    pdf.text("Verificatiegegevens:", startX + 8, y); y += 16;
+
+    pdf.setTextColor(0,0,0);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.text(`Genereerd op: ${localeStamp}`, startX + 8, y); y += 12;
+    const urlLines = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${url}`, 80), contentWidth);
+    pdf.text(urlLines, startX + 8, y); y += urlLines.length * 12;
+    const uaLines  = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${ua}`, 80), contentWidth);
+    pdf.text(uaLines, startX + 8, y); y += uaLines.length * 12;
+    pdf.text(`Pogingen: ${pogingen} | Tijd besteed: ${formatDuur(tijdMs)}`, startX + 8, y); y += 12;
+    pdf.text(`Verificatie-ID: ${verifyId}`, startX + 8, y); y += 16;
+
+    function sanitize(s){ return String(s).replace(/[^a-zA-Z0-9_\-]/g, "_"); }
+    const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
+    pdf.save(fname);
+  };
+
+  async function exportSavedExercisesToPdf_Batch(naam, klas){
+    const today = _dateKeyLocal(new Date());
+    const records = getSavedSnapshotsForDate(today);
+
+    if (!records.length){
+      showToast("Geen bewaarde oefeningen gevonden voor vandaag.", false);
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const pageHeight = pdf.internal.pageSize.height;
+    const margin = 36, contentWidth = 520;
+
+    function setBodyFont(){ pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12); }
+    function setHeaderFont(){ pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); }
+    function setLabelFont(){ pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13); }
+    function setCodeFont(){ pdf.setFont('courier', 'normal'); pdf.setFontSize(10); }
+
+    function ensureRoom(y, heightNeeded){
+      if (y + heightNeeded > pageHeight - margin){
+        pdf.addPage();
+        return margin;
+      }
+      return y;
+    }
+
+    function addMultiline(label, text, y, code=false){
+      pdf.setTextColor(82,0,255); setLabelFont();
+      pdf.text(label, margin, y); y += 16;
+      pdf.setTextColor(0,0,0);
+      code ? setCodeFont() : setBodyFont();
+      const safeText = _breakLongTokensForPdf(text || "", 80);
+      const lines = pdf.splitTextToSize(safeText, contentWidth);
+      const lh = code ? 13 : 14;
+
+      let i = 0;
+      while (i < lines.length){
+        let fit = Math.floor((pageHeight - y - margin) / lh);
+        if (fit < 1){ pdf.addPage(); y = margin; continue; }
+        const chunk = lines.slice(i, i + fit);
+        pdf.text(chunk, margin, y);
+        y += chunk.length * lh;
+        i += fit;
+        if (i < lines.length){ pdf.addPage(); y = margin; }
+      }
+      y += 10;
+      return y;
+    }
+
+    // Cover / inhoud
+    let y = margin;
+    pdf.setTextColor(82,0,255); setHeaderFont();
+    pdf.text("JavaScript in de Klas – Gebundelde export", margin, y); y += 28;
+    pdf.setTextColor(0,0,0); setBodyFont();
+    pdf.text(`Naam: ${naam}`, margin, y); y += 18;
+    pdf.text(`Klas: ${klas}`, margin, y); y += 18;
+    pdf.text(`Datum: ${today}`, margin, y); y += 26;
+
+    pdf.setTextColor(82,0,255); setLabelFont();
+    pdf.text("Inhoud:", margin, y); y += 16;
+    pdf.setTextColor(0,0,0); setBodyFont();
+
+    const tocLines = records.map((r, idx) => {
+      const t = (r.exerciseTitle || r.opdrachtText || `Oefening ${r.exerciseIdx+1}`).trim();
+      return `${idx+1}. ${t}`;
+    });
+    const toc = pdf.splitTextToSize(tocLines.join("\n"), contentWidth);
+    pdf.text(toc, margin, y);
+
+    // Oefeningen
+    for (let i = 0; i < records.length; i++){
+      const r = records[i];
+      pdf.addPage();
+      y = margin;
+
+      pdf.setTextColor(82,0,255); setHeaderFont();
+      pdf.text(`Oefening ${i+1} / ${records.length}`, margin, y); y += 24;
+
+      pdf.setTextColor(0,0,0); setBodyFont();
+      const title = (r.exerciseTitle || "").trim();
+      if (title) { pdf.text(title, margin, y); y += 18; }
+
+      const status = r.evalStatus === "success" ? "Oefening correct" :
+                     r.evalStatus === "fail"    ? "Uitgevoerd, maar niet correct" :
+                                                  "Onbekend";
+      pdf.text(`Status: ${status}`, margin, y); y += 16;
+
+      const tijdLabel = (typeof formatDuur === 'function') ? formatDuur(r.tijdMs || 0) : `${Math.floor((r.tijdMs||0)/1000)}s`;
+      pdf.text(`Pogingen: ${r.pogingen ?? ""}  |  Tijd: ${tijdLabel}`, margin, y); y += 22;
+
+      y = addMultiline("Opdracht:", r.opdrachtText || "", y, false);
+      y = addMultiline("Code:", r.code || "", y, true);
+      y = addMultiline("Console-uitvoer:", r.console || "(geen uitvoer)", y, true);
+
+      const includeExpected =
+        (!TEST_MODE) &&
+        REVEAL_EXPECTED_ON_FAIL &&
+        (r.expectedOutput && String(r.expectedOutput).length > 0);
+
+      if (includeExpected){
+        y = addMultiline("Verwachte uitvoer:", r.expectedOutput, y, true);
+      }
+
+      // Canvas image
+      if (r.canvasDataUrl){
+        y = ensureRoom(y, 240);
+        pdf.setTextColor(82,0,255); setLabelFont();
+        pdf.text("Canvas:", margin, y); y += 10;
+        try{
+          pdf.addImage(r.canvasDataUrl, 'JPEG', margin, y, 210, 210);
+          y += 230;
+        } catch(e){
+          pdf.setTextColor(0,0,0); setBodyFont();
+          pdf.text("(Kon canvas-afbeelding niet toevoegen.)", margin, y); y += 16;
+        }
+      }
+
+      // PATCH: rubric ook in batch export (feature parity met single)
+      y = ensureRoom(y, 280);
+
+      pdf.setTextColor(82,0,255); setLabelFont();
+      pdf.text("Beoordeling & feedback leerkracht:", margin, y); y += 18;
+
+      const tableWidth = 520;
+      const criteriumColWidth = 160;
+      const scoreColWidth = 54;
+      const headerH = 28;
+      const rowH = 44;
+
+      const startX = margin;
+      const col1 = startX + criteriumColWidth;
+      const col2 = col1 + scoreColWidth;
+
+      pdf.setDrawColor(82,0,255);
+      pdf.setLineWidth(0.8);
+      pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, "S");
+
+      pdf.setFillColor(82,0,255);
+      pdf.rect(startX, y, tableWidth, headerH, "F");
+
+      pdf.setTextColor(255,255,255);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(13);
+      pdf.text("Criterium", startX + 8, y + 19);
+      pdf.text("Score", col1 + 12, y + 19);
+      pdf.text("Feedback", col2 + 12, y + 19);
+
+      pdf.setDrawColor(82,0,255);
+      pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+      pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(12);
+      const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+      for (let k=0;k<criteria.length;k++){
+        const rowY = y + headerH + k * rowH;
+        pdf.line(startX, rowY, startX + tableWidth, rowY);
+        pdf.setTextColor(82,0,255);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(criteria[k], startX + 8, rowY + 26);
+      }
+      y += headerH + 5 * rowH + 20;
+
+      // Verification
+      y = ensureRoom(y, 80);
+      pdf.setTextColor(82,0,255); setLabelFont();
+      pdf.text("Verificatiegegevens:", margin, y); y += 16;
+      pdf.setTextColor(0,0,0); pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
+      pdf.text(`Bewaard op: ${r.savedAt || ""}`, margin, y); y += 12;
+      const bUrl = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${r.pageUrl || ""}`, 80), contentWidth);
+      pdf.text(bUrl, margin, y); y += bUrl.length * 12;
+      const bUa  = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${r.userAgent || ""}`, 80), contentWidth);
+      pdf.text(bUa, margin, y); y += bUa.length * 12;
+    }
+
+    function sanitize(s){ return String(s||"").replace(/[^a-zA-Z0-9_\-]/g, "_"); }
+    const fname = `${sanitize(naam)}-${sanitize(klas)}-${today}-ALLE_OEFENINGEN.pdf`;
+    pdf.save(fname);
+  }
+
+  /* =========================================================
+     12) Run handler
+     ========================================================= */
+
+  function showSavedToast(){
+    if (document.getElementById("saved-toast")) return;
+    const toast = document.createElement("div");
+    toast.id = "saved-toast";
+    toast.textContent = "Opgeslagen!";
+    toast.style.position = "fixed";
+    toast.style.bottom = "32px";
+    toast.style.right = "32px";
+    toast.style.background = "#3dffd0";
+    toast.style.color = "#23272e";
+    toast.style.padding = "0.8em 1.2em";
+    toast.style.borderRadius = "8px";
+    toast.style.fontWeight = "bold";
+    toast.style.boxShadow = "0 2px 12px rgba(0,0,0,0.10)";
+    toast.style.zIndex = 3001;
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.25s";
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = "1"; }, 20);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => { toast.remove(); }, 300);
+    }, 900);
+  }
+
+  document.getElementById("run-code").onclick = async function(){
+    incPogingen();
+    stopWerkTimer();
+    updateMetricsUI();
+
+    clearConsole();
+    capturedOutput = "";
+
+    try{
+      if (window.resetTurtle) window.resetTurtle();
+      if (window.clearCanvas) window.clearCanvas();
+
+      saveUserCode();
+      isDirty = false;
+      showSavedToast();
+
+      const code = editor.getValue();
+      await runStudentCode(code);
+
+    }catch(e){
+      const msg = e && e.message ? e.message : String(e);
+      const uitleg = translateError(msg);
+      appendToConsole("Fout: " + uitleg);
+    }finally{
+      const isCorrect = evaluateExercise();
+      const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+      if (isCorrect === true) localStorage.setItem(evalKey, "success");
+      else if (isCorrect === false) localStorage.setItem(evalKey, "fail");
+      else localStorage.removeItem(evalKey);
+
+      // Save “latest fail” or “latest success”
+      if (isCorrect === true || isCorrect === false){
+        const status = isCorrect ? "success" : "fail";
+        const res = saveCompletedExerciseSnapshot(status);
+        if (!res.ok){
+          showToast(
+            res.reason === "quota"
+              ? "Opslaan mislukt: localStorage is vol. Exporteer vaker naar PDF."
+              : "Opslaan mislukt.",
+            false
+          );
+        }
+      }
+
+      renderExerciseProgress();
+      showEvalFeedback(isCorrect);
+    }
+  };
+
+  /* =========================================================
+     13) Reset progress
+     ========================================================= */
+
+  document.getElementById("reset-progress").onclick = async function(){
+    const choice = await resetChoiceModal();
+    if (!choice) return;
+
+    if (choice === "current"){
+      const codeKey = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+      const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+      localStorage.removeItem(codeKey);
+      localStorage.removeItem(evalKey);
+      localStorage.removeItem(exKey("pogingen"));
+      localStorage.removeItem(exKey("werkTijdMs"));
+
+      // PATCH: wis zowel success-latest als fail-latest (en index entries) voor vandaag
+      const today = _dateKeyLocal(new Date());
+      const snapSuccessKey = `${_SAVE_PREFIX}-${today}-${currentChapterIdx}-${currentExerciseIdx}-success-latest`;
+      const snapFailKey    = `${_SAVE_PREFIX}-${today}-${currentChapterIdx}-${currentExerciseIdx}-fail-latest`;
+
+      try{ localStorage.removeItem(snapSuccessKey); }catch(e){}
+      try{ localStorage.removeItem(snapFailKey); }catch(e){}
+
+      try{
+        const keys = _loadSaveIndex().filter(k => k !== snapSuccessKey && k !== snapFailKey);
+        _writeSaveIndex(keys);
+      }catch(e){}
+
+      renderExerciseProgress();
+      loadExercise();
+      return;
+    }
+
+    if (choice === "all"){
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith("jsprog-")) localStorage.removeItem(k);
+        if (k.startsWith(_SAVE_PREFIX)) localStorage.removeItem(k);
+        if (k === _SAVE_INDEX_KEY) localStorage.removeItem(k);
+      });
+
+      renderExerciseProgress();
+      loadExercise();
+    }
+  };
+
+  /* =========================================================
+     14) Help
+     ========================================================= */
+
+  const helpModal = document.getElementById("help-modal");
+  document.getElementById("help-btn").onclick = () => (helpModal.style.display = "flex");
+  document.getElementById("close-help").onclick = () => (helpModal.style.display = "none");
+  helpModal.onclick = (e) => { if (e.target === helpModal) helpModal.style.display = "none"; };
+
+  // Swatches
+  function renderSwatches(){
+    let simple_colors = null;
+    if (typeof RGBColor === "function"){
+      let match = RGBColor.toString().match(/var\s+simple_colors\s*=\s*({[\s\S]+?});/);
+      if (match){
+        try{ simple_colors = eval("(" + match[1] + ")"); }catch(e){}
+      }
+      if (!simple_colors && RGBColor.simple_colors) simple_colors = RGBColor.simple_colors;
+    }
+    if (!simple_colors) simple_colors = {red:"ff0000",blue:"0000ff",green:"008000",black:"000000",white:"ffffff"};
+
+    const MAX_COLORS = 32;
+    const names = Object.keys(simple_colors).slice(0, MAX_COLORS);
+
+    let html = "";
+    for (const name of names){
+      const hex = "#" + simple_colors[name];
+      const r = parseInt(simple_colors[name].substring(0,2), 16);
+      const g = parseInt(simple_colors[name].substring(2,4), 16);
+      const b = parseInt(simple_colors[name].substring(4,6), 16);
+      html += `
+        <div class="swatch-container">
+          <div class="swatch" style="background:${hex};"></div>
+          <div class="label">${name}<br><span class="rgb">rgb(${r},${g},${b})</span></div>
+        </div>
+      `;
+    }
+    document.getElementById("dynamic-color-swatches").innerHTML = html;
+  }
+
+  // Theme
+  document.getElementById("toggle-theme").onclick = () => {
+    document.body.classList.toggle("dark");
+  };
+
+  // Zoom
+  document.getElementById("zoom-in").onclick = zoomIn;
+  document.getElementById("zoom-out").onclick = zoomOut;
+
+  // Menu enable/disable
+  function setupMenu(){
+    const enabled = !!window.JSIK_ENABLE_MENU;
+    const menu = document.getElementById("course-menu");
+    const tab = document.getElementById("menu-tab");
+    const close = document.getElementById("close-menu");
+    if (!menu || !tab || !close) return;
+
+    if (!enabled){
+      menu.style.display = "none";
+      tab.style.display = "none";
+      return;
+    }
+
+    tab.onclick = (e) => {
+      e.stopPropagation();
+      menu.classList.toggle("open");
+      if (menu.classList.contains("open")) menu.focus();
+    };
+    close.onclick = () => menu.classList.remove("open");
+
+    document.addEventListener("click", (e) => {
+      if (menu.classList.contains("open") && !menu.contains(e.target) && e.target !== tab){
+        menu.classList.remove("open");
+      }
+    });
+
+    menu.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") menu.classList.remove("open");
+    });
+  }
+
+  // Splitter (resizable panes)
+  function setupSplitter(){
+    const splitter = document.getElementById("splitter");
+    const editorPane = document.getElementById("editor-pane");
+    const canvasPane = document.getElementById("canvas-pane");
+    const mainLayout = document.getElementById("main-layout");
+    if (!splitter || !editorPane || !canvasPane || !mainLayout) return;
+
+    let dragging = false;
+
+    splitter.addEventListener("mousedown", function(){
+      if (window.innerWidth < 980) return;
+      dragging = true;
+      splitter.classList.add("dragging");
+      document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mousemove", function(e){
+      if (!dragging || window.innerWidth < 980) return;
+
+      const rect = mainLayout.getBoundingClientRect();
+      const minEditorWidth = 220;
+      const minCanvasWidth = Math.max(0, parseFloat(getComputedStyle(canvasPane).minWidth) || 0);
+      const splitterWidth = splitter.offsetWidth;
+      const totalWidth = rect.width;
+
+      let newEditorWidth = e.clientX - rect.left;
+      const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
+      newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
+
+      editorPane.style.flex = `0 0 ${newEditorWidth}px`;
+      editorPane.style.width = `${newEditorWidth}px`;
+      canvasPane.style.flex = "1 1 0";
+      canvasPane.style.width = "";
+    });
+
+    document.addEventListener("mouseup", function(){
+      if (!dragging) return;
+      dragging = false;
+      splitter.classList.remove("dragging");
+      document.body.style.userSelect = "";
+    });
+
+    window.addEventListener("resize", function(){
+      if (window.innerWidth < 980){
+        editorPane.style.flex = "";
+        editorPane.style.width = "";
+        canvasPane.style.flex = "";
+        canvasPane.style.width = "";
+        splitter.style.display = "none";
+      } else {
+        splitter.style.display = "block";
+      }
+    });
+  }
+
+  /* =========================================================
+     15) Boot
+     ========================================================= */
+
+  document.addEventListener("DOMContentLoaded", function(){
+    // CodeMirror
+    editor = CodeMirror(document.getElementById("code-editor"), {
+      value: (chapters[0] && chapters[0].exercises[0] && chapters[0].exercises[0].starterCode) ? chapters[0].exercises[0].starterCode : "",
+      mode:"javascript",
+      lineNumbers:true,
+      theme:"default",
+      tabSize:2,
+      autofocus:true
+    });
+
+    editor.on("change", function(){
+      isDirty = true;
+
+      try{
+        localStorage.setItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}`, editor.getValue());
+      }catch(e){}
+
+      startWerkTimer();
+      updateMetricsUI();
+    });
+
+    // UI boot
+    renderSwatches();
+    setupMenu();
+    setupSplitter();
+
+    renderChapterMenu();
+    renderExerciseProgress();
+    loadExercise();
+  });
+  </script>
+</body>
+</html>
