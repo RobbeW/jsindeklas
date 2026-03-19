@@ -949,7 +949,21 @@ const chapters = [
         evalOutput: "Vandaag betaal je 1.82 euro om jouw auto vol te tanken."
       },
       {
-        title: "5. Snoepjes raden",
+        title: "5. Weerbericht",
+        starterCode: [
+          "// Gegeven:",
+          "// HetRegent = true.",
+          "//",
+          "// Gevraagd:",
+          "// ALS het regent print je:",
+          "// Doe een regenjas aan!",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Doe een regenjas aan!"
+      },
+      {
+        title: "6. Snoepjes raden",
         starterCode: [
           "// Gegeven:",
           "// Er wordt een wedstrijd georganiseerd waarbij je moet raden hoeveel m&m's",
@@ -960,11 +974,45 @@ const chapters = [
           "// Gevraagd:",
           "// ALS de gok van de deelnemer exact juist is print je:",
           "// PROFICIAT! Je wint de grote prijs.",
-          "// Anders print je niets.",
+          "// Anders print je:",
+          "// Helaas! Dat is niet juist, volgende keer beter.",
           "",
           "// Schrijf hieronder je code."
         ].join('\n'),
-        evalOutput: ""
+        evalOutput: "Helaas! Dat is niet juist, volgende keer beter."
+      },
+      {
+        title: "7. Exact ...",
+        starterCode: [
+          "// Gegeven:",
+          "// ...",
+          "//",
+          "// Gevraagd:",
+          "// ...",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "..."
+      },
+      {
+        title: "8. Verbeterwerk",
+        starterCode: [
+          "// Gegeven:",
+          "// E. Sabbe en R. Wulgaert vullen punten in voor het examen IW.",
+          "// De leerling haalde 43 punten (op 60)",
+          "//",
+          "// Gevraagd:",
+          "// Print exact één zin:",
+          "// - score < 30     : Je krijgt een remediëring.",
+          "// - score < 40     : Niet slecht, maar je kan zeker beter!.",
+          "// - score < 50     : Goed gewerkt! Doe zo voort!",
+          "// - anders         : Wat een geweldig resultaat!",
+          "// Print hierna nog één zin:",
+          "// Geniet van de vakantie!",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Goed gewerkt! Doe zo voort!\nGeniet van de vakantie!"
       },
     ]
   }
