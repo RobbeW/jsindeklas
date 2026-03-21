@@ -981,19 +981,23 @@ const chapters = [
         ].join('\n'),
         evalOutput: "Helaas! Dat is niet juist, volgende keer beter."
       },
-      {
-        title: "7. Exact ...",
-        starterCode: [
-          "// Gegeven:",
-          "// ...",
-          "//",
-          "// Gevraagd:",
-          "// ...",
-          "",
-          "// Schrijf hieronder je code."
-        ].join('\n'),
-        evalOutput: "..."
-      },
+     {
+       title: "7. Op tijd in de les",
+       starterCode: [
+         "// Gegeven:",
+         "// De les start om half negen. We drukken dit uit als 8.5 uur.",
+         "var uur = 8.5;",
+         "",
+         "// Gevraagd:",
+         "// Gebruik de selectie en print exact één zin:",
+         "// - uur < 8.5   : Je bent iets te vroeg.",
+         "// - uur === 8.5 : Perfect op tijd.",
+         "// - anders    : Te laat.",
+         "",
+         "// Schrijf hieronder je code."
+       ].join('\n'),
+       evalOutput: "Perfect op tijd."
+     },
       {
         title: "8. Verbeterwerk",
         starterCode: [
@@ -1014,6 +1018,29 @@ const chapters = [
         ].join('\n'),
         evalOutput: "Goed gewerkt! Doe zo voort!\nGeniet van de vakantie!"
       },
+      {
+        title: "9. Geslaagd en vergelijking met het klasgemiddelde",
+        starterCode: [
+          "// Gegeven:",
+          "// Noor behaalt 27 punten op 40 voor JavaScript.",
+          "// Het klasgemiddelde is 71.2 procent.",
+          "var klasGemiddelde = 71.2;",
+          "",
+          "// Gevraagd:",
+          "// 1. Bereken Noors percentage in een nieuwe variabele.",
+          "// 2. Maak daarna een eerste selectie:",
+          "//    - percentage >= 50 : Geslaagd.",
+          "//    - anders           : Niet geslaagd.",
+          "// 3. Maak daarna een tweede selectie en print exact één zin:",
+          "//    - percentage > klasGemiddelde   : Noor scoort boven het klasgemiddelde.",
+          "//    - percentage exact gelijk aan het klasGemiddelde : Noor scoort exact op het klasgemiddelde.",
+          "//    - anders                        : Noor scoort onder het klasgemiddelde.",
+          "// 4. Print dus in totaal exact twee zinnen.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Geslaagd.\nNoor scoort onder het klasgemiddelde."
+      }
     ]
   }
 ];
