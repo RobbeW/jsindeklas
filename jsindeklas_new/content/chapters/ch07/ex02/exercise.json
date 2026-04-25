@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex02",
+  "title": "2. Gelijkzijdige Driehoek",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

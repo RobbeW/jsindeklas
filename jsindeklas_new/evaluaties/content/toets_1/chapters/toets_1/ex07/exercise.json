@@ -1,0 +1,8 @@
+{
+  "id": "toets_1-ex07",
+  "title": "7. Volume van een opslagkist",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De opslagkist heeft een volume van 2.71 kubieke meter.",
+  "testsPath": "tests.json"
+}

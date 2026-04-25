@@ -1,0 +1,8 @@
+{
+  "id": "toets_3-ex05",
+  "title": "5. Batterijstatus",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Batterij laag.",
+  "testsPath": "tests.json"
+}

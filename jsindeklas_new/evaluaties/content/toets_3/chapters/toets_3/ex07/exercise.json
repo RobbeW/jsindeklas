@@ -1,0 +1,8 @@
+{
+  "id": "toets_3-ex07",
+  "title": "7. Postcode",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Postcode 9000 is voor Gent (stad).",
+  "testsPath": "tests.json"
+}

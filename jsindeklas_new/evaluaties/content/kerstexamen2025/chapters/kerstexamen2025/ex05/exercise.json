@@ -1,0 +1,8 @@
+{
+  "id": "kerstexamen2025-ex05",
+  "title": "5. Gemiddelde van drie toetsen",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De gemiddelde score op de drie toetsen is 15.3 op 20.",
+  "testsPath": "tests.json"
+}

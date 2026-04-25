@@ -1,0 +1,8 @@
+{
+  "id": "ch02-ex01",
+  "title": "1. Defect Geldautomaat",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Uw nieuw saldo bedraagt 775 euro.",
+  "testsPath": "tests.json"
+}

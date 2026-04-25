@@ -1,0 +1,41 @@
+[
+  {
+    "label": "Vier verschoven vierkanten",
+    "canvas": {
+      "lineCount": 16,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "actionTypeCounts": {
+        "goTo": 4,
+        "moveForward": 16
+      },
+      "minBoundsWidth": 100,
+      "minBoundsHeight": 100,
+      "firstLineFrom": {
+        "x": 0,
+        "y": 0
+      },
+      "finalState": {
+        "x": 60,
+        "y": -60,
+        "penDown": false
+      }
+    }
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "label": "De voorbeeldwaarden",
+    "stdout": "Uw nieuw saldo bedraagt 775 euro."
+  },
+  {
+    "label": "Een grotere storting",
+    "stdout": "Uw nieuw saldo bedraagt 1000 euro.",
+    "replacements": [
+      {
+        "from": "var rekening = '500';",
+        "to": "var rekening = '800';"
+      },
+      {
+        "from": "var storting = '275';",
+        "to": "var storting = '200';"
+      }
+    ]
+  },
+  {
+    "label": "Een kleiner saldo",
+    "stdout": "Uw nieuw saldo bedraagt 150 euro.",
+    "replacements": [
+      {
+        "from": "var rekening = '500';",
+        "to": "var rekening = '125';"
+      },
+      {
+        "from": "var storting = '275';",
+        "to": "var storting = '25';"
+      }
+    ]
+  }
+]

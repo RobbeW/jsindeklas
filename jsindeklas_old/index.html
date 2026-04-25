@@ -1,0 +1,3786 @@
+<!--Auteur: Robbe Wulgaert / aiindeklas.be-->
+<!-- Copyright 2026 - Gebruik vrij voor educatie mits expliciete naamsvermelding -->
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JavaScript in de Klas</title>
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
+
+  <!-- === CONFIGURATIE === -->
+  <script>
+    // Zet op true als dit een SEB/toetsversie is, op false voor de gewone oefenversie
+    // In main branch staat dit standaard op false.
+    window.JSIK_TEST_MODE  = false;
+    window.JSIK_TEST_LABEL = "default"; // bv. "10-12-2025"
+
+    // In oefenmodus wil je vaak wél de verwachte uitvoer tonen bij fout.
+    // In toetsmodus zet je dit best op false.
+    window.JSIK_REVEAL_EXPECTED_ON_FAIL = false;
+
+    // Optioneel: menu uitschakelen (bv. in een toets-fork). Main branch = menu aan.
+    window.JSIK_ENABLE_MENU = true;
+  </script>
+
+  <!-- PDF export libs (één keer inladen) -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root{
+      --brand-purple:#5200FF;
+      --brand-purple-dark:#3700B3;
+      --brand-aqua:#3dffd0;
+      --brand-white:#ffffff;
+
+      --bg:#f3f5f8;
+      --panel:#f7f8fa;
+      --ink:#23272e;
+      --muted:#9aa3b2;
+
+      --card:#ffffff;
+      --border:#ececf3;
+      --shadow:0 2px 12px rgba(82,0,255,0.08);
+    }
+
+    html, body{
+      height:100%;
+      margin:0;
+      padding:0;
+      background:#fff;
+      color:var(--ink);
+      font-family:'Roboto', Arial, Helvetica, sans-serif;
+      min-height:100vh;
+    }
+
+    body{
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+    }
+
+    /* Soepele transities */
+    .topbar, .editor-pane, .canvas-pane, .main-layout,
+    .modal-content, .modal-box,
+    .help-content, .toolbar button, .exercise-btn, .menu-tab,
+    #console-output, #code-editor, .course-menu, .help-modal,
+    .swatch, .label, .close-menu, .brand-btn, .zoom-btn, .help-btn,
+    .splitter {
+      transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .topbar{
+      width:100%;
+      box-sizing:border-box;
+      background:#fff;
+      border-bottom:1.5px solid #eee;
+      padding:0.8rem 1.2rem;
+      display:flex;
+      gap:1rem;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .opdracht{
+      flex:1 1 auto;
+      min-width:220px;
+      font-size:1.02em;
+      line-height:1.35;
+    }
+    #opdracht-tekst { display:none; }
+    
+    .main-layout{
+      display:flex;
+      flex-direction:row;
+      width:100vw;
+      height:100vh;
+      min-height:0;
+      overflow:hidden;
+      background:var(--bg);
+    }
+
+    .editor-pane{
+      flex:0 0 420px;
+      min-width:0px;
+      background:var(--panel);
+      border-radius:18px 0 0 18px;
+      padding:1.2rem;
+      box-sizing:border-box;
+      overflow:auto;
+    }
+
+    .canvas-pane{
+      flex:1 1 0;
+      min-width:0px;
+      background:var(--panel);
+      border-radius:0 18px 18px 0;
+      padding:1.2rem;
+      box-sizing:border-box;
+      overflow:auto;
+    }
+
+    .editor-label, .console-label, .canvas-label{
+      font-weight:900;
+      font-size:1.12em;
+      color:var(--brand-purple);
+      margin-bottom:0.5rem;
+    }
+
+    #code-editor{
+      height:320px;
+      border-radius:8px;
+      overflow:hidden;
+      border:1.5px solid var(--brand-purple);
+      background:#fff;
+    }
+
+    #console-output{
+      background:#161820;
+      color:#fff;
+      min-height:60px;
+      border-radius:8px;
+      padding:0.65rem 1rem;
+      font-family:monospace;
+      font-size:1em;
+      white-space:pre-line;
+      box-shadow:0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .canvas-header{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:0.8rem;
+      margin-bottom:0.5rem;
+      flex-wrap:wrap;
+    }
+
+    #coords{
+      font-family:monospace;
+      color:var(--ink);
+      font-size:1em;
+      min-width:120px;
+    }
+
+    #metrics{
+      font-family:monospace;
+      color:var(--ink);
+      font-size:1em;
+      opacity:0.95;
+      white-space:nowrap;
+    }
+
+    #turtlecanvas{
+      background:#fff;
+      border:2px solid var(--brand-purple);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      display:block;
+      margin:0 auto;
+      width:500px;
+      height:500px;
+      max-width:90vw;
+      max-height:60vw;
+    }
+
+    #imagecanvas{ display:none; }
+
+    .toolbar{
+      display:flex;
+      gap:0.6rem;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .brand-btn{
+      background:var(--brand-purple);
+      color:var(--brand-white);
+      border:none;
+      border-radius:8px;
+      padding:0.7em 1.1em;
+      font-size:1.02em;
+      font-weight:bold;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(82,0,255,0.10);
+    }
+    .brand-btn:hover, .brand-btn:focus{
+      background:var(--brand-purple-dark);
+      color:var(--brand-white);
+    }
+
+    .run-btn{
+      width:160px;
+    }
+
+    .exercise-progress{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:0.65em;
+      padding-left:4px;
+      flex:0 0 auto;
+    }
+
+    .exercise-btn{
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      background:var(--brand-purple);
+      color:#fff;
+      font-size:1.11em;
+      font-weight:bold;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 1px 6px rgba(82,0,255,0.08);
+      opacity:0.7;
+      position:relative;
+    }
+    .exercise-btn.current{
+      background:#fff;
+      color:var(--brand-purple);
+      border:2px solid var(--brand-purple);
+      box-shadow:0 0 0 3px #ece6fa;
+      transform:scale(1.13);
+      opacity:1;
+      z-index:2;
+    }
+    .exercise-btn:hover:not(.current){
+      opacity:1;
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    .exercise-btn:disabled{
+      opacity:0.32;
+      cursor:not-allowed;
+    }
+
+    /* Splitter */
+    .splitter{
+      width:8px;
+      min-width:8px;
+      cursor:col-resize;
+      background:linear-gradient(to right, #eee 0%, #ddd 100%);
+      z-index:10;
+      border-radius:7px;
+      height:100%;
+    }
+    .splitter.dragging{
+      background:linear-gradient(to right, #b7b7ff 0%, var(--brand-purple) 100%);
+    }
+
+    /* Zoom controls */
+    .zoom-controls{
+      display:flex;
+      justify-content:center;
+      gap:1.2em;
+      margin-top:1em;
+    }
+    .zoom-btn{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      border:none;
+      font-size:2rem;
+      font-weight:bold;
+      background:var(--brand-purple);
+      color:var(--brand-white);
+      box-shadow:0 2px 8px rgba(82,0,255,0.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      outline:none;
+    }
+    .zoom-btn:hover, .zoom-btn:focus{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      box-shadow:0 4px 16px rgba(61,255,208,0.18);
+    }
+
+    /* Help button */
+    .help-btn{
+      position:fixed;
+      right:32px;
+      bottom:32px;
+      z-index:1500;
+      background:var(--brand-purple);
+      color:#fff;
+      font-size:2em;
+      border:none;
+      border-radius:50%;
+      width:54px;
+      height:54px;
+      cursor:pointer;
+      box-shadow:0 2px 10px rgba(82,0,255,0.11);
+    }
+    .help-btn:hover{ background:var(--brand-purple-dark); }
+
+    /* Help modal */
+    .help-modal{
+      display:none;
+      position:fixed;
+      left:0; top:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.52);
+      z-index:2000;
+      align-items:center;
+      justify-content:center;
+    }
+    .help-modal[style*="flex"], .help-modal.active{ display:flex !important; }
+
+    .help-content{
+      background:#fff;
+      color:var(--ink);
+      border-radius:14px;
+      padding:2.2rem 2.0rem 1.6rem 2.0rem;
+      width:900px;
+      max-width:98vw;
+      box-shadow:0 6px 40px rgba(82,0,255,0.17);
+      position:relative;
+      display:flex;
+      gap:2.0rem;
+      flex-direction:row;
+    }
+    .help-left{ width:44%; min-width:200px; max-height:60vh; overflow-y:auto; }
+    .help-right{ width:52%; min-width:170px; max-height:60vh; overflow-y:auto; }
+
+    .help-content h2{
+      color:var(--brand-purple);
+      font-weight:900;
+      margin-top:0;
+    }
+    .help-content ul{
+      padding-left:1.3em;
+      font-size:1.05em;
+      line-height:1.5;
+    }
+    .help-content code{
+      background:#f2f0fd;
+      padding:2px 6px;
+      border-radius:5px;
+      font-size:1em;
+    }
+    .close-help{
+      position:absolute;
+      top:1rem;
+      right:1rem;
+      background:none;
+      border:none;
+      font-size:1.1em;
+      cursor:pointer;
+      color:var(--ink);
+      font-weight:700;
+    }
+
+    /* Swatches */
+    .color-swatches{
+      display:flex;
+      flex-wrap:wrap;
+      gap:18px 14px;
+      min-width:320px;
+      max-width:98vw;
+      justify-content:flex-start;
+    }
+    .swatch-container{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      width:130px;
+      margin-bottom:10px;
+    }
+    .swatch{
+      width:110px;
+      height:40px;
+      border-radius:8px;
+      border:1.2px solid #eee;
+      margin-bottom:6px;
+    }
+    .label{
+      color:var(--ink);
+      font-size:1em;
+      font-weight:500;
+      line-height:1.23;
+      text-align:center;
+      word-break:break-all;
+      max-width:130px;
+      overflow-wrap:break-word;
+    }
+
+    /* Menu */
+    .course-menu{
+      position:fixed;
+      top:0;
+      right:-340px;
+      width:320px;
+      height:100vh;
+      background:var(--brand-purple);
+      color:#fff;
+      z-index:3000;
+      box-shadow:-3px 0 24px rgba(0,0,0,0.10);
+      border-radius:16px 0 0 16px;
+      display:flex;
+      flex-direction:column;
+      transition:right 0.33s cubic-bezier(.4,.2,.2,1);
+      max-width:95vw;
+    }
+    .course-menu.open{ right:0; }
+
+    .menu-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:1.4em 1.1em 1em 1.3em;
+      border-bottom:1.5px solid #fff3;
+    }
+    .menu-title{
+      font-size:1.32em;
+      font-weight:900;
+      letter-spacing:1px;
+    }
+    .close-menu{
+      background:none;
+      border:none;
+      color:#fff;
+      font-size:2em;
+      font-weight:700;
+      cursor:pointer;
+      padding:0 0.1em;
+      margin-left:8px;
+      border-radius:50%;
+      line-height:1;
+    }
+    .close-menu:hover{ background:#fff2; }
+
+    .menu-content{
+      flex:1 1 auto;
+      overflow-y:auto;
+      padding:1.3em 1.3em 1em 1.3em;
+      font-size:1.07em;
+    }
+    .menu-content h3{
+      margin-top:0.3em;
+      margin-bottom:1em;
+      font-size:1.09em;
+      font-weight:bold;
+      letter-spacing:1px;
+      color:#fff;
+    }
+    .chapter-list{
+      padding-left:0.5em;
+      margin-bottom:1.9em;
+    }
+    .chapter-list li{
+      margin:0.65em 0;
+      list-style:none;
+      font-size:1em;
+      cursor:pointer;
+      padding:0.45em 0.5em;
+      border-radius:8px;
+    }
+    .menu-chapter-item.active{
+      background:#fff2;
+      color:var(--brand-aqua);
+      font-weight:bold;
+    }
+    .menu-footer{
+      border-top:1.3px solid #fff2;
+      margin-top:2em;
+      padding-top:1.2em;
+      text-align:left;
+    }
+
+    .menu-tab{
+      position:fixed;
+      top:46%;
+      right:0;
+      background:var(--brand-purple);
+      color:#fff;
+      font-size:1.13em;
+      font-weight:900;
+      border:none;
+      border-radius:14px 0 0 14px;
+      box-shadow:-1px 2px 10px rgba(0,0,0,0.07);
+      padding:1.06em 1.35em 1.06em 1.15em;
+      cursor:pointer;
+      z-index:3010;
+      letter-spacing:1px;
+      writing-mode:vertical-lr;
+    }
+    .menu-tab:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+    }
+
+    /* Modals */
+    .modal, #ask-modal, #confirm-modal, #pdf-modal{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.3);
+      z-index:10000;
+      justify-content:center;
+      align-items:center;
+    }
+    .modal[style*="flex"], #ask-modal[style*="flex"], #confirm-modal[style*="flex"], #pdf-modal[style*="flex"]{
+      display:flex !important;
+    }
+
+    .modal-content, .modal-box{
+      background:var(--brand-white);
+      color:var(--ink);
+      border-radius:14px;
+      padding:2em 2em 1.5em 2em;
+      min-width:320px;
+      max-width:94vw;
+      box-shadow:0 8px 32px rgba(0,0,0,0.16);
+      position:relative;
+      font-size:1.09em;
+      border:none;
+    }
+
+    .modal-close{
+      position:absolute;
+      top:16px;
+      right:18px;
+      font-size:2rem;
+      font-weight:bold;
+      color:#222;
+      cursor:pointer;
+      z-index:11;
+    }
+
+    .modal-actions{
+      display:flex;
+      justify-content:center;
+      gap:1rem;
+      margin-top:2em;
+    }
+
+    .modal-extra{
+      margin-top:0.8em;
+      font-size:0.95em;
+      line-height:1.4;
+    }
+    .modal-extra ul{
+      padding-left:1.2em;
+      margin:0.4em 0 0;
+    }
+    .modal-extra p{
+      margin:0.3em 0;
+    }
+    .modal-extra .verify-detail{
+      margin-top:0.4em;
+      font-style:italic;
+      opacity:0.9;
+    }
+
+    .modal-btn, #modal-ok, #confirm-modal-ok, #confirm-modal-cancel, #ask-modal-ok{
+      background:var(--brand-purple);
+      color:var(--brand-white);
+      border:none;
+      border-radius:8px;
+      padding:0.7em 1.5em;
+      font-size:1.07em;
+      cursor:pointer;
+      font-weight:bold;
+    }
+    .modal-btn:hover, #modal-ok:hover, #confirm-modal-ok:hover, #confirm-modal-cancel:hover, #ask-modal-ok:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+    }
+
+    .modal-btn-secondary{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    .modal-btn-secondary:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-aqua);
+    }
+
+    /* Toast */
+    #eval-toast{
+      position:fixed;
+      bottom:42px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:1em 2em;
+      font-size:1.1em;
+      font-weight:bold;
+      border-radius:12px;
+      z-index:9999;
+      box-shadow:0 4px 16px rgba(0,0,0,0.16);
+      max-width:85vw;
+      display:none;
+      white-space:pre-line;
+    }
+
+    /* Dark theme */
+    body.dark{
+      background:#161820;
+      color:#fff;
+    }
+    body.dark .main-layout{ background:#23272e; }
+    body.dark .topbar{ background:#23272e !important; border-bottom:1.5px solid #333; }
+    body.dark .editor-pane, body.dark .canvas-pane{ background:#23272e; color:#fff; }
+    body.dark .editor-label, body.dark .console-label, body.dark .canvas-label{ color:#fff !important; }
+    body.dark #console-output{ background:#fff !important; color:#23272e !important; border-color:var(--brand-aqua) !important; }
+    body.dark #coords, body.dark #metrics{ color:#fff !important; }
+
+    body.dark .brand-btn, body.dark .zoom-btn, body.dark .help-btn{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    body.dark .brand-btn:hover, body.dark .zoom-btn:hover, body.dark .help-btn:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border-color:var(--brand-aqua);
+    }
+
+    body.dark .help-content{ background:#23272e; color:#fff; }
+    body.dark .help-content h2{ color:#fff; }
+    body.dark .help-content code{ background:#363c4a; color:#fff; border:1px solid #444; }
+
+    body.dark .modal-content, body.dark .modal-box{
+      background:var(--brand-purple) !important;
+      color:var(--brand-white) !important;
+    }
+    body.dark .modal-close{ color:var(--brand-aqua); }
+    body.dark .modal-btn, body.dark #modal-ok, body.dark #confirm-modal-ok, body.dark #ask-modal-ok{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+    body.dark .modal-btn:hover, body.dark #modal-ok:hover, body.dark #confirm-modal-ok:hover, body.dark #ask-modal-ok:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border-color:var(--brand-aqua);
+    }
+    body.dark .modal-btn-secondary, body.dark #confirm-modal-cancel{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1.5px solid var(--brand-purple);
+    }
+
+    @media (max-width:980px){
+      .main-layout{ flex-direction:column; gap:2.2rem; }
+      .editor-pane, .canvas-pane{
+        width:98vw !important;
+        min-width:0 !important;
+        padding:1rem 0.6rem !important;
+        border-radius:18px !important;
+      }
+      .splitter{ display:none !important; }
+      #turtlecanvas{
+  width:100%;
+  max-width:500px;
+  height:auto;
+  aspect-ratio:1/1;
+}
+      .help-content{ flex-direction:column; width:99vw; }
+    }
+
+    @media (max-width:640px){
+      .topbar{ flex-direction:column; align-items:stretch; }
+      .toolbar{ justify-content:flex-start; }
+      .help-content{ width:99vw; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Topbar: voortgang, opdracht, knoppen -->
+  <header class="topbar">
+    <div class="exercise-progress" id="exercise-progress"></div>
+
+    <div class="opdracht" id="opdracht">
+  <strong id="opdracht-titel">—</strong>
+  <span id="opdracht-tekst">—</span>
+</div>
+
+    <div class="toolbar">
+      <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">🌙 / ☀️</button>
+      <button class="brand-btn" id="export-pdf">Reeks exporteren naar PDF</button>
+      <button class="brand-btn" id="reset-progress">Vooruitgang wissen</button>
+    </div>
+  </header>
+
+  <!-- Slide-in Course Menu -->
+  <div id="course-menu" class="course-menu" tabindex="-1" aria-label="Hoofdmenu">
+    <div class="menu-header">
+      <span class="menu-title">Menu</span>
+      <button id="close-menu" class="close-menu" title="Sluit menu">×</button>
+    </div>
+    <nav class="menu-content">
+      <h3>Inhoud</h3>
+      <ul id="menu-chapters" class="chapter-list"></ul>
+      <div class="menu-footer">
+        <b>Bug gevonden? Contact: robbewulgaert.be/contact</b>
+      </div>
+    </nav>
+  </div>
+
+  <button id="menu-tab" class="menu-tab" title="Toon menu">Menu</button>
+
+  <main class="main-layout" id="main-layout">
+    <!-- Editor -->
+    <section class="editor-pane" id="editor-pane">
+      <div class="editor-label">Code-editor</div>
+      <div id="code-editor"></div>
+      <br><br>
+      <button id="run-code" class="brand-btn run-btn">▶️ Uitvoeren</button>
+      <br><br>
+      <div class="console-label">Console-uitvoer</div>
+      <br>
+      <div id="console-output" class="console-output"></div>
+    </section>
+
+    <div class="splitter" id="splitter"></div>
+
+    <!-- Canvas -->
+    <section class="canvas-pane" id="canvas-pane">
+      <div class="canvas-header">
+        <span class="canvas-label">Canvas</span>
+        <span id="coords" class="coords"></span>
+        <span id="metrics"></span>
+      </div>
+      <canvas id="turtlecanvas" width="500" height="500"></canvas>
+      <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
+
+      <div class="zoom-controls">
+        <button class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
+        <button class="zoom-btn" id="zoom-out" aria-label="Zoom out">–</button>
+      </div>
+    </section>
+
+    <button id="help-btn" class="help-btn" title="Toon commando's en uitleg">?</button>
+  </main>
+
+  <!-- Help modal -->
+  <div id="help-modal" class="help-modal">
+    <div class="help-content">
+      <button id="close-help" class="close-help">Sluiten ✕</button>
+      <div class="help-left">
+        <h2>Formularium</h2>
+        <ul>
+          <li><code>console.log("tekst")</code> - print tekst naar de console</li>
+          <li><code>if (voorwaarde) { ... }</code> - ALS-statement</li>
+          <li><code>else if (voorwaarde) { ... }</code> - ANDERS ALS-statement</li>
+          <li><code>else { ... }</code> - ANDERS-statement</li>
+          <li><code>for (...) { ... }</code> - begrensde herhaling</li>
+          <li><code>while (voorwaarde) { ... }</code> - voorwaardelijke herhaling</li>
+          <li><code>ask("vraag")</code> - vraag stellen aan user (SEB-proof)</li>
+          <li><code>moveForward(afstand)</code> – vooruit bewegen</li>
+          <li><code>moveBackward(afstand)</code> – achteruit bewegen</li>
+          <li><code>turnRight(hoek)</code> – draai naar rechts</li>
+          <li><code>turnLeft(hoek)</code> – draai naar links</li>
+          <li><code>penUp()</code> – pen omhoog</li>
+          <li><code>penDown()</code> – pen omlaag</li>
+          <li><code>setPenColour(r,g,b)</code> – verander kleur</li>
+          <li><code>setPenColour("naam")</code> – kleur op naam</li>
+          <li><code>randomColour()</code> – willekeurige kleur (string)</li>
+          <li><code>goTo(x,y)</code> – ga naar positie</li>
+          <li><code>showGrid(stap)</code> – raster tonen</li>
+          <li><code>setLineWidth(b)</code> – lijndikte</li>
+          <li><code>resetTurtle()</code> – reset alles</li>
+          <li><code>clearCanvas()</code> – wis canvas</li>
+          <li><code>writeText("tekst")</code> – tekst schrijven</li>
+          <li><code>round(getal, dec)</code> – afronden (indien voorzien in jouw library)</li>
+        </ul>
+      </div>
+      <div class="help-right">
+        <h2>Kleuren (naam &amp; RGB)</h2>
+        <div id="dynamic-color-swatches" class="color-swatches"></div>
+        <div style="font-size:0.99em;color:#333;margin-top:1em;">
+          <b>Gebruik:</b><code>setPenColour(r,g,b)</code> of <code>setPenColour("naam")</code><br>
+          <strong>Voorbeeld:</strong> <code>setPenColour("crimson");</code> of <code>setPenColour(220,20,60);</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF modal -->
+  <div id="pdf-modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" id="close-pdf-modal">&times;</span>
+      <h3>PDF exporteren</h3>
+      <label for="modal-naam">Naam:</label>
+      <input id="modal-naam" type="text" required autocomplete="off">
+      <label for="modal-klas">Klas:</label>
+      <input id="modal-klas" type="text" required autocomplete="off">
+      <label for="modal-oefening">Oefeningstitel:</label>
+      <input id="modal-oefening" type="text" placeholder="(Laat leeg voor automatische titel)" autocomplete="off">
+      <button id="modal-ok">Exporteren</button>
+    </div>
+  </div>
+
+  <!-- Ask modal -->
+  <div id="ask-modal" class="modal">
+    <div class="modal-box">
+      <div id="ask-modal-msg" class="modal-message"></div>
+      <input id="ask-modal-input" type="text" class="modal-input" autocomplete="off"/>
+      <div class="modal-actions">
+        <button id="ask-modal-ok" class="modal-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm modal-->
+  <div id="confirm-modal" class="modal">
+    <div class="modal-box">
+      <div id="confirm-modal-msg" class="modal-message"></div>
+      <div id="confirm-modal-extra" class="modal-extra"></div>
+      <div class="modal-actions">
+        <button id="confirm-modal-ok" class="modal-btn">OK</button>
+        <button id="confirm-modal-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
+      </div>
+    </div>
+  </div>
+  
+    <!-- Reset modal -->
+  <div id="reset-modal" class="modal">
+    <div class="modal-box">
+      <div class="modal-message" style="font-weight:900;margin-bottom:0.6em;">Vooruitgang wissen</div>
+      <div class="modal-extra" style="display:block;">
+        Kies wat je wil wissen.
+      </div>
+      <div class="modal-actions">
+        <button id="reset-current" class="modal-btn">Alleen huidige oefening</button>
+        <button id="reset-all" class="modal-btn modal-btn-secondary">Volledige cursus</button>
+        <button id="reset-cancel" class="modal-btn modal-btn-secondary">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="eval-toast"></div>
+
+  <!-- JS libs -->
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/mode/javascript/javascript.min.js"></script>
+  <script src="rgbcolor.js"></script>
+  <script src="library.js"></script>
+
+  <script>
+  // ---- EXERCISES DATA ----
+  const chapters = [
+    {
+      title: "Hoofdstuk 1: Hello, World!",
+      exercises: [
+        {
+          title: "1. Hello, World!",
+          starterCode: [
+            "// De eerste geschreven voorbeelden dateren uit 1978, uit het boek The C Programming Language.",
+            "// Het eerste stuk code dat de lezer leerde, was om ‘hello world’ op het scherm te laten verschijnen.",
+            "// En zo geschiedde! In vele andere handboeken, cursussen, programmeertalen zou deze regel code,",
+            "// de ‘hello world’-opdracht, de allereerste oefening zijn. Een traditie!",
+            "// ",
+            "// Opgave: ",
+            "// Noteer de Javascript-code om Hello, World! op het scherm te laten verschijnen.",
+            "// Gebruik hiervoor de console.log()-functie.",
+          ].join('\n'),
+          evalOutput: "Hello, World!"
+        },
+        {
+          title: "2. Voornaam + Achternaam",
+          starterCode: [
+            "// Schrijf een coderegel die jouw voornaam op het scherm laat verschijnen;",
+            "// Schrijf een coderegel die jouw familienaam op het scherm laat verschijnen;",
+          ].join('\n')
+        },
+        {
+          title: "3. Datatype String",
+          starterCode: [
+            "// Gebruik de correcte aanhalingstekens",
+            "// om volgende zinnen op het scherm te schrijven:",
+            "// De kat krabt de krollen van de trap.",
+            '// Robbe zei tegen vader "Zou je dat nou wel doen?"',
+            "// Isaura's nieuwe auto.",
+          ].join('\n'),
+          evalOutput: "De kat krabt de krollen van de trap.\n" +
+                      'Robbe zei tegen vader "Zou je dat nou wel doen?"\n' +
+                      "Isaura's nieuwe auto."
+        },
+        {
+          title: "4. Concateneren Met Strings",
+          starterCode: [
+            "// Gebruik vier variabelen en het datatype string.",
+            "// Gebruik de console.log-functie en concateneren om",
+            "// volgende zin naar het scherm te printen:",
+            "// Helmut Lotti, geboren in Gent, woont in de Dorpstraat 13, Sint-Amandsberg.",
+            "// Let op voor het leesteken!",
+            "var voornaam = ...;",
+            "var familienaam = ...;",
+            "var geboorteplaats = ...;",
+            "var adres = ...;",
+            "console.log(...);",
+          ].join('\n'),
+          evalOutput: "Helmut Lotti, geboren in Gent, woont in de Dorpstraat 13, Sint-Amandsberg."
+        },
+        {
+          title: "5. Goedemorgen, Robot!",
+          starterCode: [
+            "// Bedenk zelf leesbare variabelen om volgende zin",
+            "// op het scherm te laten verschijnen:",
+            "// Goedemorgen mevr. Deleye, vandaag heeft u op de planning: vergadering met regionaal manager Sufyan Y.",
+            "// var ...",
+            "// var ...",
+            "// ...",
+            "// console.log(...);",
+          ].join('\n'),
+          evalOutput: "Goedemorgen mevr. Deleye, vandaag heeft u op de planning: vergadering met regionaal manager Sufyan Y."
+        },
+        {
+          title: "6. Sportresultaten",
+          starterCode: [
+            "// Het VRT Nieuws wil een databank aanmaken met alle sportmatchen die gespeeld zijn en hun scores.",
+            "// We gebruiken hierbij volgende informatie, opgeslagen in variabelen:",
+            "// thuisteam, uitteam, sport, datum, score",
+            "// Gebruik variabelen, console.log, strings en concatenatie om volgende zin op het scherm te zetten:",
+            "// Op 23/01/2009 speelde KAA Gent een voetbal-match tegen Club Brugge die eindigde op 3-1.",
+          ].join('\n'),
+          evalOutput: "Op 23/01/2009 speelde KAA Gent een voetbal-match tegen Club Brugge die eindigde op 3-1."
+        },
+        {
+          title: "7. Naam Plotten",
+          starterCode: [
+            "// Naast de console kan je ook strings schrijven op het canvas.",
+            "// Hiervoor tekenen we eerst het assenstelsel op het scherm:",
+            " ",
+            "showGrid();",
+            " ",
+            "// Met het commando writeText() kan je een string of variabele met datatype string schrijven.",
+            "// Opgave: schrijf jouw volledige naam in de console én op het canvas.",
+            "// Gebruik een gepaste variabele.",
+            " ",
+            "writeText('Lees de opgave');",
+          ].join('\n')
+        },
+        {
+          title: "8. Namen Plotten",
+          starterCode: [
+            "// Maak vier variabelen aan.",
+            "// Bewaar de namen van jezelf en drie vrienden in die variabelen.",
+            "// Plot die vier namen in het canvas.",
+            "// Zorg ervoor dat er slechts 1 naam per kwadrant genoteerd wordt.",
+            "// Je kan jouw coördinaten aanpassen met onderstaand commando:",
+            "// goTo(X, Y);",
+            " ",
+            "showGrid();",
+            "penUp();",
+          ].join('\n')
+        },
+        {
+          title: "9. Scorebord",
+          starterCode: [
+            "// We ontwerpen een scorebord met daarop volgende informatie:",
+            "// Vier uitslagen van recente sportwedstrijden.",
+            "// Elke uitslag kent: datum, thuisploeg - uitploeg, eindscore.",
+            "// Die informatie moet netjes onder elkaar geordend worden.",
+            "// Er mag slechts 1 uitslag per kwadrant weergegeven worden.",
+            " ",
+            "showGrid();",
+            "penUp();",
+          ].join('\n')
+        },
+      ]
+    },
+    {
+      title: "Hoofdstuk 2: Datatypes en de Sequentie",
+      exercises: [
+        {
+          title: "1. Defect Geldautomaat",
+          starterCode: [
+            "// Fred heeft voor zijn rondreis wat geld opzij gezet op een zichtrekening. Daar staat momenteel 500 euro op.",
+            "// Omdat er deze reis nog enkele grote kosten zitten aan te komen, besluit Fred hier 275 euro bij te storten.",
+            "// Hij gaat naar een bank in de buurt van een camping waar hij verblijft. Eenmaal bij de bank stelt hij vast dat er iets fout loopt met de terminal.",
+            "// Er werd gemorreld met de code van de automaat!",
+            "// Bekijk de code hieronder en pas de fout aan.",
+            " ",
+            "var rekening = '500';",
+            "var storting = '275';",
+            "var rekening = rekening + storting",
+            "console.log('Uw nieuw saldo bedraagt ' + rekening + ' euro.');",
+          ].join('\n'),
+          evalOutput: "Uw nieuw saldo bedraagt 775 euro."
+        },
+        {
+          title: "2. Statiegeld",
+          starterCode: [
+            "// Het kassasysteem aan een tankstation lijkt een eigenaardige berekening te maken.",
+            "// Fred koopt er vier flesjes cola aan 3.50 euro per stuk.",
+            "// Daarboven hoort Fred ook 10% taks te betalen in de vorm van statiegeld.",
+            "// De kassa levert volgend resultaat:",
+            "// 1 x Cola 0.5l = 3.5",
+            "// 10% van 3.5 = 0.35",
+            "// 4 x 3.5 ",
+            "// + 0.35",
+            "// Fred moet 14.35 euro betalen.",
+            "",
+            "// Corrigeer bovenstaand algoritme.",
+            "// Hanteer leesbare variabelen in jouw algoritme.",
+          ].join('\n'),
+          evalOutput: "Fred moet 15.4 euro betalen."
+        },
+        {
+          title: "3. Operatoren in JavaScript",
+          starterCode: [
+            "// JavaScript kan overweg met verschillende operatoren.",
+            "// Voer onderstaande code uit.",
+            "// Noteer vervolgens naast de commenttekens hoe die bewerking heet.",
+            "// Volg het voorbeeld!",
+            " ",
+            "var x = 10;",
+            "var y = 5;",
+            "var z = 4;",
+            "console.log(x + y); // som maken",
+            "console.log(x - z); // verschil maken",
+            "console.log(x * y); // ... ",
+            "console.log(x / z); // ... ",
+            "console.log(x ** y); // ... ",
+            "console.log(x % z); // ... ",
+          ].join('\n'),
+          evalOutput: "15\n6\n50\n2.5\n100000\n2"
+        },
+        {
+          title: "4. Voetbalveld",
+          starterCode: [
+            "// Fred wil berekenen hoeveel vierkante meter grasmatten men heeft moeten bestellen voor die heraanleg.",
+            "// Hij weet, uit zijn ervaring als amateurvoetballer, dat een standaard voetbalveld 105 meter bij 68 meter meet.",
+            "// Hij wil dus de oppervlakte van het veld berekenen.",
+            "// Maak dit algoritme. Maak gebruik van leesbare variabelen.",
+            "// Print het antwoord in een volzin: De oppervlakte van het voetbalveld is ... vierkante meter.",
+          ].join('\n'),
+          evalOutput: "De oppervlakte van het voetbalveld is 7140 vierkante meter."
+        },
+        {
+          title: "5. Zwembad",
+          starterCode: [
+            "// Op de camping waar Fred verblijft is er ook een zwembad.",
+            "// Fred vraagt zich af of hij het volume van het zwembad kan berekenen.",
+            "// Het zwembad bestaat uit twee delen die aan elkaar grenzen.",
+            "// 1 - een rechthoekig gedeelte met 1.5 meter diepte, 11 meter breedte en 20 meter lengte (=balkvorm);",
+            "// 2 - een cirkelvorming gedeelte voor kinderen van 0.60 meter diep en 10 meter diameter (=cilindervorm).",
+            " ",
+            "// Bereken het volume van het volledige zwembad met leesbare variabelen.",
+            "// Print het antwoord in een volzin naar het scherm.",
+            "// De volzin bevat een onderwerp, werkwoordsvorm en eenheid (=kubieke meter);",
+          ].join('\n'),
+          evalOutput: "Het totale volume van het zwembad is 377.1 kubieke meter."
+        },
+        {
+          title: "6.  Omtrek en oppervlakte rechthoek",
+          starterCode: [
+            "// Een rechthoek is een figuur met twee paar ",
+            "// evenwijdige en even lange zijden.",
+            "// Wij willen hiervan de oppervlakte en",
+            "// de omtrek berekenen en tonen op het scherm.",
+            "// ",
+            "// Maak een variabele genaamd zijde_1 en voer daar in: 9.75.",
+            "// Maak een variabele genaamd zijde_2 en voer daar in: 8.60.",
+            "// Bereken oppervlakte en omtrek.",
+            "// Print jouw resultaat naar het scherm in volgend formaat:",
+            "// De omtrek van de rechthoek is 36.7 cm en de oppervlakte is 83.85 cm².",
+          ].join('\n'),
+          evalOutput: "De omtrek van de rechthoek is 36.7 cm en de oppervlakte is 83.85 cm²."
+        },
+        {
+          title: "7. Omtrek en oppervlakte vierkant",
+          starterCode: [
+            "// Maak een variabele genaamd zijde en ken 16.5 toe.",
+            "// Bereken daarna de omtrek van het vierkant.",
+            "// Bereken vervolgens de oppervlakte van het vierkant.",
+            "// Print jouw resultaat naar het scherm in volgend formaat:",
+            "// De omtrek van het vierkant is 66 cm en de oppervlakte is 272.25 cm².",
+          ].join('\n'),
+          evalOutput: "De omtrek van het vierkant is 66 cm en de oppervlakte is 272.25 cm²."
+        },
+        {
+          title: "8. Stappenteller",
+          starterCode: [
+            "// Het Vlaams Instituut Gezond Leven lanceerde in",
+            "// 2022 de campagne “10 000 stappen: elke stap telt!”",
+            "// Schrijf een algoritme waarin je",
+            "// opgeeft hoeveel stappen je vandaag reeds gezet hebt.",
+            "// Bereken vervolgens hoeveel stappen je nog moet zetten.",
+            "// Maak een variabele genaamd aantal_stappen en voer daar in: 5342.",
+            "// Bereken daarna de rest_stappen.",
+            "// Print jouw resultaat naar het scherm in volgend formaat:",
+            "// Je dient nog ... stappen te zetten.",
+          ].join('\n'),
+          evalOutput: "Je dient nog 4658 stappen te zetten."
+        },
+        {
+          title: "9. Korting In De Supermarkt",
+          starterCode: [
+            "// In de supermarkt nabij de camping",
+            "// houden ze momenteel stapelkorting.",
+            "// 10% korting op aangekochte frisdranken.",
+            "// 20% korting op broodartikelen.",
+            "// 33% korting op groenten en fruit.",
+            " ",
+            "// Fred koopt volgende items aan in de winkel: ",
+            "// 6 blikjes frisdrank aan 0.89 euro per stuk.",
+            "// 10 croissants aan 0.35 euro per stuk.",
+            "// 0.7kg bananen aan 2.99 euro per kilo.",
+            " ",
+            "// Print jouw resultaat naar het scherm in volgend formaat:",
+            "// Fred moet in totaal ... euro betalen aan de kassa.",
+          ].join('\n'),
+          evalOutput: "Fred moet in totaal 9.01 euro betalen aan de kassa."
+        },
+        {
+          title: "10. Huurwaarborg",
+          starterCode: [
+            "// Fred verhuist naar een huisje aan de Vrijdagsmarkt in Gent.",
+            "// Hij moet een huurwaarborg betalen van drie maal de maandhuur.",
+            "// De maandhuur bedraagt 799 euro.",
+            "// Maar na vijf jaar belooft de bank Fred wel een mooie interest van 19.87% op de waarborg.",
+            " ",
+            "// Bereken het totaalbedrag dat Fred zal krijgen, na 5 jaar, wanneer hij het geld van de waarborgrekening terug krijgt. ",
+            "// Print jouw resultaat naar het scherm in volgend formaat:",
+            "// Na vijf jaar krijgt Fred ... euro terug van zijn waarborg.",
+          ].join('\n'),
+          evalOutput: "Na vijf jaar krijgt Fred 2873.28 euro terug van zijn waarborg."
+        },
+        {
+          title: "11. Energiefactuur",
+          starterCode: [
+            "// Naast een maandelijkse huur, moet Fred natuurlijk ook de energiefactuur in het oog houden. ",
+            "// Zo betaalde Fred vorig jaar nog 44.54 euro per maand aan elektriciteit.",
+            "// Tegenwoordig is dat bedrag gestegen naar 68.9 euro per maand.",
+            " ",
+            "// Bereken volgende gegevens:",
+            "// Het totaalbedrag dat Fred dit jaar (=12 maanden) zal moeten betalen.",
+            "// Hoeveel hij meer moet betalen dan het jaar ervoor, uitgedrukt in euro.",
+            "// Hoeveel hij meer moet betalen dan het jaar ervoor, uitgedrukt in procent.",
+            "// Print het antwoord naar het scherm in een volzin met volgend formaat:",
+            "// Fred moet dit jaar ... euro betalen voor de elektriciteit.",
+            "// Dit is ... euro meer dan vorig jaar.",
+            "// In procenten uitgedrukt, is dit een stijging van ... % ten opzichte van vorig jaar.",
+          ].join('\n'),
+          evalOutput:
+            "Fred moet dit jaar 826.8 euro betalen voor de elektriciteit.\n" +
+            "Dit is 292.32 euro meer dan vorig jaar.\n" +
+            "In procenten uitgedrukt, is dit een stijging van 54.69 % ten opzichte van vorig jaar."
+        },
+        {
+          title: "12. Raakt Fred Op De Bestemming?",
+          starterCode: [
+            "// Fred maakt een reis met de e-car in Frankrijk.",
+            "// Zijn auto heeft een autonomie van 350 mijl.",
+            "// Fred weet: 1 mijl = 1.6 kilometer.",
+            "// Fred besluit komende dagen vier etappes te rijden van elk 112.34km. ",
+            "// Hoeveel blijft er nadien nog over in de batterij van zijn wagen?",
+            "// Gebruik volgend formaat om jouw antwoord op het scherm te zetten: ",
+            "// Na de vier etappes van elk ... km, blijft er nog ... kilometer over in de batterij van Freds wagen.",
+            "// Dit komt overeen met ...% van de totale batterijcapaciteit.",
+          ].join('\n'),
+          evalOutput:
+            "Na de vier etappes van elk 112.34 km, blijft er nog 110.64 kilometer over in de batterij van Freds wagen.\n" +
+            "Dit komt overeen met 19.76% van de totale batterijcapaciteit."
+        },
+        {
+          title: "13. Sandbox",
+          starterCode: [
+            "// Hier kan je jouw eigen algoritmes testen en debuggen.",
+            "// Daag jezelf uit door zelf een vraagstuk te ontwerpen!",
+          ].join('\n')
+        },
+      ]
+    },
+  {
+    title: "Hoofdstuk 3: De Selectie",
+    exercises: [
+      {
+        title: "1. Kookt het water?",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur van het water is 105°C.",
+          "",
+          "// Gevraagd:",
+          "// ALS de temperatuur 100°C of hoger is, print je exact:",
+          "// Het water kookt.",
+          "// Anders print je niets.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het water kookt."
+      },
+      {
+        title: "2. Vriest het water of niet?",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur van het water is -3°C.",
+          "var temp = -3;",
+          "",
+          "// Gevraagd:",
+          "// ALS de temperatuur 0°C of lager is, print je exact:",
+          "// Het water vriest.",
+          "// ANDERS print je exact:",
+          "// Het water vriest niet.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het water vriest."
+      },
+      {
+        title: "3. Waterstatus (bevroren / vloeibaar / kookt)",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur van het water is 20°C.",
+          "var temp = 20;",
+          "",
+          "// Gevraagd:",
+          "// Maak een selectie met if / else if / else.",
+          "// - temp <= 0  : Het water is bevroren.",
+          "// - temp >= 100: Het water kookt.",
+          "// - anders     : Het water is vloeibaar.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Het water is vloeibaar."
+      },
+      {
+        title: "4. Exact 100°C (strikte gelijkheid)",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is exact 100°C.",
+          "var temp = 100;",
+          "",
+          "// Gevraagd:",
+          "// Controleer of temp exact 100 is met ===",
+          "// Print exact:",
+          "// Exact 100°C.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Exact 100°C."
+      },
+      {
+        title: "5. Subtropisch zwembad",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is 38°C.",
+          "var temp = 38;",
+          "",
+          "// Gevraagd:",
+          "// Gebruik if / else if / else om exact één zin te printen:",
+          "// - temp < 35         : Te koud.",
+          "// - temp < 41         : OK.",
+          "// - anders            : Te heet.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "OK."
+      },
+      {
+        title: "6. Stemrecht (>= en <)",
+        starterCode: [
+          "// Gegeven:",
+          "// De leeftijd is 17 jaar.",
+          "var leeftijd = 17;",
+          "",
+          "// Gevraagd:",
+          "// ALS leeftijd 18 of ouder is, print je exact:",
+          "// Je mag stemmen.",
+          "// ANDERS print je exact:",
+          "// Je mag nog niet stemmen.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Je mag nog niet stemmen."
+      },
+      {
+        title: "7. Scorecheck (if / else if / else)",
+        starterCode: [
+          "// Gegeven:",
+          "// Een leerling scoort 14 op 20.",
+          "var score = 14;",
+          "",
+          "// Gevraagd:",
+          "// Print exact één van deze zinnen:",
+          "// - score >= 16: Uitstekend.",
+          "// - score >= 10: Voldoende.",
+          "// - anders    : Onvoldoende.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Voldoende."
+      },
+      {
+        title: "8. Vergelijk twee getallen (>, <, ===)",
+        starterCode: [
+          "// Gegeven:",
+          "var a = 7;",
+          "var b = 7;",
+          "",
+          "// Gevraagd:",
+          "// Vergelijk a en b met if / else if / else.",
+          "// Print exact één zin:",
+          "// - a > b  : Het eerste getal is groter.",
+          "// - a < b  : Het tweede getal is groter.",
+          "// - anders : De twee getallen zijn gelijk.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "De twee getallen zijn gelijk."
+      },
+      {
+        title: "9. Canvas: kleur kiezen op basis van temperatuur",
+        starterCode: [
+          "// Gegeven:",
+          "// Je gebruikt het canvas (turtle).",
+          "// De temperatuur is 105°C.",
+          "var temp = 105;",
+          "",
+          "// Gevraagd:",
+          "// 1) Kies een penkleur met selectie:",
+          "//    - temp <= 0   : blue",
+          "//    - temp >= 100 : red",
+          "//    - anders      : green",
+          "// 2) Print exact:",
+          "// Kleur ingesteld: red.",
+          "// 3) Teken een lijn van 200 pixels vooruit.",
+          "",
+          "// Tip: setPenColour(\"red\"); moveForward(200);",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Kleur ingesteld: red."
+      },
+      {
+        title: "10. Canvas: stoplicht",
+        starterCode: [
+          "// Gegeven:",
+          "// code betekent:",
+          "// 1 = red, 2 = orange, 3 = green",
+          "var code = 2;",
+          "",
+          "// Gevraagd:",
+          "// 1) Gebruik if / else if / else.",
+          "// 2) Zet de penkleur correct:",
+          "//    red/orange/green",
+          "// 3) Print exact:",
+          "// Stoplicht: orange.",
+          "// 4) Teken een vierkant van 80 pixels (4 keer forward + 90° draaien).",
+          "",
+          "// Tip: setPenColour(\"orange\"); turnRight(90);",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Stoplicht: orange."
+      },
+      {
+        title: "11. Canvas: bevroren of niet",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is -2°C.",
+          "var temp = -2;",
+          "",
+          "// Gevraagd:",
+          "// ALS temp <= 0:",
+          "//   - print exact: Status: bevroren.",
+          "//   - schrijf op het canvas: BEVROREN",
+          "// ANDERS:",
+          "//   - print exact: Status: niet bevroren.",
+          "//   - schrijf op het canvas: NIET BEVROREN",
+          "",
+          "// Tip: writeText(\"BEVROREN\");",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Status: bevroren."
+      },
+      {
+        title: "12. Canvas: route kiezen",
+        starterCode: [
+          "// Gegeven:",
+          "// Een robot kiest een route op basis van batterij (%).",
+          "var batterij = 18;",
+          "",
+          "// Gevraagd:",
+          "// ALS batterij < 20:",
+          "//   - print exact: Route: kort.",
+          "//   - teken: 80 vooruit, 90 rechts, 80 vooruit.",
+          "// ANDERS:",
+          "//   - print exact: Route: lang.",
+          "//   - teken: 140 vooruit, 90 links, 140 vooruit.",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Route: kort."
+      },
+      {
+        title: "13. Canvas: mini-thermostaat",
+        starterCode: [
+          "// Gegeven:",
+          "// De temperatuur is 20°C.",
+          "var temp = 20;",
+          "",
+          "// Gevraagd:",
+          "// Gebruik if / else if / else.",
+          "// - temp <= 0   : print exact: Thermostaat: blue.",
+          "//                penkleur blue, teken een klein vierkant (40).",
+          "// - temp >= 100 : print exact: Thermostaat: red.",
+          "//                penkleur red, teken een groot vierkant (120).",
+          "// - anders      : print exact: Thermostaat: green.",
+          "//                penkleur green, teken een medium vierkant (80).",
+          "",
+          "// Teken een vierkant zonder lussen (4 keer forward + 90° draaien).",
+          "",
+          "// Schrijf hieronder je code."
+        ].join('\n'),
+        evalOutput: "Thermostaat: green."
+      }
+    ]
+  },
+    {
+      title: "Hoofdstuk 4: Figuren Plotten",
+      exercises: [
+        {
+          title: "1. Vierkant Tekenen",
+          starterCode: [
+            "// Teken een vierkant met zijden van 50px.",
+            "// Gebruik een variabele voor de lengte.",
+            "showGrid(50);",
+            "var zijde = 50;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "2. Rechthoek Tekenen",
+          starterCode: [
+            "// Teken een rechthoek met lengte 80px en breedte 40px.",
+            "// Gebruik twee variabelen.",
+            "showGrid(50);",
+            "var lengte = 80;",
+            "var breedte = 40;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "3. Gelijkzijdige Driehoek",
+          starterCode: [
+            "// Teken een driehoek met zijden van 60px.",
+            "// Gebruik goTo om naar het startpunt te gaan.",
+            "showGrid(50);",
+            "goTo(50, 50);",
+            "var zijde = 60;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "4. Vierkant op Coördinaten",
+          starterCode: [
+            "// Zet de turtle op (100, 50) en teken daar een vierkant met zijden van 40px.",
+            "showGrid(50);",
+            "goTo(100, 50);",
+            "penDown();",
+            "var zijde = 40;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "5. Zijden Annoteren",
+          starterCode: [
+            "// Teken een vierkant en schrijf de zijde naast het figuur.",
+            "showGrid(50);",
+            "var zijde = 60;",
+            "// Teken het vierkant",
+            "// Zet pen omhoog, verplaats en schrijf de tekst",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "6. Gekleurd Vierkant",
+          starterCode: [
+            "// Zet de penkleur op blauw en teken een vierkant van 50px.",
+            "showGrid(50);",
+            "setPenColour('blue');",
+            "var zijde = 50;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "7. Lijndikte Aanpassen",
+          starterCode: [
+            "// Zet de lijndikte op 6 en teken een vierkant met rode zijden.",
+            "showGrid(50);",
+            "setPenColour('red');",
+            "setLineWidth(6);",
+            "var zijde = 40;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "8. Twee Figuren",
+          starterCode: [
+            "// Teken een groen vierkant.",
+            "// Zet daarna de penkleur op oranje en teken een cirkel.",
+            "showGrid(50);",
+            "setPenColour('green');",
+            "var zijde = 40;",
+            "// Teken het vierkant",
+            "setPenColour('orange');",
+            "// Teken de cirkel (tip: cirkelcommando!)"
+          ].join('\n')
+        },
+        {
+          title: "9. Verschillende Vierkanten",
+          starterCode: [
+            "// Teken drie vierkanten met zijden 30px, 50px en 70px.",
+            "// Elk vierkant heeft een andere kleur.",
+            "showGrid(50);",
+            "var zijde1 = 30;",
+            "var zijde2 = 50;",
+            "var zijde3 = 70;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "10. Kleurkeuze met if",
+          starterCode: [
+            "// Gebruik een variabele kleurKeuze.",
+            "// Als kleurKeuze 'rood' is, teken een rood vierkant. Anders teken een blauw vierkant.",
+            "showGrid(50);",
+            "var kleurKeuze = 'rood'; // of 'blauw'",
+            "var zijde = 40;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "11. Kleurkeuze met if-else if-else",
+          starterCode: [
+            "// Kies een penkleur op basis van kleurKeuze: 'rood', 'groen' of 'blauw'.",
+            "showGrid(50);",
+            "var kleurKeuze = 'groen';",
+            "var zijde = 35;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "12. Kleur en Dikte op Basis van Zijde",
+          starterCode: [
+            "// Stel een variabele zijde in.",
+            "// Als zijde kleiner dan 40, teken dun en rood.",
+            "// Anders teken dik en blauw.",
+            "showGrid(50);",
+            "var zijde = 35;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "13. Zijde Opvragen",
+          starterCode: [
+            "// Vraag aan de gebruiker hoe lang de zijde moet zijn en teken een vierkant.",
+            "showGrid(50);",
+            "var zijde = parseInt(ask('Hoe lang is de zijde?'));",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "14. Berekenen met Variabelen",
+          starterCode: [
+            "// Bereken de zijde door 100 te delen door 2, teken het vierkant.",
+            "showGrid(50);",
+            "var zijde = 100 / 2;",
+            "// Vul hieronder jouw code in"
+          ].join('\n')
+        },
+        {
+          title: "15. Creatieve Opdracht: Combineren",
+          starterCode: [
+            "// Maak een ontwerp met minstens twee figuren.",
+            "// Gebruik verschillende kleuren, penbreedtes, variabelen en coördinaten.",
+            "// Experimenteer met alles wat je hebt geleerd tot nu toe!",
+            "showGrid(50);"
+          ].join('\n')
+        },
+      ]
+    },
+    {
+      title: "Hoofdstuk 5: De Begrensde Herhaling",
+      exercises: [
+        {
+          title: "1. Countdown naar Lancering",
+          starterCode: [
+            "// Print een aftelling van 10 tot 0 op het scherm.",
+            "// Toon bij 0 het woord 'LANCERING!'.",
+            "",
+            "for(var teller = 10; teller >= 0; teller--){",
+            "...",
+            "}",
+          ].join('\n'),
+          evalOutput: [
+            "10","9","8","7","6","5","4","3","2","1","0","LANCERING!"
+          ].join('\n')
+        },
+        {
+          title: "2. Verzamel dorpen van Fred",
+          starterCode: [
+            "// Vraag 5 keer een dorp aan de gebruiker en voeg toe aan een lijst.",
+            "// Toon op het einde: Dag mama, ik ben nog steeds op reis. Ik bezocht: ...",
+            "// De vijf dorpen zijn: Bomal, Durbuy, Mormont, Manhay, Spa, Stoumont",
+            "",
+            "var lijst_tussenstops = 'Bomal';",
+            "for(var teller = 0; teller < 5; teller++){",
+            "  var tussenstop = ask('Voer een tussenstop in');",
+            "  ...",
+          ].join('\n'),
+          evalOutput: "Dag mama, ik ben nog steeds op reis. Ik bezocht: Bomal, Durbuy, Mormont, Manhay, Spa, Stoumont"
+        },
+        {
+          title: "3. Totale afstand berekenen",
+          starterCode: [
+            "// Vraag 5 keer een afstand aan de gebruiker en tel alles op.",
+            "// Toon op het einde: De totale afstand die ik heb afgelegd is: ... km.",
+            "// De afstanden zijn: 245.2km, 199.2km, 312km, 231km, 119.4km.",
+            "",
+            "var totaal = 0;",
+            "for(var i = 1; i <= 5; i++){",
+            "  var afstand = parseFloat(ask('Geef de afstand van rit ' + i + ' in km:'));",
+            "...",
+            "console.log('De totale afstand die ik heb afgelegd is: ... km.');",
+          ].join('\n'),
+          evalOutput: "De totale afstand die ik heb afgelegd is: 1107.8 km."
+        },
+        {
+          title: "4. Bosbrand Per Dag",
+          starterCode: [
+            "// Bereken per dag (7 dagen) het afgebrande gebied.",
+            "// Elke dag is er dus meer bos verdwenen.",
+            "// Print per dag: Op dag ... is er ... m² bos afgebrand.",
+            "",
+            "var totaal = 0;",
+            "var lengte = 329;",
+            "var breedte = 277.32;",
+            "for(var dag = 1; dag <= 7; dag++){",
+            "  ...",
+            "}",
+          ].join('\n'),
+          evalOutput:
+            "Op dag 1 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 2 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 3 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 4 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 5 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 6 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 7 is er 91236.28 m² bos afgebrand."
+        },
+        {
+          title: "5. Waarborg met Interest",
+          starterCode: [
+            "// Bereken de waarborg voor elk jaar (5 jaar), groei 3% per jaar.",
+            "// Toon: Na jaar ... is de waarborg gegroeid tot ... euro.",
+            "",
+            "var maandhuur = 695;",
+            "var waarborg = maandhuur * 3;",
+            "for(...){",
+            "...",
+            "}"
+          ].join('\n'),
+          evalOutput:
+            "Na jaar 1 is de waarborg gegroeid tot 2147.55 euro.\n" +
+            "Na jaar 2 is de waarborg gegroeid tot 2211.98 euro.\n" +
+            "Na jaar 3 is de waarborg gegroeid tot 2278.34 euro.\n" +
+            "Na jaar 4 is de waarborg gegroeid tot 2346.69 euro.\n" +
+            "Na jaar 5 is de waarborg gegroeid tot 2417.09 euro."
+        },
+        {
+          title: "6. Bevolkingsgroei Montpellier",
+          starterCode: [
+            "// Bereken de bevolking van Montpellier voor 10 jaar met 3.1% groei.",
+            "// Toon: In het jaar ... is de bevolking ... inwoners.",
+            "// We starten in het jaar 2025.",
+            "",
+            "var bevolking = 295542;",
+            "for(...){",
+            "...",
+            "}"
+          ].join('\n'),
+          evalOutput:
+            "In het jaar 2025 is de bevolking 304722 inwoners.\n" +
+            "In het jaar 2026 is de bevolking 314178 inwoners.\n" +
+            "In het jaar 2027 is de bevolking 323921 inwoners.\n" +
+            "In het jaar 2028 is de bevolking 333959 inwoners.\n" +
+            "In het jaar 2029 is de bevolking 344303 inwoners.\n" +
+            "In het jaar 2030 is de bevolking 354964 inwoners.\n" +
+            "In het jaar 2031 is de bevolking 365954 inwoners.\n" +
+            "In het jaar 2032 is de bevolking 377282 inwoners.\n" +
+            "In het jaar 2033 is de bevolking 388962 inwoners.\n" +
+            "In het jaar 2034 is de bevolking 400999 inwoners."
+        },
+        {
+          title: "7. Hittegolfalarm",
+          starterCode: [
+            "// Vraag 5 temperaturen op, tel telkens wanneer de temp. > 25°C.",
+            "// Toon 'Alarm: hittegolf!' als alle 5 temperaturen > 25, anders 'Geen hittegolf.'",
+            "// Je zal twee IF-Statements moeten gebruiken.",
+            "",
+            "var alarmTeller = 0;",
+            "for(var i = 1; i <= 5; i++){",
+            "  var temp = parseFloat(ask('Geef temperatuur ' + i + ' in °C:'));",
+            "  ...",
+          ].join('\n'),
+          evalOutput: "Alarm: hittegolf!"
+        },
+        {
+          title: "8. Gemiddelde Score Kerstrapport",
+          starterCode: [
+            "// Vraag 6 scores op en bereken het gemiddelde.",
+            "// De scores: 88, 77, 93, 60, 70, 62.",
+            "",
+            "var som = 0;",
+            "for(var i = 1; i <= 6; i++){",
+            "  var score = parseFloat(ask('Geef score ' + i + ' (op 100):'));",
+            "  ...",
+          ].join('\n'),
+          evalOutput: "Het gemiddelde is 75.67"
+        }
+      ]
+    },
+    {
+      title: "Hoofdstuk 6: De Voorwaardelijke Herhaling",
+      exercises: [
+        {
+          title: "1. Countdown naar Lancering (while)",
+          starterCode: [
+            "// Print een aftelling van 10 tot 0 op het scherm.",
+            "// Gebruik een while-lus. Toon bij 0 het woord 'LANCERING!'.",
+            "",
+            "var teller = 10;",
+            "while(teller > 0){",
+            "  teller = teller - 1;",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput:
+            "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n0\nLANCERING!"
+        },
+        {
+          title: "2. Verzamel dorpen van Fred (while)",
+          starterCode: [
+            "// Vraag 5 keer een dorp aan de gebruiker en voeg toe aan een lijst.",
+            "// Gebruik een while-lus. Toon op het einde: Dag mama, ik ben nog steeds op reis ...",
+            "// De vijf dorpen: Bomal, Locronan, Rochefort-en-Terre, Saint-Céneri-le-Gérei, Montrésor, Pesmes",
+            "",
+            "var lijst_tussenstops = '';",
+            "var teller = 0;",
+            "while(teller < 5){",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput: "Dag mama, ik ben nog steeds op reis in Frankrijk. Afgelopen dagen passeerde ik in: Bomal, Locronan, Rochefort-en-Terre, Saint-Céneri-le-Gérei, Montrésor, Pesmes"
+        },
+        {
+          title: "3. Totale afstand berekenen (while)",
+          starterCode: [
+            "// Vraag 5 keer een afstand aan de gebruiker en tel alles op.",
+            "// Gebruik een while-lus. Toon op het einde: De totale afstand die ik heb afgelegd is: ... km.",
+            "// De afstanden zijn: 245.2km, 199.2km, 312km, 231km, 119.4km.",
+            "",
+            "var totaal = 0;",
+            "var i = 1;",
+            "while(i <= 5){",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput: "De totale afstand die ik heb afgelegd is: 1107.8 km."
+        },
+        {
+          title: "4. Bosbrand Per Dag (while)",
+          starterCode: [
+            "// Bereken per dag (7 dagen) het afgebrande gebied.",
+            "// Gebruik een while-lus. Print per dag: Op dag ... is er ... m² bos afgebrand.",
+            "",
+            "var dag = 1;",
+            "var lengte = 329;",
+            "var breedte = 277.32;",
+            "while(dag <= 7){",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput:
+            "Op dag 1 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 2 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 3 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 4 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 5 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 6 is er 91236.28 m² bos afgebrand.\n" +
+            "Op dag 7 is er 91236.28 m² bos afgebrand."
+        },
+        {
+          title: "5. Waarborg met Interest (while)",
+          starterCode: [
+            "// Bereken de waarborg voor elk jaar (5 jaar), groei 3% per jaar.",
+            "// Gebruik een while-lus. Toon: Na jaar ... is de waarborg gegroeid tot ... euro.",
+            "",
+            "var maandhuur = 695;",
+            "var waarborg = maandhuur * 3;",
+            "var jaar = 1;",
+            "while(jaar <= 5){",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput:
+            "Na jaar 1 is de waarborg gegroeid tot 2147.55 euro.\n" +
+            "Na jaar 2 is de waarborg gegroeid tot 2211.98 euro.\n" +
+            "Na jaar 3 is de waarborg gegroeid tot 2278.34 euro.\n" +
+            "Na jaar 4 is de waarborg gegroeid tot 2346.69 euro.\n" +
+            "Na jaar 5 is de waarborg gegroeid tot 2417.09 euro."
+        },
+        {
+          title: "6. Bevolkingsgroei Montpellier (while)",
+          starterCode: [
+            "// Bereken de bevolking van Montpellier voor 10 jaar met 3.1% groei.",
+            "// Gebruik een while-lus. We starten in het jaar 2025.",
+            "",
+            "var bevolking = 295542;",
+            "var jaar = 2025;",
+            "while(jaar <= 2034){",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput:
+            "In het jaar 2025 is de bevolking 304722 inwoners.\n" +
+            "In het jaar 2026 is de bevolking 314178 inwoners.\n" +
+            "In het jaar 2027 is de bevolking 323921 inwoners.\n" +
+            "In het jaar 2028 is de bevolking 333959 inwoners.\n" +
+            "In het jaar 2029 is de bevolking 344303 inwoners.\n" +
+            "In het jaar 2030 is de bevolking 354964 inwoners.\n" +
+            "In het jaar 2031 is de bevolking 365954 inwoners.\n" +
+            "In het jaar 2032 is de bevolking 377282 inwoners.\n" +
+            "In het jaar 2033 is de bevolking 388962 inwoners.\n" +
+            "In het jaar 2034 is de bevolking 400999 inwoners."
+        },
+        {
+          title: "7. Hittegolfalarm (while)",
+          starterCode: [
+            "// Vraag 5 temperaturen op, tel telkens wanneer de temp. > 25°C.",
+            "// Gebruik een while-lus. Toon 'Alarm: hittegolf!' als alle 5 temperaturen > 25, anders 'Geen hittegolf.'",
+            "",
+            "var alarmTeller = 0;",
+            "var i = 1;",
+            "while(i <= 5){",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput: "Alarm: hittegolf!"
+        },
+        {
+          title: "8. Gemiddelde Score Kerstrapport (while)",
+          starterCode: [
+            "// Vraag 6 scores op en bereken het gemiddelde.",
+            "// Gebruik een while-lus. Geef feedback afhankelijk van de gemiddelde score.",
+            "// De scores: 88, 77, 93, 60, 70, 62.",
+            "",
+            "var som = 0;",
+            "var i = 1;",
+            "while(i <= 6){",
+            "  // Vul aan",
+            "}"
+          ].join('\n'),
+          evalOutput: "Het gemiddelde is 75.67"
+        }
+      ]
+    },
+    {
+      title: "Hoofdstuk 7: Figuren Plotten II",
+      exercises: [
+        {
+          title: "1. Vierkant met for-lus",
+          starterCode: [
+            "// Teken een vierkant met zijden van 50px.",
+            "// Gebruik een for-lus.",
+            "showGrid(50);",
+            "var zijde = 50;",
+            "for(var teller = ...; teller < ...; teller...) {",
+            "  ...",
+            "  ...",
+            "}",
+          ].join('\n')
+        },
+        {
+          title: "2. Gelijkzijdige Driehoek",
+          starterCode: [
+            "// Teken een driehoek met zijden van 70px met een for-lus.",
+            "showGrid(50);",
+            "var zijde = 70;",
+            "for(var i = ...; i < ...; i...) {",
+            "  ...",
+            "  ...",
+            "}",
+          ].join('\n')
+        },
+        {
+          title: "3. Drie Vierkanten",
+          starterCode: [
+            "// Teken drie vierkanten met zijden van 45px naast elkaar.",
+            "showGrid(50);",
+            "...",
+            "for(...) {",
+              "  for(...) {",
+              "   ...",
+              "  }",
+              "  penUp();",
+              "  ...",
+              "  ...",
+            "}",
+          ].join('\n')
+        },
+        {
+          title: "4. Cirkel met for-lus",
+          starterCode: [
+            "// Teken een cirkel door 360 keer vooruit te gaan en 1 graad te draaien.",
+            "showGrid(50);",
+            "setPenColour('purple');",
+            "for(...) {",
+            "  ...",
+            "}",
+          ].join('\n')
+        },
+        {
+          title: "5. Trap met vijf treden",
+          starterCode: [
+            "// Teken een groene trap met vijf treden van 20px breed en 30px hoog.",
+            "showGrid(50);",
+            "  ...",
+            "}",
+          ].join('\n')
+        },
+        {
+          title: "6. Spiraal tekenen",
+          starterCode: [
+            "// Teken een spiraal: elke lijn wordt 10px langer dan de vorige.",
+            "showGrid(30);",
+            "var lengte = 10;",
+            "for(var i = 0; i < 8; i++) {",
+            "  moveForward(lengte);",
+            "  turnRight(45);",
+            "  ... ",
+            "}",
+          ].join('\n')
+        },
+        {
+          title: "7. Vierkanten in diverse kleuren",
+          starterCode: [
+            "// Teken drie vierkanten met kleur rood",
+            "showGrid(50);",
+          ].join('\n')
+        },
+        {
+          title: "8. Lijndikte per vierkant",
+          starterCode: [
+            "// Teken drie vierkanten, elk met een andere lijndikte 30, 60, 90",
+            "showGrid(50);",
+            "for(var i = 1; i < 4; i++) {",
+            "  var dikte = i * 30;",
+            "  setLineWidth(...);",
+          ].join('\n')
+        },
+        {
+          title: "9. Vierkanten met while-lus",
+          starterCode: [
+            "// Gebruik een while-lus om vierkanten te tekenen met zijden van 40, 30, 20 en 10px.",
+            "// Herhaal dus ZOLANG de zijde >= 10 is.",
+            "showGrid(50);",
+            "var zijde = 40;",
+            "while(zijde >= 10) {",
+            "  ...",
+            "}",
+          ].join('\n')
+        },
+        {
+          title: "10. Spiraal van vierkanten",
+          starterCode: [
+            "// Maak een variabele voor het aantal vierkanten.",
+            "// Teken zoveel vierkanten.",
+            "// De vierkanten moeten in een spiraal staan.",
+            "showGrid(50);",
+          ].join('\n')
+        },
+        {
+          title: "11. Lijnkleur kiezen in een lus",
+          starterCode: [
+            "// Maak een variabele voor de lijnkleur. Teken vier vierkanten.",
+            "// Als de kleur rood is, zet lijndikte op 5. Anders op 2.",
+            "showGrid(50);",
+          ].join('\n')
+        },
+        {
+          title: "12. Kleur Kiezen + Selectie",
+          starterCode: [
+            "// Kies de kleur op basis van teller: 0 = 'orange', 1 = 'pink', anders 'purple'.",
+            "// Teken drie vierkanten.",
+            "showGrid(50);",
+          ].join('\n')
+        },
+        {
+          title: "13. Spiraal met veranderende kleur",
+          starterCode: [
+            "// Teken een spiraal. Bij elk stukje verandert de kleur tussen rood en blauw.",
+            "showGrid(50);",
+            "var lengte = 10;",
+            "setPenColour(randomColour());",
+            "while(lengte <= 500) {",
+            "...",
+          ].join('\n')
+        },
+        {
+          title: "14. Random Gevulde Cirkel",
+          starterCode: [
+            "// Teken een opgevulde cirkel.",
+            "// Verander bij elke herhaling het kleur naar een random kleur",
+            "showGrid(50);",
+          ].join('\n')
+        },
+        {
+          title: "15. Creatieve Opdracht",
+          starterCode: [
+            "// Combineer: meerdere figuren, verschillende kleuren, if/else, for/while.",
+            "// Zet overal waar mogelijk een variabele en schrijf tekst bij elk figuur.",
+            "showGrid(50);"
+          ].join('\n')
+        }
+      ]
+    },
+  ];
+
+    /* =========================================================
+       2) TOETS-CONTEXT: eenmalige reset van localStorage per TEST_ID
+       ========================================================= */
+
+    const TEST_MODE  = !!window.JSIK_TEST_MODE;
+    const TEST_LABEL = window.JSIK_TEST_LABEL || "default";
+    const TEST_ID    = TEST_MODE ? `jsik-test-${TEST_LABEL}` : `jsik-normal`;
+    const TEST_INIT_KEY = `jsprog-test-init-${TEST_ID}`;
+    const REVEAL_EXPECTED_ON_FAIL = !!window.JSIK_REVEAL_EXPECTED_ON_FAIL;
+
+    /* =======================
+       SNAPSHOT STORAGE (voor batch export)
+       ======================= */
+
+    function _dateKeyLocal(d = new Date()){
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const day = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+
+    const _SAVE_PREFIX = `jsprog-saved-${TEST_ID}`;
+    const _SAVE_INDEX_KEY = `${_SAVE_PREFIX}-index`;
+
+    // Downscale + JPEG to reduce localStorage bloat
+    function _canvasToJpegDataUrl(canvas, quality = 0.72, maxEdge = 420){
+      try{
+        const w = canvas.width, h = canvas.height;
+        const scale = Math.min(1, maxEdge / Math.max(w, h));
+        if (scale >= 1){
+          return canvas.toDataURL('image/jpeg', quality);
+        }
+        const tmp = document.createElement('canvas');
+        tmp.width = Math.max(1, Math.round(w * scale));
+        tmp.height = Math.max(1, Math.round(h * scale));
+        const ctx = tmp.getContext('2d');
+        ctx.drawImage(canvas, 0, 0, tmp.width, tmp.height);
+        return tmp.toDataURL('image/jpeg', quality);
+      } catch (e){
+        return "";
+      }
+    }
+
+    function _loadSaveIndex(){
+      try{
+        const raw = localStorage.getItem(_SAVE_INDEX_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch(e){
+        return [];
+      }
+    }
+
+    function _writeSaveIndex(keys){
+      try{
+        localStorage.setItem(_SAVE_INDEX_KEY, JSON.stringify(keys));
+      } catch(e){}
+    }
+
+    function _upsertIndexKey(key){
+      const keys = _loadSaveIndex();
+      const i = keys.indexOf(key);
+      if (i !== -1) keys.splice(i, 1);
+      keys.push(key); // newest last
+      _writeSaveIndex(keys);
+    }
+
+function _hashDjb2(str){
+  let h = 5381;
+  for (let i = 0; i < str.length; i++){
+    h = ((h << 5) + h) + str.charCodeAt(i);
+    h = h | 0;
+  }
+  return String(h);
+}
+
+function saveCompletedExerciseSnapshot(status /* "success" | "fail" */){
+  const ex = chapters[currentChapterIdx]?.exercises?.[currentExerciseIdx];
+  if (!ex) return { ok:false, reason:"no exercise" };
+  if (status !== "success" && status !== "fail") return { ok:false, reason:"bad status" };
+
+  const dateKey = _dateKeyLocal(new Date());
+  const storageKey = `${_SAVE_PREFIX}-${dateKey}-${currentChapterIdx}-${currentExerciseIdx}-${status}-latest`;
+
+  const canvas = document.getElementById('turtlecanvas');
+
+  // Fail snapshots: lighter image to protect quota; success keeps your current quality
+  const canvasDataUrl = canvas
+    ? _canvasToJpegDataUrl(canvas, status === "fail" ? 0.55 : 0.72, status === "fail" ? 320 : 420)
+    : "";
+
+  const pogingen = (typeof getPogingen === 'function')
+    ? getPogingen()
+    : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-pogingen`) || '0', 10);
+
+  const tijdMs = (typeof getWerkTijdMs === 'function')
+    ? getWerkTijdMs()
+    : parseInt(localStorage.getItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}-werkTijdMs`) || '0', 10);
+
+  const code = editor?.getValue?.() || "";
+  const consoleText = (document.getElementById('console-output')?.textContent || "");
+  const evalInfo = (window._lastEvalInfo || "");
+
+  // De-dupe: if nothing meaningful changed, don’t rewrite the record
+  const fingerprint = _hashDjb2(`${status}\n${code}\n---\n${consoleText}\n---\n${evalInfo}`);
+
+  try{
+    const prevRaw = localStorage.getItem(storageKey);
+    if (prevRaw){
+      const prev = JSON.parse(prevRaw);
+      if (prev && prev.fingerprint === fingerprint){
+        return { ok:true, key:storageKey, skipped:true };
+      }
+    }
+  } catch(e){}
+
+  const rec = {
+    version: 2,
+    testId: TEST_ID,
+    dateKey,
+    savedAt: new Date().toISOString(),
+    chapterIdx: currentChapterIdx,
+    exerciseIdx: currentExerciseIdx,
+    chapterTitle: chapters[currentChapterIdx]?.title || "",
+    exerciseTitle: ex.title || "",
+    opdrachtTitle: (document.getElementById('opdracht-titel')?.textContent || "").trim(),
+    opdrachtText:  (document.getElementById('opdracht-tekst')?.textContent  || "").trim(),
+    code,
+    console: consoleText,
+    canvasDataUrl,
+    evalStatus: status,
+    evalInfo,
+    expectedOutput: ex.evalOutput || "",
+    pogingen,
+    tijdMs,
+    pageUrl: window.location.href,
+    userAgent: navigator.userAgent || "",
+    fingerprint
+  };
+
+  try{
+    localStorage.setItem(storageKey, JSON.stringify(rec));
+    _upsertIndexKey(storageKey);
+    return { ok:true, key:storageKey, skipped:false };
+  } catch(e){
+    return { ok:false, reason:"quota" };
+  }
+}
+
+    function getSavedSnapshotsForDate(dateKey){
+  const keys = _loadSaveIndex();
+  const picked = new Map(); 
+
+  for (const k of keys){
+    if (!k.startsWith(`${_SAVE_PREFIX}-${dateKey}-`)) continue;
+    try{
+      const rec = JSON.parse(localStorage.getItem(k) || "null");
+      if (!rec) continue;
+
+      const id = `${rec.chapterIdx}-${rec.exerciseIdx}`;
+      const prev = picked.get(id);
+
+      if (!prev){
+        picked.set(id, rec);
+        continue;
+      }
+
+      // Prefer success over fail
+      if (prev.evalStatus !== "success" && rec.evalStatus === "success"){
+        picked.set(id, rec);
+        continue;
+      }
+
+      // Same status: keep newest
+      if (String(rec.savedAt||"") > String(prev.savedAt||"")){
+        picked.set(id, rec);
+      }
+    } catch(e){}
+  }
+
+  const out = Array.from(picked.values());
+  out.sort((a,b)=>{
+    if (a.chapterIdx !== b.chapterIdx) return a.chapterIdx - b.chapterIdx;
+    if (a.exerciseIdx !== b.exerciseIdx) return a.exerciseIdx - b.exerciseIdx;
+    return String(a.savedAt||"").localeCompare(String(b.savedAt||""));
+  });
+  return out;
+}
+
+    (function firstLoadResetForThisTest(){
+      if (!TEST_MODE) return;
+      try{
+        if (localStorage.getItem(TEST_INIT_KEY)) return;
+
+        const keys = Object.keys(localStorage);
+        for (const k of keys){
+          if (k.startsWith("jsprog-")) localStorage.removeItem(k);
+        }
+        localStorage.setItem(TEST_INIT_KEY, "1");
+      }catch(e){
+        console.warn("LocalStorage reset overgeslagen:", e);
+      }
+    })();
+
+    /* =========================================================
+       3) STATE + METRICS (Pogingen + Tijd) per oefening
+       ========================================================= */
+
+    let currentChapterIdx = 0;
+    let currentExerciseIdx = 0;
+
+    let _workTimer = { running:false, lastStart:0, intervalId:null };
+
+    function exKey(suffix){
+      return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
+    }
+
+    function getPogingen(){
+      return parseInt(localStorage.getItem(exKey("pogingen")) || "0", 10);
+    }
+    function incPogingen(){
+      const n = getPogingen() + 1;
+      localStorage.setItem(exKey("pogingen"), String(n));
+      return n;
+    }
+
+    function getWerkTijdMs(){
+      return parseInt(localStorage.getItem(exKey("werkTijdMs")) || "0", 10);
+    }
+    function setWerkTijdMs(ms){
+      localStorage.setItem(exKey("werkTijdMs"), String(ms));
+    }
+    function addWerkTijd(ms){
+      setWerkTijdMs(getWerkTijdMs() + ms);
+    }
+
+    function formatDuur(ms){
+      const s = Math.max(0, Math.floor(ms / 1000));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return (m > 0 ? `${m}m ` : "") + `${r}s`;
+    }
+
+    function startWerkTimer(){
+      if (_workTimer.running) return;
+      _workTimer.running = true;
+      _workTimer.lastStart = Date.now();
+      _workTimer.intervalId = setInterval(updateMetricsUI, 1000);
+    }
+
+    function stopWerkTimer(){
+      if(!_workTimer.running) return;
+      const nu = Date.now();
+      addWerkTijd(nu - _workTimer.lastStart);
+      _workTimer.running = false;
+      _workTimer.lastStart = 0;
+      clearInterval(_workTimer.intervalId);
+      _workTimer.intervalId = null;
+      updateMetricsUI();
+    }
+
+    function resetWerkTimerState(){
+      _workTimer.running = false;
+      _workTimer.lastStart = 0;
+      if (_workTimer.intervalId) clearInterval(_workTimer.intervalId);
+      _workTimer.intervalId = null;
+    }
+
+    function updateMetricsUI(){
+      const el = document.getElementById("metrics");
+      if (!el) return;
+      const basisMs = getWerkTijdMs();
+      const liveMs  = _workTimer.running ? (Date.now() - _workTimer.lastStart) : 0;
+      el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
+    }
+
+window.addEventListener("blur", stopWerkTimer);
+window.addEventListener("beforeunload", stopWerkTimer);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopWerkTimer();
+});
+
+// Resume timing when they return
+window.addEventListener("focus", () => {
+  if (!document.hidden) startWerkTimer();
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) startWerkTimer();
+});
+
+    /* =========================================================
+       4) UI refs + menu
+       ========================================================= */
+
+    const opdrachtTekst = document.getElementById("opdracht-tekst");
+    const progressBar = document.getElementById("exercise-progress");
+    const chapterMenuList = document.getElementById("menu-chapters");
+
+    function renderChapterMenu(){
+      if (!chapterMenuList) return;
+      chapterMenuList.innerHTML = "";
+      chapters.forEach((chapter, idx) => {
+        const li = document.createElement("li");
+        li.className = "menu-chapter-item" + (idx === currentChapterIdx ? " active" : "");
+        li.textContent = chapter.title;
+        li.tabIndex = 0;
+        li.setAttribute("role", "button");
+        li.onclick = () => switchChapter(idx);
+        li.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") switchChapter(idx); };
+        chapterMenuList.appendChild(li);
+      });
+    }
+
+    function renderExerciseProgress(){
+      progressBar.innerHTML = "";
+      const exercises = chapters[currentChapterIdx].exercises;
+
+      exercises.forEach((exercise, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "exercise-btn" + (idx === currentExerciseIdx ? " current" : "");
+        btn.textContent = idx + 1;
+        btn.type = "button";
+        btn.title = exercise.title || `Oefening ${idx + 1}`;
+
+        const evalKey = `jsprog-eval-${currentChapterIdx}-${idx}`;
+        const evalStatus = localStorage.getItem(evalKey);
+        if (evalStatus === "success") {
+          btn.style.background = "#3dffd0";
+          btn.style.color = "#23272e";
+        } else if (evalStatus === "fail") {
+          btn.style.background = "#ff1744";
+          btn.style.color = "#fff";
+        }
+
+        btn.onclick = () => switchExercise(idx);
+        progressBar.appendChild(btn);
+      });
+    }
+
+    /* =========================================================
+       5) Confirm modal (met extraHTML) + ask modal
+       ========================================================= */
+
+    window.confirmModal = function(message, options = {}) {
+      return new Promise((resolve) => {
+        const modal    = document.getElementById("confirm-modal");
+        const msgDiv   = document.getElementById("confirm-modal-msg");
+        const extraDiv = document.getElementById("confirm-modal-extra");
+        const okBtn    = document.getElementById("confirm-modal-ok");
+        const cancelBtn= document.getElementById("confirm-modal-cancel");
+
+        okBtn.textContent     = options.okLabel     || "OK";
+        cancelBtn.textContent = options.cancelLabel || "Annuleren";
+
+        msgDiv.textContent = message;
+
+        if (extraDiv) {
+          if (options.extraHTML) {
+            extraDiv.innerHTML = options.extraHTML;
+            extraDiv.style.display = "block";
+          } else {
+            extraDiv.innerHTML = "";
+            extraDiv.style.display = "none";
+          }
+        }
+
+        modal.style.display = "flex";
+
+        function cleanup(result){
+          modal.style.display = "none";
+          okBtn.removeEventListener("click", onOk);
+          cancelBtn.removeEventListener("click", onCancel);
+          document.removeEventListener("keydown", onKeyDown);
+          modal.onclick = null;
+          resolve(result);
+        }
+
+        function onOk(){ cleanup(true); }
+        function onCancel(){ cleanup(false); }
+
+        okBtn.addEventListener("click", onOk);
+        cancelBtn.addEventListener("click", onCancel);
+
+        function onKeyDown(e){
+          if (e.key === "Escape") cleanup(false);
+          if (e.key === "Enter") cleanup(true);
+        }
+        document.addEventListener("keydown", onKeyDown);
+
+        modal.onclick = function(e){
+          if (e.target === modal) cleanup(false);
+        };
+      });
+    };
+
+    window.ask = function(boodschap){
+      return new Promise((resolve) => {
+        const modal = document.getElementById("ask-modal");
+        const msgDiv = document.getElementById("ask-modal-msg");
+        const input = document.getElementById("ask-modal-input");
+        const okBtn = document.getElementById("ask-modal-ok");
+
+        msgDiv.textContent = boodschap;
+        input.value = "";
+        modal.style.display = "flex";
+        input.focus();
+
+        function cleanup(){
+          modal.style.display = "none";
+          okBtn.removeEventListener("click", onOk);
+          input.removeEventListener("keydown", onEnter);
+        }
+
+        function onOk(){
+          cleanup();
+          resolve(input.value);
+        }
+
+        function onEnter(e){
+          if (e.key === "Enter") onOk();
+        }
+
+        okBtn.addEventListener("click", onOk);
+        input.addEventListener("keydown", onEnter);
+      });
+    };
+
+    function resetChoiceModal(){
+  return new Promise((resolve) => {
+    const modal = document.getElementById("reset-modal");
+    const btnCurrent = document.getElementById("reset-current");
+    const btnAll = document.getElementById("reset-all");
+    const btnCancel = document.getElementById("reset-cancel");
+
+    modal.style.display = "flex";
+
+    function cleanup(choice){
+      modal.style.display = "none";
+      btnCurrent.removeEventListener("click", onCurrent);
+      btnAll.removeEventListener("click", onAll);
+      btnCancel.removeEventListener("click", onCancel);
+      document.removeEventListener("keydown", onKey);
+      modal.onclick = null;
+      resolve(choice);
+    }
+
+    function onCurrent(){ cleanup("current"); }
+    function onAll(){ cleanup("all"); }
+    function onCancel(){ cleanup(null); }
+
+    function onKey(e){
+      if (e.key === "Escape") cleanup(null);
+    }
+
+    btnCurrent.addEventListener("click", onCurrent);
+    btnAll.addEventListener("click", onAll);
+    btnCancel.addEventListener("click", onCancel);
+    document.addEventListener("keydown", onKey);
+
+    modal.onclick = (e) => { if (e.target === modal) cleanup(null); };
+  });
+}
+    
+    
+    
+    /* =========================================================
+       6) Editor init + autosave + isDirty gating
+       ========================================================= */
+
+    let editor = null;
+    let isDirty = false;
+
+    function saveUserCode(){
+      const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+      try{ localStorage.setItem(key, editor.getValue()); }catch(e){}
+    }
+
+    function confirmSwitch(callback){
+      if (!isDirty){
+        callback();
+        return;
+      }
+      window.confirmModal(
+        "Je hebt jouw code nog niet uitgevoerd of opgeslagen. Weet je zeker dat je wilt doorgaan? Je wijzigingen gaan verloren."
+      ).then((proceed) => {
+        if (proceed) callback();
+      });
+    }
+
+    function switchChapter(chapterIdx, exerciseIdx = 0){
+      confirmSwitch(() => {
+        currentChapterIdx = chapterIdx;
+        currentExerciseIdx = exerciseIdx;
+        renderChapterMenu();
+        renderExerciseProgress();
+        loadExercise();
+        isDirty = false;
+      });
+    }
+
+    function switchExercise(exIdx){
+      confirmSwitch(() => {
+        currentExerciseIdx = exIdx;
+        renderExerciseProgress();
+        loadExercise();
+        isDirty = false;
+      });
+    }
+
+    function goToNextExercise(){
+      const exercises = chapters[currentChapterIdx].exercises;
+      if (currentExerciseIdx < exercises.length - 1){
+        switchExercise(currentExerciseIdx + 1);
+      } else {
+        showToast("Je hebt alle oefeningen van dit hoofdstuk afgewerkt.", true);
+      }
+    }
+
+    /* =========================================================
+       7) Canvas view controls + coords (zoom/pan hook)
+       ========================================================= */
+
+    const CANVAS_SIZE = 500;
+    let panX = 0;
+    let panY = 0;
+    let zoom = 1.0;
+
+    function zoomIn(){
+      zoom = Math.min(3.0, zoom + 0.1);
+      if (typeof window.draw === "function") window.draw();
+    }
+    function zoomOut(){
+      zoom = Math.max(0.3, zoom - 0.1);
+      if (typeof window.draw === "function") window.draw();
+    }
+
+    (function bindCoords(){
+      const coordsSpan = document.getElementById("coords");
+      const canvas = document.getElementById("turtlecanvas");
+      if (!coordsSpan || !canvas) return;
+
+      function getBorderSizes(el){
+        const s = getComputedStyle(el);
+        return {
+          left: parseFloat(s.borderLeftWidth) || 0,
+          right: parseFloat(s.borderRightWidth) || 0,
+          top: parseFloat(s.borderTopWidth) || 0,
+          bottom: parseFloat(s.borderBottomWidth) || 0
+        };
+      }
+
+      canvas.addEventListener("mousemove", function(event){
+        const rect = canvas.getBoundingClientRect();
+        const b = getBorderSizes(canvas);
+
+        const cssX = event.clientX - rect.left - b.left;
+        const cssY = event.clientY - rect.top  - b.top;
+
+        const contentCssWidth  = rect.width  - b.left - b.right;
+        const contentCssHeight = rect.height - b.top  - b.bottom;
+
+        const scaleX = canvas.width  / contentCssWidth;
+        const scaleY = canvas.height / contentCssHeight;
+
+        const cx = cssX * scaleX;
+        const cy = cssY * scaleY;
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        const worldX = (cx - centerX - panX) / zoom;
+        const worldY = (centerY - cy - panY) / zoom;
+
+        coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
+      });
+
+      canvas.addEventListener("mouseleave", function(){
+        coordsSpan.textContent = "";
+      });
+    })();
+
+    /* =========================================================
+       8) Safe console + loop guard + run pipeline (port exam fork)
+       ========================================================= */
+
+    const consoleDiv = document.getElementById("console-output");
+    let capturedOutput = "";
+
+    function clearConsole(){ consoleDiv.textContent = ""; }
+    function appendToConsole(msg){ consoleDiv.textContent += msg + "\n"; }
+
+    function createSafeConsole(){
+      const realConsole = window.console;
+      const safeConsole = {};
+
+      Object.defineProperty(safeConsole, "log", {
+        value: (...args) => {
+          const str = args.map(String).join(" ");
+          capturedOutput += str + "\n";
+          appendToConsole(str);
+
+          if (realConsole && typeof realConsole.log === "function") {
+            realConsole.log(...args);
+          }
+        },
+        writable:false,
+        configurable:false,
+        enumerable:true
+      });
+
+      return safeConsole;
+    }
+
+    function checkConsoleMisuse(source){
+      const re = /console\s*\.\s*log\s*=/;
+      if (re.test(source)){
+        throw new Error(
+          "Je gebruikt '=' na console.log. " +
+          "Schrijf bijvoorbeeld: console.log(\"Hallo\"); " +
+          "en niet console.log = \"Hallo\";"
+        );
+      }
+    }
+
+    function applyLoopGuard(source, options = {}){
+      const MAX_ITERS = options.maxIters ?? 200000;
+      const MAX_MS    = options.maxMs   ?? 2000;
+
+      // Opt-out: zet bovenaan de code: /* @no-guard */
+      if (/^\s*\/\*\s*@no-guard\s*\*\//.test(source)) return source;
+
+      // Geen lussen zonder accolades toelaten (duidelijker voor leerlingen, makkelijker te evalueren)
+      const bracelessLoop = /(for|while)\s*\([^)]*\)\s*(?!\{)/;
+      if (bracelessLoop.test(source)) {
+        throw new Error("Lus zonder accolades gedetecteerd. Gebruik { } rond de code in je for/while-lus.");
+      }
+
+      const prelude = `
+        const __GUARD_MAX_ITERS = ${MAX_ITERS};
+        const __GUARD_MAX_MS = ${MAX_MS};
+        let __guard_iters = 0;
+        const __guard_start = Date.now();
+        function __tick() {
+          __guard_iters++;
+          if ((__guard_iters & 1023) === 0) {
+            if (Date.now() - __guard_start > __GUARD_MAX_MS) {
+              throw new Error("Tijdslimiet overschreden (mogelijk oneindige lus).");
+            }
+          }
+          if (__guard_iters > __GUARD_MAX_ITERS) {
+            throw new Error("Te veel iteraties (mogelijk oneindige lus).");
+          }
+        }
+      `;
+
+      let code = source;
+
+      // do { ... } while(...)
+      code = code.replace(/do\s*\{/g, (m) => `${m} __tick(); `);
+
+      // while (cond) { ... }
+      code = code.replace(
+        /while\s*\(([^)]*)\)\s*\{/g,
+        (m, cond) => `while ((__tick(), (${cond}))) { __tick(); `
+      );
+
+      // for (init; cond; step) { ... }
+      code = code.replace(
+        /for\s*\(([^;]*);([^;]*);([^\)]*)\)\s*\{/g,
+        (m, init, cond, step) => `for (${init}; (__tick(), (${cond})); ${step}) { __tick(); `
+      );
+
+      // for(;;){...}
+      code = code.replace(/for\s*\(\s*;\s*;\s*\)\s*\{/g, "for (;;){ __tick(); ");
+
+      return prelude + "\n" + code;
+    }
+
+    window.runStudentCode = function(studentCode){
+      checkConsoleMisuse(studentCode);
+
+      let transformed = studentCode.replace(/\bask\s*\(/g, "await ask(");
+
+      transformed = applyLoopGuard(transformed, { maxIters:200000, maxMs:2000 });
+
+      const safeConsole = createSafeConsole();
+
+      const wrapper = `
+        "use strict";
+        return (async function __student_main__() {
+          ${transformed}
+        })();
+      `;
+
+      return new Function("console", "ask", wrapper)(safeConsole, window.ask);
+    };
+
+    /* =========================================================
+       9) Evaluator: tolerant matching + eval modes (port exam fork)
+       ========================================================= */
+
+    function translateError(message){
+      if (message.includes("Cannot read properties of")) return "Je gebruikt iets dat niet bestaat (undefined/null). Controleer je variabelen en objecten.";
+      if (message.includes("Unexpected token")) return "Er staat een fout teken in je code. Controleer haakjes, komma’s en accolades.";
+      if (message.includes("Identifier") && message.includes("has already been declared")) return "Je declareert een variabele dubbel. Gebruik 1 keer 'var' per naam.";
+      if (message.includes("Unexpected identifier")) return "Onverwacht woord in de code. Mogelijk een typfout of een ontbrekende komma.";
+      if (message.includes("is not defined")) return "Variabele is niet gekend. Heb je de variabele gedeclareerd met 'var'? Of een typfout?";
+      if (message.includes("missing ) after argument list")) return "Je mist een haakje. Tel je ( en ) even na!";
+      if (message.includes("Unexpected token }")) return "Onverwachte '}'. Mogelijk te veel of te weinig accolades gebruikt.";
+      if (message.includes("not a function")) return "Je probeert iets als functie te gebruiken, maar dat klopt niet. Typfout in de functienaam?";
+      if (message.includes("Cannot read property")) return "Je probeert iets te gebruiken dat niet bestaat. Controleer je objecten en variabelen.";
+      if (message.includes("Maximum call stack")) return "Je code zit mogelijk in een oneindige lus. Controleer je lussen!";
+      if (message.includes("Invalid or unexpected token")) return "Er staat een teken in je code dat JavaScript niet herkent.";
+      if (message.includes("Lus zonder accolades")) return "Je gebruikt een lus zonder { }. Zet je lus-inhoud tussen accolades: { ... }";
+      if (message.includes("mogelijk oneindige lus")) return "Je code lijkt vast te zitten in een (bijna) oneindige lus.";
+      if (
+        message.includes("Cannot assign to read only property 'log'") ||
+        message.includes("Cannot assign to read only property 'log' of object")
+      ) {
+        return "Je probeert 'console.log' zelf te veranderen. Gebruik console.log(\"tekst\"); en niet console.log = ...";
+      }
+      return message;
+    }
+
+    const _DEFAULT_NORM_OPTS = {
+      caseInsensitive:true,
+      trim:true,
+      collapseSpaces:true,
+      removePunctuation:false,
+      decimalCommaToDot:true,
+      tolerance:0.01
+    };
+
+    const _IGNORE_LINE_PATTERNS = [
+      /^debug output:/i,
+      /^\s*opgeslagen!\s*$/i,
+      /^fout:\s*/i
+    ];
+
+    function _shouldIgnoreLine(line){
+      return _IGNORE_LINE_PATTERNS.some(rx => rx.test(line));
+    }
+
+    function _normalizeText(s, opts = _DEFAULT_NORM_OPTS){
+      let t = s ?? "";
+      if (opts.decimalCommaToDot) t = t.replace(/(\d),(\d)/g, "$1.$2");
+      if (opts.trim) t = t.trim();
+      if (opts.collapseSpaces) t = t.replace(/\s+/g, " ");
+      if (opts.removePunctuation) t = t.replace(/[.,;:!?…–—\-]/g, "");
+      if (opts.caseInsensitive) t = t.toLowerCase();
+      return t;
+    }
+
+    function _extractNumbers(s){
+      const norm = (s ?? "").replace(/(\d),(\d)/g, "$1.$2");
+      const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
+      return matches.map(parseFloat);
+    }
+
+    function _nearlyEqual(a, b, eps){
+      return Math.abs(a - b) <= eps;
+    }
+
+    function _looseCompare(expectedRaw, userRaw, opts = _DEFAULT_NORM_OPTS){
+      const linesE = (expectedRaw ?? "")
+        .split(/\r?\n/)
+        .map(l => l.replace(/\u00A0/g, " ").trim())
+        .filter(l => l.length > 0);
+
+      const linesU = (userRaw ?? "")
+        .split(/\r?\n/)
+        .map(l => l.replace(/\u00A0/g, " ").trim())
+        .filter(l => l.length > 0 && !_shouldIgnoreLine(l));
+
+      if (linesE.length !== linesU.length){
+        return { ok:false, info:`Regelaantal wijkt af (verwacht ${linesE.length}, gekregen ${linesU.length}).` };
+      }
+
+      for (let i=0;i<linesE.length;i++){
+        const e = linesE[i];
+        const u = linesU[i];
+
+        const numsE = _extractNumbers(e);
+        const numsU = _extractNumbers(u);
+
+        if (numsE.length > 0 && numsE.length === numsU.length){
+          const tol = opts.tolerance ?? 0.01;
+          for (let j=0;j<numsE.length;j++){
+            if (!_nearlyEqual(numsE[j], numsU[j], tol)){
+              return { ok:false, info:`Getal op regel ${i+1} wijkt af (verwacht ${numsE[j]}, kreeg ${numsU[j]}).` };
+            }
+          }
+          const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ""), opts);
+          const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ""), opts);
+          if (eText !== uText){
+            return { ok:false, info:`Tekst op regel ${i+1} wijkt af (we negeren spaties/case/komma-punt).` };
+          }
+        } else {
+          const eN = _normalizeText(e, opts);
+          const uN = _normalizeText(u, opts);
+          if (eN !== uN){
+            return { ok:false, info:`Regel ${i+1} wijkt af.` };
+          }
+        }
+      }
+
+      return { ok:true, info:"Uitvoer komt overeen." };
+    }
+
+    function _evalByMode(exercise, userRaw){
+      const cfg = exercise.eval;
+      if (!cfg || !cfg.type) return null;
+
+      const raw = (userRaw ?? "").replace(/(\d),(\d)/g, "$1.$2");
+
+      if (cfg.type === "numbers"){
+        const numsU = _extractNumbers(raw);
+        const numsE = (cfg.expected || []).map(Number);
+        const tol = cfg.tolerance ?? 0.01;
+
+        if (cfg.orderInsensitive){
+          const a = [...numsU].sort((x,y)=>x-y);
+          const b = [...numsE].sort((x,y)=>x-y);
+          if (a.length !== b.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${b.length}, kreeg ${a.length}).` };
+          for (let i=0;i<a.length;i++) if (!_nearlyEqual(a[i], b[i], tol)) return { ok:false, info:`Getallen wijken af (tolerantie ${tol}).` };
+          return { ok:true, info:"Getallen kloppen (volgorde genegeerd)." };
+        } else {
+          if (numsU.length !== numsE.length) return { ok:false, info:`Aantal getallen wijkt af (verwacht ${numsE.length}, kreeg ${numsU.length}).` };
+          for (let i=0;i<numsE.length;i++) if (!_nearlyEqual(numsE[i], numsU[i], tol)) return { ok:false, info:`Getal #${i+1} wijkt af (verwacht ${numsE[i]}, kreeg ${numsU[i]}).` };
+          return { ok:true, info:"Getallen kloppen (op volgorde)." };
+        }
+      }
+
+      if (cfg.type === "regex"){
+        const re = new RegExp(cfg.pattern, cfg.flags || "i");
+        const ok = re.test(raw.trim());
+        return { ok, info: ok ? "Patroon komt overeen." : "Tekst voldoet niet aan het patroon." };
+      }
+
+      if (cfg.type === "contains"){
+        const hay = raw.toLowerCase();
+        const missing = (cfg.substrings || []).filter(s => !hay.includes(String(s).toLowerCase()));
+        if (missing.length === 0) return { ok:true, info:"Alle vereiste woorden/fragmenten aanwezig." };
+        return { ok:false, info:`Ontbreekt: ${missing.join(", ")}` };
+      }
+
+      return null;
+    }
+
+    function evaluateExercise(){
+  const ex = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+  if (!ex || (!ex.evalOutput && !ex.eval)){
+    window._lastEvalInfo = "Geen evaluatiesleutel voor deze oefening.";
+    return null;
+  }
+
+  const userRaw = (typeof capturedOutput === "string") ? capturedOutput : String(capturedOutput || "");
+
+  const modeRes = _evalByMode(ex, userRaw);
+  if (modeRes){
+    window._lastEvalInfo = modeRes.info;     // <-- ALWAYS store real info
+    return modeRes.ok;
+  }
+
+  const loose = _looseCompare(ex.evalOutput || "", userRaw, _DEFAULT_NORM_OPTS);
+  window._lastEvalInfo = loose.info;         // <-- ALWAYS store real info
+  return loose.ok;
+}
+
+    function showToast(message, success){
+      const toast = document.getElementById("eval-toast");
+      toast.textContent = message;
+      toast.style.background = success ? "#e6fff8" : "#fff0f0";
+      toast.style.color = success ? "#04695c" : "#c81c1c";
+      toast.style.display = "block";
+      clearTimeout(window.evalToastTimeout);
+      window.evalToastTimeout = setTimeout(() => {
+        toast.style.display = "none";
+      }, 4000);
+    }
+
+    function showEvalFeedback(isCorrect){
+      const progressBtns = document.querySelectorAll(".exercise-btn");
+      if (!progressBtns[currentExerciseIdx]) return;
+
+      if (isCorrect === null){
+        progressBtns[currentExerciseIdx].style.background = "";
+        progressBtns[currentExerciseIdx].style.color = "";
+        return;
+      }
+
+      const extraInfo = window._lastEvalInfo || "";
+      const exercise  = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+
+      if (isCorrect){
+        progressBtns[currentExerciseIdx].style.background = "#3dffd0";
+        progressBtns[currentExerciseIdx].style.color = "#23272e";
+
+        const pogingen = getPogingen();
+        const tijdMs = getWerkTijdMs();
+        const tijdLabel = formatDuur(tijdMs);
+
+        const extraHtml = `
+          <div class="verify-block">
+            <ul>
+              <li>Optie 1: exporteer enkel deze oefening naar PDF.</li>
+              <li>Optie 2: bewaar deze oefening lokaal en ga door naar de volgende.</li>
+              <li>Later kan je bovenaan alles exporteren van vandaag via <b>Reeks exporteren naar PDF</b>.</li>
+            </ul>
+            <p><strong>Statistiek:</strong> Pogingen: ${pogingen} · Tijd: ${tijdLabel}</p>
+          </div>
+        `;
+
+        window.confirmModal(
+          "Goed gedaan! Je uitvoer is correct.\n\nKies wat je nu doet:",
+          {
+            okLabel:"Exporteer deze oefening",
+            cancelLabel:"Bewaar en ga verder",
+            extraHTML: extraHtml
+          }
+        ).then((doExportSingle) => {
+          if (doExportSingle){
+            openPdfModal("single");
+            return;
+          }
+          goToNextExercise();
+        });
+
+            } else {
+        progressBtns[currentExerciseIdx].style.background = "#ff1744";
+        progressBtns[currentExerciseIdx].style.color = "#fff";
+
+        const hint = "Herlees de opgave en debug jouw code.";
+        const safeInfo = REVEAL_EXPECTED_ON_FAIL ? (extraInfo || "") : "";
+        const msg = safeInfo ? `Niet helemaal goed. ${safeInfo}\n${hint}` : `Niet helemaal goed.\n${hint}`;
+        showToast(msg, false);
+      }
+    }
+
+    /* =========================================================
+       10) Oefeningen inladen
+       ========================================================= */
+
+    function extractAssignmentTextFromStarterCode(starterCode){
+  const src = String(starterCode || "");
+  const lines = src.split(/\r?\n/);
+  const out = [];
+  for (const line of lines){
+    const t = line.trim();
+    if (t === "") { if (out.length) break; else continue; }
+    if (!t.startsWith("//")) break;
+    const cleaned = t.replace(/^\/\/\s?/, "");
+    out.push(cleaned);
+  }
+
+  if (!out.length) return "";
+
+  return out.join("\n").trim();
+}
+    
+    function loadExercise(){
+      const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+      const opdrachtTitleEl = document.getElementById("opdracht-titel");
+      const opdrachtTextEl  = document.getElementById("opdracht-tekst");
+      if (opdrachtTitleEl) opdrachtTitleEl.textContent = exercise.title || "(geen titel)";
+      //const assignmentText = extractAssignmentTextFromStarterCode(exercise.starterCode);
+      //if (opdrachtTextEl) opdrachtTextEl.textContent = assignmentText || "";
+      if (opdrachtTextEl) opdrachtTextEl.textContent = "";
+
+      const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+      const savedCode = localStorage.getItem(key);
+
+      if (savedCode !== null) editor.setValue(savedCode);
+      else if (exercise.starterCode) editor.setValue(exercise.starterCode);
+      else editor.setValue("");
+
+      clearConsole();
+      capturedOutput = "";
+
+      if (window.resetTurtle) window.resetTurtle();
+      if (window.clearCanvas) window.clearCanvas();
+
+      isDirty = false;
+      stopWerkTimer();
+      resetWerkTimerState();
+      startWerkTimer(); 
+      updateMetricsUI();
+    }
+
+    /* =========================================================
+       11) PDF export
+       ========================================================= */
+
+    // ===== PDF EXPORT STATE (single vs batch) =====
+    let _pdfExportMode = "single"; // "single" | "batch"
+    
+    function _breakLongTokensForPdf(text, chunk = 60){
+  const s = String(text ?? "");
+  return s.split("\n").map(line => {
+    return line.replace(new RegExp(`\\S{${chunk},}`, "g"), (m) => {
+      const parts = m.match(new RegExp(`.{1,${chunk}}`, "g")) || [m];
+      return parts.join(" ");
+    });
+  }).join("\n");
+}
+
+    function openPdfModal(mode = "single") {
+      _pdfExportMode = mode;
+
+      const modal = document.getElementById('pdf-modal');
+      modal.style.display = 'flex';
+
+      // reset fields
+      document.getElementById('modal-naam').value = '';
+      document.getElementById('modal-klas').value = '';
+      document.getElementById('modal-oefening').value = '';
+
+      // UI tweaks per mode
+      const titleEl = modal.querySelector('h3');
+      const oefLabel = modal.querySelector('label[for="modal-oefening"]');
+      const oefInput = document.getElementById('modal-oefening');
+
+      if (_pdfExportMode === "batch") {
+        if (titleEl) titleEl.textContent = "PDF Exporteren (alle bewaarde oefeningen van vandaag)";
+        if (oefLabel) oefLabel.style.display = "none";
+        if (oefInput) oefInput.style.display = "none";
+      } else {
+        if (titleEl) titleEl.textContent = "PDF Exporteren";
+        if (oefLabel) oefLabel.style.display = "";
+        if (oefInput) oefInput.style.display = "";
+      }
+
+      document.getElementById('modal-naam').focus();
+    }
+
+ 
+    document.getElementById('export-pdf').onclick = () => openPdfModal("batch");
+    document.getElementById("close-pdf-modal").onclick = () => (document.getElementById("pdf-modal").style.display = "none");
+    document.getElementById("pdf-modal").onclick = function(e){ if (e.target === this) this.style.display = "none"; };
+
+    document.getElementById("modal-ok").onclick = async function(){
+      const naam = document.getElementById("modal-naam").value.trim();
+      const klas = document.getElementById("modal-klas").value.trim();
+
+      if (!naam || !klas){
+        showToast("Vul naam en klas in om te exporteren.", false);
+        return;
+      }
+
+      document.getElementById("pdf-modal").style.display = "none";
+
+      // Batch: alle bewaarde oefeningen van vandaag exporteren
+      if (_pdfExportMode === "batch"){
+        await exportSavedExercisesToPdf_Batch(naam, klas);
+        return;
+      }
+
+      // Single: huidige oefening exporteren
+      let oefening = document.getElementById("modal-oefening").value.trim();
+      if (!oefening){
+        oefening = chapters[currentChapterIdx].exercises[currentExerciseIdx].title || "(geen titel)";
+      }
+
+      const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+      const evalStatus = localStorage.getItem(evalKey);
+      const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+      const expectedOutput = exercise.evalOutput || "";
+
+      const canvas = document.getElementById("turtlecanvas");
+      const canvasImg = await html2canvas(canvas, { backgroundColor:null, scale:2 })
+        .then(cnv => cnv.toDataURL("image/png"));
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation:"portrait", unit:"pt", format:"a4" });
+
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 36, contentWidth = 520;
+      let y = margin;
+
+      const COLOR_PURPLE = [82,0,255];
+      const COLOR_WHITE  = [255,255,255];
+
+      function setBodyFont(){ pdf.setFont("helvetica", "normal"); pdf.setFontSize(12); }
+      function setHeaderFont(){ pdf.setFont("helvetica", "bold"); pdf.setFontSize(18); }
+      function setLabelFont(){ pdf.setFont("helvetica", "bold"); pdf.setFontSize(13); }
+      function setCodeFont(){ pdf.setFont("courier", "normal"); pdf.setFontSize(10); }
+
+      function ensureRoom(h){
+        if (y + h > pageHeight - margin){
+          pdf.addPage();
+          y = margin;
+        }
+      }
+
+      function addMultilineSection(label, contentLines, color=COLOR_PURPLE, code=false){
+        pdf.setTextColor(...color); setLabelFont();
+        pdf.text(label, margin, y); y += 16;
+        if (code) setCodeFont(); else setBodyFont();
+        pdf.setTextColor(0,0,0);
+
+        const lineHeight = code ? 13 : 14;
+        for (let i=0; i<contentLines.length; ){
+          let linesFit = Math.floor((pageHeight - y - margin) / lineHeight);
+          if (linesFit < 1){ pdf.addPage(); y = margin; continue; }
+          let linesThisPage = contentLines.slice(i, i + linesFit);
+          pdf.text(linesThisPage, margin, y);
+          i += linesFit;
+          y += linesThisPage.length * lineHeight;
+          if (i < contentLines.length){ pdf.addPage(); y = margin; }
+        }
+        y += 10;
+      }
+
+      // Header
+      pdf.setTextColor(...COLOR_PURPLE); setHeaderFont();
+      pdf.text("JavaScript in de Klas – Oefening", margin, y); y += 28;
+
+      pdf.setTextColor(0,0,0); setBodyFont();
+      pdf.text(`Naam: ${naam}`, margin, y); y += 18;
+      pdf.text(`Klas: ${klas}`, margin, y); y += 18;
+      pdf.text(`Oefening: ${oefening}`, margin, y); y += 24;
+
+      // Opdracht
+      const opdrachtTitle = document.getElementById("opdracht-titel")?.textContent || "";
+      const opdrachtText  = document.getElementById("opdracht-tekst")?.textContent || "";
+      const opdrachtFull  = (opdrachtTitle ? (opdrachtTitle + "\n") : "") + opdrachtText;
+      const opdrachtLines = pdf.splitTextToSize(_breakLongTokensForPdf(opdrachtFull, 80), contentWidth);
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Opdracht:", margin, y); y += 20;
+      pdf.setTextColor(0,0,0); setBodyFont();
+      pdf.text(opdrachtLines, margin, y); y += opdrachtLines.length * 14 + 18;
+
+      // Code + output
+      const code = editor.getValue();
+      addMultilineSection("Code:", pdf.splitTextToSize(_breakLongTokensForPdf(code, 80), contentWidth), COLOR_PURPLE, true);
+      const consoleText = document.getElementById("console-output").textContent;
+      addMultilineSection(
+  "Console-uitvoer:",
+  pdf.splitTextToSize(_breakLongTokensForPdf(consoleText || "(geen uitvoer)", 80), contentWidth),
+  COLOR_PURPLE,
+  true
+);
+
+      // Status
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Status oefening:", margin, y); y += 16;
+
+      pdf.setTextColor(0,0,0); setBodyFont();
+      let statusText = "Niet uitgevoerd";
+      if (evalStatus === "success") statusText = "Oefening correct";
+      else if (evalStatus === "fail") statusText = "Uitgevoerd, maar niet correct";
+      pdf.text(statusText, margin, y); y += 18;
+
+      // Metrics
+      const pogingen = getPogingen();
+      const tijdMs = getWerkTijdMs();
+      pdf.text(`Pogingen: ${pogingen}`, margin, y); y += 16;
+      pdf.text(`Tijd besteed: ${formatDuur(tijdMs)}`, margin, y); y += 18;
+
+
+if (!TEST_MODE && REVEAL_EXPECTED_ON_FAIL && expectedOutput && expectedOutput.length > 0){
+  addMultilineSection(
+    "Verwachte uitvoer:",
+    pdf.splitTextToSize(_breakLongTokensForPdf(expectedOutput, 80), contentWidth),
+    COLOR_PURPLE,
+    true
+  );
+}
+
+      // Canvas
+      const imgH = 210, imgW = 210;
+      ensureRoom(imgH + 40);
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Canvas:", margin, y); y += 10;
+      pdf.addImage(canvasImg, "PNG", margin, y, imgW, imgH);
+      y += imgH + 20;
+
+      // Rubric scaffold
+      ensureRoom(250);
+      pdf.setTextColor(...COLOR_PURPLE); setLabelFont();
+      pdf.text("Beoordeling & feedback leerkracht:", margin, y); y += 18;
+
+      const tableWidth = 520;
+      const criteriumColWidth = 160;
+      const scoreColWidth = 54;
+      const headerH = 28;
+      const rowH = 44;
+
+      const startX = margin;
+      const col1 = startX + criteriumColWidth;
+      const col2 = col1 + scoreColWidth;
+
+      pdf.setDrawColor(...COLOR_PURPLE);
+      pdf.setLineWidth(0.8);
+      pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, "S");
+
+      pdf.setFillColor(...COLOR_PURPLE);
+      pdf.rect(startX, y, tableWidth, headerH, "F");
+
+      pdf.setTextColor(...COLOR_WHITE);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(13);
+      pdf.text("Criterium", startX + 8, y + 19);
+      pdf.text("Score", col1 + 12, y + 19);
+      pdf.text("Feedback", col2 + 12, y + 19);
+
+      pdf.setDrawColor(...COLOR_PURPLE);
+      pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+      pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(12);
+      const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+      for (let i=0;i<criteria.length;i++){
+        const rowY = y + headerH + i * rowH;
+        pdf.line(startX, rowY, startX + tableWidth, rowY);
+        pdf.setTextColor(...COLOR_PURPLE);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(criteria[i], startX + 8, rowY + 26);
+      }
+      y += headerH + 5 * rowH + 20;
+
+      // Verificatiegegevens
+      ensureRoom(90);
+      const now = new Date();
+      const localeStamp = now.toLocaleString("nl-BE");
+      const verifyId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+      const url = window.location.href;
+      const ua  = navigator.userAgent || "Onbekend";
+
+      pdf.setTextColor(...COLOR_PURPLE);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(11);
+      pdf.text("Verificatiegegevens:", startX + 8, y); y += 16;
+
+      pdf.setTextColor(0,0,0);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.text(`Genereerd op: ${localeStamp}`, startX + 8, y); y += 12;
+      const urlLines = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${url}`, 80), contentWidth);
+      pdf.text(urlLines, startX + 8, y); y += urlLines.length * 12;
+      const uaLines  = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${ua}`, 80), contentWidth);
+      pdf.text(uaLines, startX + 8, y); y += uaLines.length * 12;
+      pdf.text(`Pogingen: ${pogingen} | Tijd besteed: ${formatDuur(tijdMs)}`, startX + 8, y); y += 12;
+      pdf.text(`Verificatie-ID: ${verifyId}`, startX + 8, y); y += 16;
+
+      function sanitize(s){ return String(s).replace(/[^a-zA-Z0-9_\-]/g, "_"); }
+      const fname = `${sanitize(naam)}-${sanitize(klas)}-${sanitize(oefening)}.pdf`;
+      pdf.save(fname);
+    };
+
+    async function exportSavedExercisesToPdf_Batch(naam, klas){
+      const today = _dateKeyLocal(new Date());
+      const records = getSavedSnapshotsForDate(today);
+
+      if (!records.length){
+        showToast("Geen bewaarde oefeningen gevonden voor vandaag.", false);
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageHeight = pdf.internal.pageSize.height;
+      const margin = 36, contentWidth = 520;
+
+      function setBodyFont(){ pdf.setFont('helvetica', 'normal'); pdf.setFontSize(12); }
+      function setHeaderFont(){ pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); }
+      function setLabelFont(){ pdf.setFont('helvetica', 'bold'); pdf.setFontSize(13); }
+      function setCodeFont(){ pdf.setFont('courier', 'normal'); pdf.setFontSize(10); }
+
+      function ensureRoom(y, heightNeeded){
+        if (y + heightNeeded > pageHeight - margin){
+          pdf.addPage();
+          return margin;
+        }
+        return y;
+      }
+
+      function addMultiline(label, text, y, code=false){
+        pdf.setTextColor(82,0,255); setLabelFont();
+        pdf.text(label, margin, y); y += 16;
+        pdf.setTextColor(0,0,0);
+        code ? setCodeFont() : setBodyFont();
+        const safeText = _breakLongTokensForPdf(text || "", 80);
+        const lines = pdf.splitTextToSize(safeText, contentWidth);
+        const lh = code ? 13 : 14;
+
+        let i = 0;
+        while (i < lines.length){
+          let fit = Math.floor((pageHeight - y - margin) / lh);
+          if (fit < 1){ pdf.addPage(); y = margin; continue; }
+          const chunk = lines.slice(i, i + fit);
+          pdf.text(chunk, margin, y);
+          y += chunk.length * lh;
+          i += fit;
+          if (i < lines.length){ pdf.addPage(); y = margin; }
+        }
+        y += 10;
+        return y;
+      }
+
+      // Cover / inhoud
+      let y = margin;
+      pdf.setTextColor(82,0,255); setHeaderFont();
+      pdf.text("JavaScript in de Klas – Gebundelde export", margin, y); y += 28;
+      pdf.setTextColor(0,0,0); setBodyFont();
+      pdf.text(`Naam: ${naam}`, margin, y); y += 18;
+      pdf.text(`Klas: ${klas}`, margin, y); y += 18;
+      pdf.text(`Datum: ${today}`, margin, y); y += 26;
+
+      pdf.setTextColor(82,0,255); setLabelFont();
+      pdf.text("Inhoud:", margin, y); y += 16;
+      pdf.setTextColor(0,0,0); setBodyFont();
+
+      const tocLines = records.map((r, idx) => {
+        const t = (r.exerciseTitle || r.opdrachtText || `Oefening ${r.exerciseIdx+1}`).trim();
+        return `${idx+1}. ${t}`;
+      });
+      const toc = pdf.splitTextToSize(tocLines.join("\n"), contentWidth);
+      pdf.text(toc, margin, y);
+
+      // Oefeningen
+      for (let i = 0; i < records.length; i++){
+        const r = records[i];
+        pdf.addPage();
+        y = margin;
+
+        pdf.setTextColor(82,0,255); setHeaderFont();
+        pdf.text(`Oefening ${i+1} / ${records.length}`, margin, y); y += 24;
+
+        pdf.setTextColor(0,0,0); setBodyFont();
+        const title = (r.exerciseTitle || "").trim();
+        if (title) { pdf.text(title, margin, y); y += 18; }
+
+        const status = r.evalStatus === "success" ? "Oefening correct" :
+                       r.evalStatus === "fail"    ? "Uitgevoerd, maar niet correct" :
+                                                    "Onbekend";
+        pdf.text(`Status: ${status}`, margin, y); y += 16;
+
+        const tijdLabel = (typeof formatDuur === 'function') ? formatDuur(r.tijdMs || 0) : `${Math.floor((r.tijdMs||0)/1000)}s`;
+        pdf.text(`Pogingen: ${r.pogingen ?? ""}  |  Tijd: ${tijdLabel}`, margin, y); y += 22;
+
+        y = addMultiline("Opdracht:", r.opdrachtText || "", y, false);
+        y = addMultiline("Code:", r.code || "", y, true);
+        y = addMultiline("Console-uitvoer:", r.console || "(geen uitvoer)", y, true);
+const includeExpected =
+  (!TEST_MODE) &&
+  REVEAL_EXPECTED_ON_FAIL &&
+  (r.expectedOutput && String(r.expectedOutput).length > 0);
+
+if (includeExpected){
+  y = addMultiline("Verwachte uitvoer:", r.expectedOutput, y, true);
+}
+
+        // Canvas image
+        if (r.canvasDataUrl){
+          y = ensureRoom(y, 240);
+          pdf.setTextColor(82,0,255); setLabelFont();
+          pdf.text("Canvas:", margin, y); y += 10;
+          try{
+            pdf.addImage(r.canvasDataUrl, 'JPEG', margin, y, 210, 210);
+            y += 230;
+          } catch(e){
+            pdf.setTextColor(0,0,0); setBodyFont();
+            pdf.text("(Kon canvas-afbeelding niet toevoegen.)", margin, y); y += 16;
+          }
+        }
+
+y = ensureRoom(y, 250);
+
+pdf.setTextColor(82,0,255); setLabelFont();
+pdf.text("Beoordeling & feedback leerkracht:", margin, y); y += 18;
+
+const tableWidth = 520;
+const criteriumColWidth = 160;
+const scoreColWidth = 54;
+const headerH = 28;
+const rowH = 44;
+
+const startX = margin;
+const col1 = startX + criteriumColWidth;
+const col2 = col1 + scoreColWidth;
+
+pdf.setDrawColor(82,0,255);
+pdf.setLineWidth(0.8);
+pdf.rect(startX, y, tableWidth, headerH + 5 * rowH, "S");
+
+pdf.setFillColor(82,0,255);
+pdf.rect(startX, y, tableWidth, headerH, "F");
+
+pdf.setTextColor(255,255,255);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(13);
+pdf.text("Criterium", startX + 8, y + 19);
+pdf.text("Score", col1 + 12, y + 19);
+pdf.text("Feedback", col2 + 12, y + 19);
+
+pdf.setDrawColor(82,0,255);
+pdf.line(col1, y, col1, y + headerH + 5 * rowH);
+pdf.line(col2, y, col2, y + headerH + 5 * rowH);
+
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(12);
+const criteria = ["Functioneel", "Leesbaar", "Programmeerconcept", "Wiskundeconcept", "Creativiteit"];
+for (let i=0;i<criteria.length;i++){
+  const rowY = y + headerH + i * rowH;
+  pdf.line(startX, rowY, startX + tableWidth, rowY);
+  pdf.setTextColor(82,0,255);
+  pdf.setFont("helvetica", "bold");
+  pdf.text(criteria[i], startX + 8, rowY + 26);
+}
+
+y += headerH + 5 * rowH + 20;
+        // Verification
+        y = ensureRoom(y, 80);
+        pdf.setTextColor(82,0,255); setLabelFont();
+        pdf.text("Verificatiegegevens:", margin, y); y += 16;
+        pdf.setTextColor(0,0,0); pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
+        pdf.text(`Bewaard op: ${r.savedAt || ""}`, margin, y); y += 12;
+        const bUrl = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${r.pageUrl || ""}`, 80), contentWidth);
+        pdf.text(bUrl, margin, y); y += bUrl.length * 12;
+        const bUa  = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${r.userAgent || ""}`, 80), contentWidth);
+        pdf.text(bUa, margin, y); y += bUa.length * 12;
+      }
+
+      function sanitize(s){ return String(s||"").replace(/[^a-zA-Z0-9_\-]/g, "_"); }
+      const fname = `${sanitize(naam)}-${sanitize(klas)}-${today}-ALLE_OEFENINGEN.pdf`;
+      pdf.save(fname);
+    }
+
+    /* =========================================================
+       12) Run handler
+       ========================================================= */
+
+    function showSavedToast(){
+      if (document.getElementById("saved-toast")) return;
+      const toast = document.createElement("div");
+      toast.id = "saved-toast";
+      toast.textContent = "Opgeslagen!";
+      toast.style.position = "fixed";
+      toast.style.bottom = "32px";
+      toast.style.right = "32px";
+      toast.style.background = "#3dffd0";
+      toast.style.color = "#23272e";
+      toast.style.padding = "0.8em 1.2em";
+      toast.style.borderRadius = "8px";
+      toast.style.fontWeight = "bold";
+      toast.style.boxShadow = "0 2px 12px rgba(0,0,0,0.10)";
+      toast.style.zIndex = 3001;
+      toast.style.opacity = "0";
+      toast.style.transition = "opacity 0.25s";
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = "1"; }, 20);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => { toast.remove(); }, 300);
+      }, 900);
+    }
+
+    document.getElementById("run-code").onclick = async function(){
+      // Poging telt enkel als er effectief gewijzigd is
+      incPogingen();
+      stopWerkTimer();
+      updateMetricsUI();
+
+      clearConsole();
+      capturedOutput = "";
+
+      try{
+        if (window.resetTurtle) window.resetTurtle();
+        if (window.clearCanvas) window.clearCanvas();
+
+        saveUserCode();
+        isDirty = false;
+        showSavedToast();
+
+        const code = editor.getValue();
+        await runStudentCode(code);
+
+      }catch(e){
+        const msg = e && e.message ? e.message : String(e);
+        const uitleg = translateError(msg);
+        appendToConsole("Fout: " + uitleg);
+      }finally{
+        const isCorrect = evaluateExercise();
+const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+if (isCorrect === true) localStorage.setItem(evalKey, "success");
+else if (isCorrect === false) localStorage.setItem(evalKey, "fail");
+else localStorage.removeItem(evalKey);
+
+// Save “latest fail” or “latest success”
+if (isCorrect === true || isCorrect === false){
+  const status = isCorrect ? "success" : "fail";
+  const res = saveCompletedExerciseSnapshot(status);
+  if (!res.ok){
+    showToast(
+      res.reason === "quota"
+        ? "Opslaan mislukt: localStorage is vol. Exporteer vaker naar PDF."
+        : "Opslaan mislukt.",
+      false
+    );
+  }
+}
+
+renderExerciseProgress();
+showEvalFeedback(isCorrect);
+      }
+    };
+
+    /* =========================================================
+       13) Reset progress
+       ========================================================= */
+    
+    document.getElementById("reset-progress").onclick = async function(){
+  const choice = await resetChoiceModal();
+  if (!choice) return;
+
+  if (choice === "current"){
+    // Wis enkel deze oefening (code + metrics + eval + snapshot van vandaag)
+    const codeKey = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
+    const evalKey = `jsprog-eval-${currentChapterIdx}-${currentExerciseIdx}`;
+    localStorage.removeItem(codeKey);
+    localStorage.removeItem(evalKey);
+    localStorage.removeItem(exKey("pogingen"));
+    localStorage.removeItem(exKey("werkTijdMs"));
+
+    // Wis snapshot van vandaag voor deze oefening (batch)
+    const today = _dateKeyLocal(new Date());
+    const snapKey = `${_SAVE_PREFIX}-${today}-${currentChapterIdx}-${currentExerciseIdx}-latest`;
+    try{ localStorage.removeItem(snapKey); }catch(e){}
+    try{
+      const keys = _loadSaveIndex().filter(k => k !== snapKey);
+      _writeSaveIndex(keys);
+    }catch(e){}
+
+    renderExerciseProgress();
+    loadExercise();
+    return;
+  }
+
+  if (choice === "all"){
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith("jsprog-")) localStorage.removeItem(k);
+      if (k.startsWith(_SAVE_PREFIX)) localStorage.removeItem(k);
+      if (k === _SAVE_INDEX_KEY) localStorage.removeItem(k);
+    });
+
+    renderExerciseProgress();
+    loadExercise();
+  }
+};
+
+    /* =========================================================
+       14) Help 
+       ========================================================= */
+
+    // Help
+    const helpModal = document.getElementById("help-modal");
+    document.getElementById("help-btn").onclick = () => (helpModal.style.display = "flex");
+    document.getElementById("close-help").onclick = () => (helpModal.style.display = "none");
+    helpModal.onclick = (e) => { if (e.target === helpModal) helpModal.style.display = "none"; };
+
+    // Swatches
+    function renderSwatches(){
+      let simple_colors = null;
+      if (typeof RGBColor === "function"){
+        let match = RGBColor.toString().match(/var\s+simple_colors\s*=\s*({[\s\S]+?});/);
+        if (match){
+          try{ simple_colors = eval("(" + match[1] + ")"); }catch(e){}
+        }
+        if (!simple_colors && RGBColor.simple_colors) simple_colors = RGBColor.simple_colors;
+      }
+      if (!simple_colors) simple_colors = {red:"ff0000",blue:"0000ff",green:"008000",black:"000000",white:"ffffff"};
+
+      const MAX_COLORS = 32;
+      const names = Object.keys(simple_colors).slice(0, MAX_COLORS);
+
+      let html = "";
+      for (const name of names){
+        const hex = "#" + simple_colors[name];
+        const r = parseInt(simple_colors[name].substring(0,2), 16);
+        const g = parseInt(simple_colors[name].substring(2,4), 16);
+        const b = parseInt(simple_colors[name].substring(4,6), 16);
+        html += `
+          <div class="swatch-container">
+            <div class="swatch" style="background:${hex};"></div>
+            <div class="label">${name}<br><span class="rgb">rgb(${r},${g},${b})</span></div>
+          </div>
+        `;
+      }
+      document.getElementById("dynamic-color-swatches").innerHTML = html;
+    }
+
+    // Theme
+    document.getElementById("toggle-theme").onclick = () => {
+      document.body.classList.toggle("dark");
+    };
+
+    // Zoom
+    document.getElementById("zoom-in").onclick = zoomIn;
+    document.getElementById("zoom-out").onclick = zoomOut;
+
+    // Menu enable/disable
+    function setupMenu(){
+      const enabled = !!window.JSIK_ENABLE_MENU;
+      const menu = document.getElementById("course-menu");
+      const tab = document.getElementById("menu-tab");
+      const close = document.getElementById("close-menu");
+      if (!menu || !tab || !close) return;
+
+      if (!enabled){
+        menu.style.display = "none";
+        tab.style.display = "none";
+        return;
+      }
+
+      tab.onclick = (e) => {
+        e.stopPropagation();
+        menu.classList.toggle("open");
+        if (menu.classList.contains("open")) menu.focus();
+      };
+      close.onclick = () => menu.classList.remove("open");
+
+      document.addEventListener("click", (e) => {
+        if (menu.classList.contains("open") && !menu.contains(e.target) && e.target !== tab){
+          menu.classList.remove("open");
+        }
+      });
+
+      menu.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") menu.classList.remove("open");
+      });
+    }
+
+    // Splitter (resizable panes)
+    function setupSplitter(){
+      const splitter = document.getElementById("splitter");
+      const editorPane = document.getElementById("editor-pane");
+      const canvasPane = document.getElementById("canvas-pane");
+      const mainLayout = document.getElementById("main-layout");
+      if (!splitter || !editorPane || !canvasPane || !mainLayout) return;
+
+      let dragging = false;
+
+      splitter.addEventListener("mousedown", function(){
+        if (window.innerWidth < 980) return;
+        dragging = true;
+        splitter.classList.add("dragging");
+        document.body.style.userSelect = "none";
+      });
+
+      document.addEventListener("mousemove", function(e){
+        if (!dragging || window.innerWidth < 980) return;
+
+        const rect = mainLayout.getBoundingClientRect();
+        const minEditorWidth = 220;
+        const minCanvasWidth = Math.max(0, parseFloat(getComputedStyle(canvasPane).minWidth) || 0);
+        const splitterWidth = splitter.offsetWidth;
+        const totalWidth = rect.width;
+
+        let newEditorWidth = e.clientX - rect.left;
+        const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
+        newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
+
+        editorPane.style.flex = `0 0 ${newEditorWidth}px`;
+        editorPane.style.width = `${newEditorWidth}px`;
+        canvasPane.style.flex = "1 1 0";
+        canvasPane.style.width = "";
+      });
+
+      document.addEventListener("mouseup", function(){
+        if (!dragging) return;
+        dragging = false;
+        splitter.classList.remove("dragging");
+        document.body.style.userSelect = "";
+      });
+
+      window.addEventListener("resize", function(){
+        if (window.innerWidth < 980){
+          editorPane.style.flex = "";
+          editorPane.style.width = "";
+          canvasPane.style.flex = "";
+          canvasPane.style.width = "";
+          splitter.style.display = "none";
+        } else {
+          splitter.style.display = "block";
+        }
+      });
+    }
+
+    /* =========================================================
+       15) Boot
+       ========================================================= */
+
+    document.addEventListener("DOMContentLoaded", function(){
+      // CodeMirror
+      editor = CodeMirror(document.getElementById("code-editor"), {
+        value: (chapters[0] && chapters[0].exercises[0] && chapters[0].exercises[0].starterCode) ? chapters[0].exercises[0].starterCode : "",
+        mode:"javascript",
+        lineNumbers:true,
+        theme:"default",
+        tabSize:2,
+        autofocus:true
+      });
+
+      editor.on("change", function(){
+        isDirty = true;
+
+        // Autosave: main branch blijft compatibel met bestaande keys
+        try{
+          localStorage.setItem(`jsprog-${currentChapterIdx}-${currentExerciseIdx}`, editor.getValue());
+        }catch(e){}
+
+        startWerkTimer();
+        updateMetricsUI();
+      });
+
+      // UI boot
+      renderSwatches();
+      setupMenu();
+      setupSplitter();
+
+      renderChapterMenu();
+      renderExerciseProgress();
+      loadExercise();
+    });
+  </script>
+</body>
+</html>

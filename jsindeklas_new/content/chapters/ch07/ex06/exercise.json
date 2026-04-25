@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex06",
+  "title": "6. Spiraal tekenen",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

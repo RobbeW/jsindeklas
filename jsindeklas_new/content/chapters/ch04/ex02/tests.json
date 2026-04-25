@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Rechthoek 80 op 40",
+    "canvas": {
+      "lineCount": 4,
+      "sortedLineLengths": [
+        80,
+        80,
+        40,
+        40
+      ],
+      "closedShape": true
+    }
+  },
+  {
+    "label": "Rechthoek 60 op 20",
+    "canvas": {
+      "lineCount": 4,
+      "sortedLineLengths": [
+        60,
+        60,
+        20,
+        20
+      ],
+      "closedShape": true
+    },
+    "replacements": [
+      {
+        "from": "var lengte = 80;",
+        "to": "var lengte = 60;"
+      },
+      {
+        "from": "var breedte = 40;",
+        "to": "var breedte = 20;"
+      }
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "id": "ch02-ex09",
+  "title": "9. Korting In De Supermarkt",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Fred moet in totaal 9.01 euro betalen aan de kassa.",
+  "testsPath": "tests.json"
+}

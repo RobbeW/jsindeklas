@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex02",
+  "title": "2. Vriest het water of niet?",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Het water vriest.",
+  "testsPath": "tests.json"
+}

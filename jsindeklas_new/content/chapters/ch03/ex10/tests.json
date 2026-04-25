@@ -1,0 +1,77 @@
+[
+  {
+    "label": "Oranje stoplicht",
+    "stdout": "Stoplicht: orange.",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "lineColour": "orange",
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0,
+        "penColour": "orange"
+      }
+    }
+  },
+  {
+    "label": "Rood stoplicht",
+    "stdout": "Stoplicht: red.",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "lineColour": "red",
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0,
+        "penColour": "red"
+      }
+    },
+    "replacements": [
+      {
+        "from": "var code = 2;",
+        "to": "var code = 1;"
+      }
+    ]
+  },
+  {
+    "label": "Groen stoplicht",
+    "stdout": "Stoplicht: green.",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "lineColour": "green",
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0,
+        "penColour": "green"
+      }
+    },
+    "replacements": [
+      {
+        "from": "var code = 2;",
+        "to": "var code = 3;"
+      }
+    ]
+  }
+]

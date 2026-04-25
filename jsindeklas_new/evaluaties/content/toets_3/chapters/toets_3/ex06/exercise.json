@@ -1,0 +1,8 @@
+{
+  "id": "toets_3-ex06",
+  "title": "6. Exact nul",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Stilstand.",
+  "testsPath": "tests.json"
+}

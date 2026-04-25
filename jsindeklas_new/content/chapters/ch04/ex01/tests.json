@@ -1,0 +1,44 @@
+[
+  {
+    "label": "Vierkant met zijde 50",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        50,
+        50,
+        50,
+        50
+      ],
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0
+      }
+    }
+  },
+  {
+    "label": "Kleiner vierkant",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        30,
+        30,
+        30,
+        30
+      ],
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0
+      }
+    },
+    "replacements": [
+      {
+        "from": "var zijde = 50;",
+        "to": "var zijde = 30;"
+      }
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "id": "ch04-ex05",
+  "title": "5. Zijden Annoteren",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

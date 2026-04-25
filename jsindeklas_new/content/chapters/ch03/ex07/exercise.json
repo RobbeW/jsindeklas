@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex07",
+  "title": "7. Scorecheck (if / else if / else)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Voldoende.",
+  "testsPath": "tests.json"
+}

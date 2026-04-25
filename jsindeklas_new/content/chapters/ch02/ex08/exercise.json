@@ -1,0 +1,8 @@
+{
+  "id": "ch02-ex08",
+  "title": "8. Stappenteller",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Je dient nog 4658 stappen te zetten.",
+  "testsPath": "tests.json"
+}

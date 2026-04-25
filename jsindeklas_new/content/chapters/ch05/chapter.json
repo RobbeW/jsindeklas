@@ -1,0 +1,47 @@
+{
+  "id": "ch05",
+  "title": "Hoofdstuk 5: De Begrensde Herhaling",
+  "order": 5,
+  "exercises": [
+    {
+      "id": "ch05-ex01",
+      "order": 1,
+      "path": "ex01/exercise.json"
+    },
+    {
+      "id": "ch05-ex02",
+      "order": 2,
+      "path": "ex02/exercise.json"
+    },
+    {
+      "id": "ch05-ex03",
+      "order": 3,
+      "path": "ex03/exercise.json"
+    },
+    {
+      "id": "ch05-ex04",
+      "order": 4,
+      "path": "ex04/exercise.json"
+    },
+    {
+      "id": "ch05-ex05",
+      "order": 5,
+      "path": "ex05/exercise.json"
+    },
+    {
+      "id": "ch05-ex06",
+      "order": 6,
+      "path": "ex06/exercise.json"
+    },
+    {
+      "id": "ch05-ex07",
+      "order": 7,
+      "path": "ex07/exercise.json"
+    },
+    {
+      "id": "ch05-ex08",
+      "order": 8,
+      "path": "ex08/exercise.json"
+    }
+  ]
+}

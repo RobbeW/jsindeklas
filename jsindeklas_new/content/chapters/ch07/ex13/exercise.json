@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex13",
+  "title": "13. Spiraal met veranderende kleur",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

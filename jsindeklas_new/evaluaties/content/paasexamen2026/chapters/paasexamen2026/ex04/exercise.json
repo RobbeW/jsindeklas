@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex04",
+  "title": "4. Benzinecrisis",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Vandaag betaal je 67.51 euro om jouw auto vol te tanken.",
+  "testsPath": "tests.json"
+}

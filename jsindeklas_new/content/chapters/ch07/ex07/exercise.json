@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex07",
+  "title": "7. Vierkanten in diverse kleuren",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

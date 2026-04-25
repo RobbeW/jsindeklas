@@ -1,0 +1,8 @@
+{
+  "id": "kerstexamen2025-ex04",
+  "title": "4. Ticketverkoop schoolfeest",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De school verdient 157.5 euro en komt 42.5 euro te kort.",
+  "testsPath": "tests.json"
+}

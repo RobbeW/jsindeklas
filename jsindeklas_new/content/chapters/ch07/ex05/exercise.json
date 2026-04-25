@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex05",
+  "title": "5. Trap met vijf treden",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

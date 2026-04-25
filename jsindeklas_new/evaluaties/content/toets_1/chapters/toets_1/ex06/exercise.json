@@ -1,0 +1,8 @@
+{
+  "id": "toets_1-ex06",
+  "title": "6. Volume van een aquarium",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Het aquarium kan 240 liter water bevatten.",
+  "testsPath": "tests.json"
+}

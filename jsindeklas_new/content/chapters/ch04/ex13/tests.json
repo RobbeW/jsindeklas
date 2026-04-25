@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Gevraagde zijde 25",
+    "stdin": [
+      "25"
+    ],
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        25,
+        25,
+        25,
+        25
+      ],
+      "closedShape": true
+    }
+  },
+  {
+    "label": "Gevraagde zijde 40",
+    "stdin": [
+      "40"
+    ],
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "closedShape": true
+    }
+  }
+]

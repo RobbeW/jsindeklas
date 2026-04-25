@@ -1,0 +1,36 @@
+[
+  {
+    "label": "Groen vierkant en oranje cirkel",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "lineColour": "green",
+      "closedShape": true,
+      "circleEntries": [
+        {
+          "filled": false,
+          "radius": 25,
+          "x": 140,
+          "y": 0,
+          "colour": "orange"
+        }
+      ],
+      "actionTypeCounts": {
+        "moveForward": 4,
+        "goTo": 1,
+        "drawCircle": 1
+      },
+      "minBoundsWidth": 165,
+      "finalState": {
+        "x": 140,
+        "y": 0,
+        "penColour": "orange"
+      }
+    }
+  }
+]

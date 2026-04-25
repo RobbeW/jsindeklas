@@ -1,0 +1,7 @@
+{
+  "id": "ch04-ex04",
+  "title": "4. Vierkant op Coördinaten",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

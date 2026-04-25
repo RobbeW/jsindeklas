@@ -1,0 +1,88 @@
+[
+  {
+    "label": "De voorbeeldafmetingen",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        1,
+        91238.28,
+        2,
+        91238.28,
+        3,
+        91238.28,
+        4,
+        91238.28,
+        5,
+        91238.28,
+        6,
+        91238.28,
+        7,
+        91238.28
+      ]
+    }
+  },
+  {
+    "label": "Klein bosgebied",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        1,
+        50,
+        2,
+        50,
+        3,
+        50,
+        4,
+        50,
+        5,
+        50,
+        6,
+        50,
+        7,
+        50
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var lengte = 329;",
+        "to": "var lengte = 10;"
+      },
+      {
+        "from": "var breedte = 277.32;",
+        "to": "var breedte = 5;"
+      }
+    ]
+  },
+  {
+    "label": "Exact 100 vierkante meter",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        1,
+        100,
+        2,
+        100,
+        3,
+        100,
+        4,
+        100,
+        5,
+        100,
+        6,
+        100,
+        7,
+        100
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var lengte = 329;",
+        "to": "var lengte = 8;"
+      },
+      {
+        "from": "var breedte = 277.32;",
+        "to": "var breedte = 12.5;"
+      }
+    ]
+  }
+]

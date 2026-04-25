@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex09",
+  "title": "9. Canvas: kleur kiezen op basis van temperatuur",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Kleur ingesteld: red.",
+  "testsPath": "tests.json"
+}

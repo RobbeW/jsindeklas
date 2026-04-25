@@ -1,0 +1,8 @@
+{
+  "id": "ch05-ex08",
+  "title": "8. Gemiddelde Score Kerstrapport",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Het gemiddelde is 75.67",
+  "testsPath": "tests.json"
+}

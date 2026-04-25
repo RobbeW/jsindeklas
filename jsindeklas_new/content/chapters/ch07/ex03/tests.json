@@ -1,0 +1,24 @@
+[
+  {
+    "label": "Drie vierkanten naast elkaar",
+    "canvas": {
+      "lineCount": 12,
+      "sortedLineLengths": [
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45
+      ],
+      "minBoundsWidth": 120,
+      "maxBoundsHeight": 60
+    }
+  }
+]

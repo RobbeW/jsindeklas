@@ -1,0 +1,52 @@
+{
+  "id": "toets_3",
+  "title": "Toets Hoofdstuk 3: De Selectie",
+  "order": 1,
+  "exercises": [
+    {
+      "id": "toets_3-ex01",
+      "order": 1,
+      "path": "ex01/exercise.json"
+    },
+    {
+      "id": "toets_3-ex02",
+      "order": 2,
+      "path": "ex02/exercise.json"
+    },
+    {
+      "id": "toets_3-ex03",
+      "order": 3,
+      "path": "ex03/exercise.json"
+    },
+    {
+      "id": "toets_3-ex04",
+      "order": 4,
+      "path": "ex04/exercise.json"
+    },
+    {
+      "id": "toets_3-ex05",
+      "order": 5,
+      "path": "ex05/exercise.json"
+    },
+    {
+      "id": "toets_3-ex06",
+      "order": 6,
+      "path": "ex06/exercise.json"
+    },
+    {
+      "id": "toets_3-ex07",
+      "order": 7,
+      "path": "ex07/exercise.json"
+    },
+    {
+      "id": "toets_3-ex08",
+      "order": 8,
+      "path": "ex08/exercise.json"
+    },
+    {
+      "id": "toets_3-ex09",
+      "order": 9,
+      "path": "ex09/exercise.json"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "label": "Groen vierkant",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        35,
+        35,
+        35,
+        35
+      ],
+      "lineColour": "green",
+      "closedShape": true
+    }
+  },
+  {
+    "label": "Rood vierkant",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        35,
+        35,
+        35,
+        35
+      ],
+      "lineColour": "red",
+      "closedShape": true
+    },
+    "replacements": [
+      {
+        "from": "var kleurKeuze = 'groen';",
+        "to": "var kleurKeuze = 'rood';"
+      }
+    ]
+  },
+  {
+    "label": "Blauw vierkant",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        35,
+        35,
+        35,
+        35
+      ],
+      "lineColour": "blue",
+      "closedShape": true
+    },
+    "replacements": [
+      {
+        "from": "var kleurKeuze = 'groen';",
+        "to": "var kleurKeuze = 'blauw';"
+      }
+    ]
+  }
+]

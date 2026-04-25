@@ -1,0 +1,35 @@
+[
+  {
+    "label": "De voorbeeldafstanden",
+    "stdin": [
+      "245.2",
+      "199.2",
+      "312",
+      "231",
+      "119.4"
+    ],
+    "stdout": "De totale afstand die ik heb afgelegd is: 1107.8 km."
+  },
+  {
+    "label": "Korte ritten",
+    "stdin": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "stdout": "De totale afstand die ik heb afgelegd is: 15 km."
+  },
+  {
+    "label": "Decimalen die exact optellen",
+    "stdin": [
+      "10.5",
+      "20.25",
+      "0",
+      "4.25",
+      "1"
+    ],
+    "stdout": "De totale afstand die ik heb afgelegd is: 36 km."
+  }
+]

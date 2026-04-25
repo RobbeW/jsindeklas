@@ -1,0 +1,75 @@
+[
+  {
+    "label": "Vier vierkanten met afwisselende kleur en dikte",
+    "canvas": {
+      "lineCount": 16,
+      "lineLengths": [
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "lineColours": [
+        "red",
+        "red",
+        "red",
+        "red",
+        "blue",
+        "blue",
+        "blue",
+        "blue",
+        "red",
+        "red",
+        "red",
+        "red",
+        "blue",
+        "blue",
+        "blue",
+        "blue"
+      ],
+      "lineWidths": [
+        5,
+        5,
+        5,
+        5,
+        2,
+        2,
+        2,
+        2,
+        5,
+        5,
+        5,
+        5,
+        2,
+        2,
+        2,
+        2
+      ],
+      "actionTypeCounts": {
+        "goTo": 4,
+        "setPenColour": 4,
+        "setLineWidth": 4,
+        "moveForward": 16
+      },
+      "minBoundsWidth": 210,
+      "maxBoundsHeight": 35,
+      "finalState": {
+        "x": 180,
+        "y": 0,
+        "penDown": false
+      }
+    }
+  }
+]

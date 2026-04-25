@@ -1,0 +1,23 @@
+[
+  {
+    "label": "Groene trap",
+    "canvas": {
+      "lineCount": 10,
+      "sortedLineLengths": [
+        20,
+        20,
+        20,
+        20,
+        20,
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "lineColour": "green",
+      "minBoundsWidth": 95,
+      "minBoundsHeight": 145
+    }
+  }
+]

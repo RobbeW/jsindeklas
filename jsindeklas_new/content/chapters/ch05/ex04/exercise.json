@@ -1,0 +1,8 @@
+{
+  "id": "ch05-ex04",
+  "title": "4. Bosbrand Per Dag",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Op dag 1 is er 91238.28 m² bos afgebrand.\nOp dag 2 is er 91238.28 m² bos afgebrand.\nOp dag 3 is er 91238.28 m² bos afgebrand.\nOp dag 4 is er 91238.28 m² bos afgebrand.\nOp dag 5 is er 91238.28 m² bos afgebrand.\nOp dag 6 is er 91238.28 m² bos afgebrand.\nOp dag 7 is er 91238.28 m² bos afgebrand.",
+  "testsPath": "tests.json"
+}

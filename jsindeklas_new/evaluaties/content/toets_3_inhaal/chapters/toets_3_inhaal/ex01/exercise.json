@@ -1,0 +1,8 @@
+{
+  "id": "toets_3_inhaal-ex01",
+  "title": "1. Verzendingskosten",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Geen extra kosten.",
+  "testsPath": "tests.json"
+}

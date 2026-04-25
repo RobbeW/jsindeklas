@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Paarse cirkel-benadering",
+    "canvas": {
+      "lineCount": 360,
+      "lineColour": "purple",
+      "maxLineLength": 2,
+      "minBoundsWidth": 90,
+      "maxBoundsWidth": 150,
+      "minBoundsHeight": 90,
+      "maxBoundsHeight": 150,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0
+      },
+      "actionTypeCounts": {
+        "moveForward": 360
+      }
+    }
+  }
+]

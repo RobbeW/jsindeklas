@@ -1,0 +1,47 @@
+{
+  "id": "ch06",
+  "title": "Hoofdstuk 6: De Voorwaardelijke Herhaling",
+  "order": 6,
+  "exercises": [
+    {
+      "id": "ch06-ex01",
+      "order": 1,
+      "path": "ex01/exercise.json"
+    },
+    {
+      "id": "ch06-ex02",
+      "order": 2,
+      "path": "ex02/exercise.json"
+    },
+    {
+      "id": "ch06-ex03",
+      "order": 3,
+      "path": "ex03/exercise.json"
+    },
+    {
+      "id": "ch06-ex04",
+      "order": 4,
+      "path": "ex04/exercise.json"
+    },
+    {
+      "id": "ch06-ex05",
+      "order": 5,
+      "path": "ex05/exercise.json"
+    },
+    {
+      "id": "ch06-ex06",
+      "order": 6,
+      "path": "ex06/exercise.json"
+    },
+    {
+      "id": "ch06-ex07",
+      "order": 7,
+      "path": "ex07/exercise.json"
+    },
+    {
+      "id": "ch06-ex08",
+      "order": 8,
+      "path": "ex08/exercise.json"
+    }
+  ]
+}

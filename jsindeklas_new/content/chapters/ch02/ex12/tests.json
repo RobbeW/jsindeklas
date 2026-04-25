@@ -1,0 +1,13 @@
+[
+  {
+    "label": "De voorbeeldrit",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        112.34,
+        110.64,
+        19.76
+      ]
+    }
+  }
+]

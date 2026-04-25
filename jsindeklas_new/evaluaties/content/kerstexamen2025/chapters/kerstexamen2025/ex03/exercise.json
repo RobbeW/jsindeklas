@@ -1,0 +1,8 @@
+{
+  "id": "kerstexamen2025-ex03",
+  "title": "3. Zakgeld na het weekend",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Noor heeft na het weekend 27.05 euro over.",
+  "testsPath": "tests.json"
+}

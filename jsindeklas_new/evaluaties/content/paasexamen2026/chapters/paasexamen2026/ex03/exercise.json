@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex03",
+  "title": "3. Gemiddelde score voor wiskunde",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Jana scoort gemiddeld 9 op 15. Hiermee scoort ze 60 procent op haar rapport.",
+  "testsPath": "tests.json"
+}

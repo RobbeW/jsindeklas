@@ -1,0 +1,43 @@
+[
+  {
+    "label": "Drie gevulde cirkels met voorspelbare random kleuren",
+    "beforeCode": "window.randomColour = (() => {\n  const kleuren = ['red', 'blue', 'green'];\n  let index = 0;\n  return function(){\n    const kleur = kleuren[index % kleuren.length];\n    index += 1;\n    return kleur;\n  };\n})();",
+    "canvas": {
+      "circleEntries": [
+        {
+          "filled": true,
+          "radius": 20,
+          "x": -120,
+          "y": 0,
+          "colour": "red"
+        },
+        {
+          "filled": true,
+          "radius": 20,
+          "x": 0,
+          "y": 0,
+          "colour": "blue"
+        },
+        {
+          "filled": true,
+          "radius": 20,
+          "x": 120,
+          "y": 0,
+          "colour": "green"
+        }
+      ],
+      "actionTypeCounts": {
+        "goTo": 3,
+        "setPenColour": 3,
+        "fillCircle": 3
+      },
+      "minBoundsWidth": 280,
+      "maxBoundsHeight": 40,
+      "finalState": {
+        "x": 120,
+        "y": 0,
+        "penDown": false
+      }
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "id": "kerstexamen2025-ex07",
+  "title": "7. Volume van een verhuisdoos",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De doos heeft een maximaal volume van 60000 kubieke centimeter, dat is 60 liter.\nDe doos is maar voor 40.2 liter gevuld.",
+  "testsPath": "tests.json"
+}

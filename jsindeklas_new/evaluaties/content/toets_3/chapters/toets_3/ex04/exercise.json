@@ -1,0 +1,8 @@
+{
+  "id": "toets_3-ex04",
+  "title": "4. Weerbericht",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Warm.",
+  "testsPath": "tests.json"
+}

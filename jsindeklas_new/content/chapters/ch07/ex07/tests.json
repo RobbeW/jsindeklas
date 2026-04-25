@@ -1,0 +1,47 @@
+[
+  {
+    "label": "Drie vierkanten in rood, groen en blauw",
+    "canvas": {
+      "lineCount": 12,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "lineColours": [
+        "red",
+        "red",
+        "red",
+        "red",
+        "green",
+        "green",
+        "green",
+        "green",
+        "blue",
+        "blue",
+        "blue",
+        "blue"
+      ],
+      "actionTypeCounts": {
+        "goTo": 3,
+        "moveForward": 12
+      },
+      "minBoundsWidth": 180,
+      "maxBoundsHeight": 45,
+      "finalState": {
+        "x": 140,
+        "y": 0,
+        "penDown": false
+      }
+    }
+  }
+]

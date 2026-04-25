@@ -1,0 +1,8 @@
+{
+  "id": "toets_2-ex06",
+  "title": "6. Waterverbruik onder de douche",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Eén douche verbruikt 56 liter water, in vijf dagen is dat 280 liter.",
+  "testsPath": "tests.json"
+}

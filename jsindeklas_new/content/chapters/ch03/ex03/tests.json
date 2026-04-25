@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Vloeibaar water",
+    "stdout": "Het water is vloeibaar."
+  },
+  {
+    "label": "Bevroren water",
+    "stdout": "Het water is bevroren.",
+    "replacements": [
+      {
+        "from": "var temp = 20;",
+        "to": "var temp = -5;"
+      }
+    ]
+  },
+  {
+    "label": "Kokend water",
+    "stdout": "Het water kookt.",
+    "replacements": [
+      {
+        "from": "var temp = 20;",
+        "to": "var temp = 105;"
+      }
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "id": "toets_2-ex01",
+  "title": "1. Sportuitslag basketbal",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "In totaal werden 127 punten gescoord, het thuisteam won met 9 punten verschil.",
+  "testsPath": "tests.json"
+}

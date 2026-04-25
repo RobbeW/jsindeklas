@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "kerstexamen2025",
+      "title": "JavaScript: Toets - Variabelen & Berekeningen",
+      "order": 1,
+      "path": "chapters/kerstexamen2025/chapter.json"
+    }
+  ]
+}

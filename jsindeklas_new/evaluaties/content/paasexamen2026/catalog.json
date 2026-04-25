@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "paasexamen2026",
+      "title": "JavaScript: Examen Pasen",
+      "order": 1,
+      "path": "chapters/paasexamen2026/chapter.json"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "generatedAt": "2026-04-23T00:00:00.000Z",
+  "assessments": [
+    {
+      "id": "toets_1",
+      "title": "JavaScript: Toets 1",
+      "launchFile": "toets_1.html",
+      "contentRoot": "evaluaties/content/toets_1",
+      "chapterTitle": "JavaScript: Toets 1",
+      "chapterId": "toets_1",
+      "exerciseCount": 7,
+      "testMode": true,
+      "testLabel": "toets-1-2025-11-24",
+      "revealExpectedOnFail": false,
+      "enableMenu": false,
+      "assignmentTextMode": "empty"
+    },
+    {
+      "id": "toets_2",
+      "title": "JavaScript: Toets - Variabelen & Berekeningen",
+      "launchFile": "toets_2.html",
+      "contentRoot": "evaluaties/content/toets_2",
+      "chapterTitle": "JavaScript: Toets - Variabelen & Berekeningen",
+      "chapterId": "toets_2",
+      "exerciseCount": 6,
+      "testMode": true,
+      "testLabel": "toets-2-2025-12-01",
+      "revealExpectedOnFail": false,
+      "enableMenu": false,
+      "assignmentTextMode": "empty"
+    },
+    {
+      "id": "toets_3",
+      "title": "Toets Hoofdstuk 3: De Selectie",
+      "launchFile": "toets_3.html",
+      "contentRoot": "evaluaties/content/toets_3",
+      "chapterTitle": "Toets Hoofdstuk 3: De Selectie",
+      "chapterId": "toets_3",
+      "exerciseCount": 9,
+      "testMode": true,
+      "testLabel": "toets-3-2026-01-09",
+      "revealExpectedOnFail": false,
+      "enableMenu": false,
+      "assignmentTextMode": "comment"
+    },
+    {
+      "id": "toets_3_inhaal",
+      "title": "Toets Hoofdstuk 3: De Selectie - Inhaaltoets",
+      "launchFile": "toets_3_inhaal.html",
+      "contentRoot": "evaluaties/content/toets_3_inhaal",
+      "chapterTitle": "Toets Hoofdstuk 3: De Selectie - Inhaaltoets",
+      "chapterId": "toets_3_inhaal",
+      "exerciseCount": 5,
+      "testMode": true,
+      "testLabel": "toets-3-inhaal-2026-01-09",
+      "revealExpectedOnFail": false,
+      "enableMenu": false,
+      "assignmentTextMode": "comment"
+    },
+    {
+      "id": "kerstexamen2025",
+      "title": "JavaScript: Toets - Variabelen & Berekeningen",
+      "launchFile": "kerstexamen2025.html",
+      "contentRoot": "evaluaties/content/kerstexamen2025",
+      "chapterTitle": "JavaScript: Toets - Variabelen & Berekeningen",
+      "chapterId": "kerstexamen2025",
+      "exerciseCount": 7,
+      "testMode": true,
+      "testLabel": "kerstexamen-2025-12-18",
+      "revealExpectedOnFail": false,
+      "enableMenu": false,
+      "assignmentTextMode": "comment"
+    },
+    {
+      "id": "paasexamen2026",
+      "title": "JavaScript: Examen Pasen",
+      "launchFile": "paasexamen2026.html",
+      "contentRoot": "evaluaties/content/paasexamen2026",
+      "chapterTitle": "JavaScript: Examen Pasen",
+      "chapterId": "paasexamen2026",
+      "exerciseCount": 9,
+      "testMode": true,
+      "testLabel": "paasexamen-2026",
+      "revealExpectedOnFail": false,
+      "enableMenu": false,
+      "assignmentTextMode": "empty"
+    }
+  ]
+}

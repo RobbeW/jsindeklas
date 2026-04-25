@@ -1,0 +1,23 @@
+[
+  {
+    "label": "Drie vierkanten met verschillende kleuren",
+    "canvas": {
+      "lineCount": 12,
+      "sortedLineLengths": [
+        30,
+        30,
+        30,
+        30,
+        50,
+        50,
+        50,
+        50,
+        70,
+        70,
+        70,
+        70
+      ],
+      "distinctLineColours": 3
+    }
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "label": "Warme temperatuur",
+    "stdout": "Kleur ingesteld: red.",
+    "canvas": {
+      "lineCount": 1,
+      "lineLengths": [
+        200
+      ],
+      "lineColour": "red",
+      "finalState": {
+        "x": 200,
+        "y": 0,
+        "penColour": "red"
+      }
+    }
+  },
+  {
+    "label": "Bevroren temperatuur",
+    "stdout": "Kleur ingesteld: blue.",
+    "canvas": {
+      "lineCount": 1,
+      "lineLengths": [
+        200
+      ],
+      "lineColour": "blue",
+      "finalState": {
+        "x": 200,
+        "y": 0,
+        "penColour": "blue"
+      }
+    },
+    "replacements": [
+      {
+        "from": "var temp = 105;",
+        "to": "var temp = -1;"
+      }
+    ]
+  },
+  {
+    "label": "Middentemperatuur",
+    "stdout": "Kleur ingesteld: green.",
+    "canvas": {
+      "lineCount": 1,
+      "lineLengths": [
+        200
+      ],
+      "lineColour": "green",
+      "finalState": {
+        "x": 200,
+        "y": 0,
+        "penColour": "green"
+      }
+    },
+    "replacements": [
+      {
+        "from": "var temp = 105;",
+        "to": "var temp = 20;"
+      }
+    ]
+  }
+]

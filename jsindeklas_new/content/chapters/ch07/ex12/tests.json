@@ -1,0 +1,23 @@
+[
+  {
+    "label": "Drie vierkanten met selectiekleuren",
+    "canvas": {
+      "lineCount": 12,
+      "lineColours": [
+        "orange",
+        "orange",
+        "orange",
+        "orange",
+        "pink",
+        "pink",
+        "pink",
+        "pink",
+        "purple",
+        "purple",
+        "purple",
+        "purple"
+      ],
+      "distinctLineColours": 3
+    }
+  }
+]

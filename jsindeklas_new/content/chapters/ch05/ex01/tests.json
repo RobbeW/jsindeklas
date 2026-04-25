@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Aftellen vanaf 10",
+    "stdout": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n0\nLANCERING!"
+  },
+  {
+    "label": "Kortere aftelling vanaf 3",
+    "stdout": "3\n2\n1\n0\nLANCERING!",
+    "replacements": [
+      {
+        "from": "for(var teller = 10; teller >= 0; teller--){",
+        "to": "for(var teller = 3; teller >= 0; teller--){"
+      }
+    ]
+  },
+  {
+    "label": "Mini-aftelling vanaf 1",
+    "stdout": "1\n0\nLANCERING!",
+    "replacements": [
+      {
+        "from": "for(var teller = 10; teller >= 0; teller--){",
+        "to": "for(var teller = 1; teller >= 0; teller--){"
+      }
+    ]
+  }
+]

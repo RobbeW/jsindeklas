@@ -1,0 +1,8 @@
+{
+  "id": "kerstexamen2025-ex02",
+  "title": "2. Weerbericht",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Vandaag is het maandag, het weer is regenachtig en het is 9 graden.",
+  "testsPath": "tests.json"
+}

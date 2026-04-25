@@ -1,0 +1,37 @@
+{
+  "id": "toets_2",
+  "title": "JavaScript: Toets - Variabelen & Berekeningen",
+  "order": 1,
+  "exercises": [
+    {
+      "id": "toets_2-ex01",
+      "order": 1,
+      "path": "ex01/exercise.json"
+    },
+    {
+      "id": "toets_2-ex02",
+      "order": 2,
+      "path": "ex02/exercise.json"
+    },
+    {
+      "id": "toets_2-ex03",
+      "order": 3,
+      "path": "ex03/exercise.json"
+    },
+    {
+      "id": "toets_2-ex04",
+      "order": 4,
+      "path": "ex04/exercise.json"
+    },
+    {
+      "id": "toets_2-ex05",
+      "order": 5,
+      "path": "ex05/exercise.json"
+    },
+    {
+      "id": "toets_2-ex06",
+      "order": 6,
+      "path": "ex06/exercise.json"
+    }
+  ]
+}

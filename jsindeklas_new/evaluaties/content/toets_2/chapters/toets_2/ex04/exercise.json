@@ -1,0 +1,8 @@
+{
+  "id": "toets_2-ex04",
+  "title": "4. Game-ervaring (XP)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Amir heeft nu 2030 XP en komt nog 470 XP te kort voor het volgende level.",
+  "testsPath": "tests.json"
+}

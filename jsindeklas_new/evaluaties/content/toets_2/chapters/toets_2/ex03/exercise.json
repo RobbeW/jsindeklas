@@ -1,0 +1,8 @@
+{
+  "id": "toets_2-ex03",
+  "title": "3. Boete in de bib",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Sam moet 1.5 euro boete betalen.",
+  "testsPath": "tests.json"
+}

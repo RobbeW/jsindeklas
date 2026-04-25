@@ -1,0 +1,35 @@
+[
+  {
+    "label": "De voorbeeldroute",
+    "stdin": [
+      "Durbuy",
+      "Mormont",
+      "Manhay",
+      "Spa",
+      "Stoumont"
+    ],
+    "stdout": "Dag mama, ik ben nog steeds op reis. Ik bezocht: Bomal, Durbuy, Mormont, Manhay, Spa, Stoumont"
+  },
+  {
+    "label": "Andere Belgische tussenstops",
+    "stdin": [
+      "Gent",
+      "Brugge",
+      "Antwerpen",
+      "Leuven",
+      "Mechelen"
+    ],
+    "stdout": "Dag mama, ik ben nog steeds op reis. Ik bezocht: Bomal, Gent, Brugge, Antwerpen, Leuven, Mechelen"
+  },
+  {
+    "label": "Plaatsnamen met spaties en koppeltekens",
+    "stdin": [
+      "Sint-Niklaas",
+      "De Panne",
+      "Nieuwpoort",
+      "Blankenberge",
+      "Knokke-Heist"
+    ],
+    "stdout": "Dag mama, ik ben nog steeds op reis. Ik bezocht: Bomal, Sint-Niklaas, De Panne, Nieuwpoort, Blankenberge, Knokke-Heist"
+  }
+]

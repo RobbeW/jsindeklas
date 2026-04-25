@@ -1,0 +1,723 @@
+<!--
+  JavaScript in de Klas - oefeningmaker
+  Copyright (c) 2026 Robbe Wulgaert
+  Citeer/vermeld als: Robbe Wulgaert, AI in de Klas, robbewulgaert.be
+-->
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be">
+  <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert">
+  <title>JS in de Klas - oefeningmaker</title>
+  <!-- Externe bron: Google Fonts / Roboto -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700,900&display=swap">
+  <style>
+    :root{
+      --brand-purple:#5200FF;
+      --brand-purple-dark:#3700B3;
+      --brand-aqua:#3dffd0;
+      --brand-white:#ffffff;
+      --bg:#f3f5f8;
+      --panel:#f7f8fa;
+      --ink:#23272e;
+      --muted:#6f7786;
+      --border:#ececf3;
+      --console-bg:#161820;
+      --shadow:0 2px 12px rgba(82,0,255,0.08);
+      --shadow-modal:0 6px 40px rgba(82,0,255,0.17);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:'Roboto', Arial, Helvetica, sans-serif;
+      color:var(--ink);
+      background:var(--bg);
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 8% 4%, rgba(82,0,255,0.12), transparent 28rem),
+        radial-gradient(circle at 92% 12%, rgba(61,255,208,0.18), transparent 24rem);
+      z-index:-1;
+    }
+
+    header{
+      width:100%;
+      box-sizing:border-box;
+      background:var(--brand-white);
+      border-bottom:1.5px solid #eee;
+      padding:1rem clamp(1rem, 4vw, 2rem);
+      box-shadow:0 1px 8px rgba(82,0,255,0.04);
+    }
+
+    .hero-inner{
+      width:min(1180px, calc(100vw - 2rem));
+      margin:0 auto;
+    }
+
+    main{
+      width:min(1180px, calc(100vw - 2rem));
+      margin:2rem auto 4rem;
+      display:grid;
+      grid-template-columns:minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap:1.25rem;
+    }
+
+    .brand-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:0.45rem;
+      color:var(--brand-purple);
+      font-size:0.92rem;
+      font-weight:900;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      margin-bottom:0.55rem;
+    }
+
+    .brand-kicker::before{
+      content:"";
+      width:0.8rem;
+      height:0.8rem;
+      border-radius:50%;
+      background:var(--brand-aqua);
+      border:2px solid var(--brand-purple);
+      box-shadow:0 0 0 4px rgba(82,0,255,0.08);
+    }
+
+    h1{
+      margin:0;
+      color:var(--brand-purple);
+      font-size:clamp(1.9rem, 4vw, 3.3rem);
+      line-height:1.05;
+      letter-spacing:-0.04em;
+      font-weight:900;
+      max-width:950px;
+    }
+
+    .lede{
+      max-width:760px;
+      margin:0.75rem 0 0;
+      color:var(--muted);
+      font-size:1.02rem;
+      line-height:1.45;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .panel-head{
+      padding:1rem 1.2rem 0.3rem;
+      background:var(--panel);
+      color:var(--brand-purple);
+    }
+
+    .panel-head h2{
+      margin:0;
+      font-size:1.12rem;
+      font-weight:900;
+      letter-spacing:0.01em;
+    }
+
+    .panel-body{
+      padding:1.2rem;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:1rem;
+    }
+
+    label{
+      display:block;
+      font-weight:900;
+      color:var(--brand-purple);
+      margin-bottom:0.4rem;
+    }
+
+    input,
+    select,
+    textarea{
+      width:100%;
+      border:1.5px solid var(--brand-purple);
+      border-radius:8px;
+      padding:0.75rem 0.85rem;
+      background:var(--brand-white);
+      color:var(--ink);
+      font:inherit;
+      box-shadow:0 1px 4px rgba(82,0,255,0.05);
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="checkbox"]{
+      width:auto;
+      box-shadow:none;
+      accent-color:var(--brand-purple);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus{
+      outline:none;
+      border-color:var(--brand-aqua);
+      box-shadow:0 0 0 3px rgba(61,255,208,0.38);
+    }
+
+    textarea{
+      min-height:150px;
+      resize:vertical;
+      font-family:Consolas, "Cascadia Mono", monospace;
+      font-size:0.92rem;
+      line-height:1.45;
+    }
+
+    .span-2{ grid-column:1 / -1; }
+
+    .hidden{ display:none; }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.75rem;
+      margin-top:1rem;
+    }
+
+    button{
+      border:1.5px solid var(--brand-purple);
+      border-radius:8px;
+      padding:0.65rem 1rem;
+      font-weight:900;
+      cursor:pointer;
+      color:var(--brand-white);
+      background:var(--brand-purple);
+      box-shadow:var(--shadow);
+      transition:background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+    }
+
+    button.secondary{
+      color:var(--brand-purple);
+      background:var(--brand-white);
+      border:1.5px solid var(--brand-purple);
+    }
+
+    button:hover{
+      background:var(--brand-purple-dark);
+      transform:translateY(-1px);
+    }
+
+    button.secondary:hover{
+      background:var(--brand-aqua);
+      color:var(--brand-purple);
+      border-color:var(--brand-aqua);
+    }
+
+    .status{
+      margin-top:1rem;
+      padding:0.85rem 1rem;
+      border-radius:12px;
+      background:#e6fff8;
+      color:#04695c;
+      border:1px solid #9fe6d5;
+      line-height:1.45;
+      font-weight:700;
+    }
+
+    .status.warn{
+      background:#fff7e9;
+      color:#946200;
+      border-color:#f0d39a;
+    }
+
+    .status.error{
+      background:#fff0f0;
+      color:#a91d1d;
+      border-color:#efbbbb;
+    }
+
+    .preview{
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-family:Consolas, "Cascadia Mono", monospace;
+      font-size:0.86rem;
+      line-height:1.45;
+      background:var(--console-bg);
+      color:var(--brand-white);
+      border:1.5px solid var(--brand-purple);
+      border-radius:8px;
+      padding:1rem;
+      min-height:480px;
+      overflow:auto;
+      box-shadow:0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .hint{
+      color:var(--muted);
+      line-height:1.5;
+      margin:0.35rem 0 0;
+      font-size:0.95rem;
+    }
+
+    .callout{
+      margin-top:1rem;
+      background:#f2f0fd;
+      border:1px solid rgba(82,0,255,0.18);
+      color:var(--ink);
+      border-radius:12px;
+      padding:0.9rem 1rem;
+      line-height:1.5;
+    }
+
+    .callout code,
+    .hint code{
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      border:1px solid var(--border);
+      border-radius:5px;
+      padding:0.08rem 0.28rem;
+      font-weight:700;
+    }
+
+    .upload-steps strong{
+      display:block;
+      color:var(--brand-purple);
+      font-weight:900;
+      margin-bottom:0.45rem;
+    }
+
+    .upload-steps ol{
+      margin:0.45rem 0 0.5rem 1.35rem;
+      padding:0;
+    }
+
+    .upload-steps li{
+      margin:0.28rem 0;
+    }
+
+    .upload-steps p{
+      margin:0.6rem 0 0;
+      font-weight:700;
+    }
+
+    .testcase-builder{
+      border:1.5px solid rgba(82,0,255,0.2);
+      border-radius:16px;
+      background:linear-gradient(180deg, #fff, #f7f4ff);
+      padding:1rem;
+    }
+
+    .builder-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:1rem;
+      margin-bottom:0.85rem;
+    }
+
+    .builder-header h3{
+      margin:0;
+      color:var(--brand-purple);
+      font-size:1.05rem;
+      font-weight:900;
+    }
+
+    .builder-pill{
+      flex:0 0 auto;
+      border:1px solid rgba(82,0,255,0.22);
+      border-radius:999px;
+      color:var(--brand-purple);
+      background:#fff;
+      font-size:0.82rem;
+      font-weight:900;
+      padding:0.28rem 0.55rem;
+    }
+
+    .testcase-list{
+      margin:0 0 1rem;
+      padding:0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:0.55rem;
+    }
+
+    .testcase-card{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) auto;
+      gap:0.75rem;
+      align-items:start;
+      padding:0.75rem;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:var(--brand-white);
+      box-shadow:0 1px 4px rgba(82,0,255,0.05);
+    }
+
+    .testcase-card strong{
+      display:block;
+      color:var(--brand-purple);
+      margin-bottom:0.25rem;
+    }
+
+    .testcase-card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.35;
+      font-size:0.92rem;
+    }
+
+    .testcase-card .card-actions{
+      display:flex;
+      gap:0.45rem;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .testcase-card button,
+    .compact-button{
+      padding:0.42rem 0.65rem;
+      font-size:0.88rem;
+      box-shadow:none;
+    }
+
+    .testcase-form{
+      border-top:1px solid rgba(82,0,255,0.13);
+      padding-top:1rem;
+    }
+
+    .mini-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:0.85rem;
+    }
+
+    .small-textarea{
+      min-height:92px;
+    }
+
+    .replacement-rows{
+      display:flex;
+      flex-direction:column;
+      gap:0.55rem;
+    }
+
+    .replacement-row{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) minmax(0, 1fr) auto;
+      gap:0.55rem;
+      align-items:end;
+    }
+
+    .checkbox-line{
+      display:flex;
+      align-items:center;
+      gap:0.55rem;
+      min-height:48px;
+      padding:0.72rem 0.85rem;
+      border:1.5px solid var(--brand-purple);
+      border-radius:8px;
+      background:var(--brand-white);
+      font-weight:700;
+      color:var(--ink);
+    }
+
+    .inline-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.65rem;
+      margin-top:0.85rem;
+    }
+
+    .advanced-json{
+      margin-top:1rem;
+      border:1px solid rgba(82,0,255,0.16);
+      border-radius:12px;
+      background:#fff;
+      padding:0.75rem;
+    }
+
+    .advanced-json summary{
+      cursor:pointer;
+      color:var(--brand-purple);
+      font-weight:900;
+    }
+
+    .advanced-json textarea{
+      margin-top:0.75rem;
+    }
+
+    .package-list{
+      margin:1rem 0 0;
+      padding:0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:0.55rem;
+    }
+
+    .package-list li{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:0.75rem;
+      padding:0.65rem 0.75rem;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--brand-white);
+      box-shadow:0 1px 4px rgba(82,0,255,0.04);
+    }
+
+    .package-list button{
+      padding:0.35rem 0.6rem;
+      font-size:0.9rem;
+      background:var(--brand-white);
+      color:var(--brand-purple);
+      box-shadow:none;
+    }
+
+    .package-list button:hover{
+      background:#fff0f0;
+      color:#c81c1c;
+      border-color:#f5b6b6;
+    }
+
+    @media (max-width:900px){
+      main{ grid-template-columns:1fr; }
+      .grid{ grid-template-columns:1fr; }
+      .mini-grid{ grid-template-columns:1fr; }
+      .builder-header{ flex-direction:column; }
+      .replacement-row{ grid-template-columns:1fr; }
+      .span-2{ grid-column:auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero-inner">
+      <div class="brand-kicker">JS in de Klas authoring</div>
+      <h1>Oefeningmaker</h1>
+      <p class="lede">
+        Vul een of meer oefeningen in, controleer de preview, en download een ZIP die je rechtstreeks in je GitHub-fork kan uploaden.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Nieuwe oefening</h2>
+      </div>
+      <div class="panel-body">
+        <div class="grid">
+          <div class="span-2">
+            <label for="chapterSelect">Hoofdstuk</label>
+            <select id="chapterSelect"></select>
+            <p class="hint">De tool leest de bestaande catalogus uit deze GitHub Pages-site en past het juiste `chapter.json`-bestand aan in de ZIP.</p>
+          </div>
+
+          <div id="newChapterFields" class="span-2 hidden">
+            <div class="grid">
+              <div>
+                <label for="newChapterId">Nieuw hoofdstuk: map-id</label>
+                <input id="newChapterId" value="ch08">
+              </div>
+              <div>
+                <label for="newChapterOrder">Nieuw hoofdstuk: volgorde</label>
+                <input id="newChapterOrder" type="number" min="1" step="1" value="8">
+              </div>
+              <div class="span-2">
+                <label for="newChapterTitle">Nieuw hoofdstuk: titel</label>
+                <input id="newChapterTitle" value="Hoofdstuk 8: Nieuw hoofdstuk">
+              </div>
+            </div>
+            <p class="hint">Bij een nieuw hoofdstuk bevat de ZIP ook een aangepast `content/catalog.json`.</p>
+          </div>
+
+          <div>
+            <label for="exerciseOrder">Volgnummer</label>
+            <input id="exerciseOrder" type="number" min="1" step="1" value="1">
+          </div>
+
+          <div>
+            <label for="exerciseId">Mapnaam</label>
+            <input id="exerciseId" value="ex01">
+          </div>
+
+          <div class="span-2">
+            <label for="exerciseTitle">Titel in de app</label>
+            <input id="exerciseTitle" value="1. Nieuwe oefening">
+          </div>
+
+          <div>
+            <label for="evaluationMode">Evaluatie</label>
+            <select id="evaluationMode">
+              <option value="testcases">Testcases</option>
+              <option value="manual">Manueel/open opdracht</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="evalOutput">Voorbeelduitvoer</label>
+            <input id="evalOutput" value="Hallo wereld">
+          </div>
+
+          <div class="span-2">
+            <label for="starterCode">Startcode</label>
+            <textarea id="starterCode">console.log("Hallo wereld");</textarea>
+          </div>
+
+          <section id="testcaseBuilder" class="span-2 testcase-builder" aria-labelledby="testcaseBuilderTitle">
+            <div class="builder-header">
+              <div>
+                <h3 id="testcaseBuilderTitle">Testcases bouwen</h3>
+                <p class="hint">Maak tests met gewone velden. De tool zet ze automatisch om naar <code>tests.json</code>.</p>
+              </div>
+              <span class="builder-pill">maakt tests.json</span>
+            </div>
+
+            <ul id="testcaseList" class="testcase-list" aria-live="polite"></ul>
+
+            <div class="testcase-form">
+              <div class="mini-grid">
+                <div>
+                  <label for="testLabel">Naam van deze test</label>
+                  <input id="testLabel" placeholder="Bijvoorbeeld: De voorbeeldwaarden">
+                </div>
+
+                <div>
+                  <label for="testCheckType">Wat controleert de test?</label>
+                  <select id="testCheckType">
+                    <option value="stdout">Console-uitvoer</option>
+                    <option value="numbers">Getallen in de uitvoer</option>
+                    <option value="contains">Tekst bevat woorden</option>
+                    <option value="regex">Regex/patroon</option>
+                    <option value="canvas">Alleen canvas/tekening</option>
+                  </select>
+                </div>
+
+                <div class="span-2">
+                  <label id="testExpectedLabel" for="testExpected">Verwachte console-uitvoer</label>
+                  <textarea id="testExpected" class="small-textarea" placeholder="Bijvoorbeeld: Hallo wereld"></textarea>
+                  <p id="testExpectedHint" class="hint">Schrijf de uitvoer zoals die in de console moet verschijnen. Meerdere regels zijn toegestaan.</p>
+                </div>
+
+                <div id="testToleranceWrap" class="hidden">
+                  <label for="testTolerance">Tolerantie voor getallen</label>
+                  <input id="testTolerance" type="number" min="0" step="0.001" value="0.01">
+                </div>
+
+                <div id="testRegexFlagsWrap" class="hidden">
+                  <label for="testRegexFlags">Regex flags</label>
+                  <input id="testRegexFlags" value="i" placeholder="Bijvoorbeeld: i">
+                </div>
+
+                <div class="span-2">
+                  <label for="testInputs">Antwoorden voor <code>ask()</code> of invoer</label>
+                  <textarea id="testInputs" class="small-textarea" placeholder="Eén antwoord per regel"></textarea>
+                  <p class="hint">Laat leeg als de oefening geen invoer vraagt. Elke regel wordt één antwoord voor de studentcode.</p>
+                </div>
+
+                <div class="span-2">
+                  <label>Code vervangen voor varianten</label>
+                  <div id="replacementRows" class="replacement-rows"></div>
+                  <p class="hint">Gebruik dit om dezelfde oplossing met andere startwaarden te testen, bijvoorbeeld <code>var score = 10;</code> vervangen door <code>var score = 15;</code>.</p>
+                  <button id="addReplacementRow" type="button" class="secondary compact-button">Voeg vervanging toe</button>
+                </div>
+
+                <div>
+                  <label for="canvasLineCount">Aantal getekende lijnen</label>
+                  <input id="canvasLineCount" type="number" min="0" step="1" placeholder="Bijvoorbeeld: 4">
+                </div>
+
+                <div>
+                  <label for="canvasLineLengths">Lengtes van lijnen</label>
+                  <input id="canvasLineLengths" placeholder="Bijvoorbeeld: 80, 80, 80, 80">
+                </div>
+
+                <div>
+                  <label for="canvasLineColour">Kleur van lijnen</label>
+                  <input id="canvasLineColour" placeholder="Bijvoorbeeld: red">
+                </div>
+
+                <label class="checkbox-line" for="canvasClosedShape">
+                  <input id="canvasClosedShape" type="checkbox">
+                  Gesloten figuur verwacht
+                </label>
+              </div>
+
+              <div class="inline-actions">
+                <button id="addTestcase" type="button">Voeg testcase toe</button>
+                <button id="resetTestcaseForm" type="button" class="secondary">Maak velden leeg</button>
+              </div>
+            </div>
+
+            <details class="advanced-json">
+              <summary>Geavanceerd: tests.json rechtstreeks aanpassen</summary>
+              <label for="testsJson">Testcases als JSON</label>
+              <textarea id="testsJson">[
+  {
+    "label": "Voorbeeld",
+    "stdout": "Hallo wereld"
+  }
+]</textarea>
+              <p class="hint">Gebruik een array. Elke testcase kan bijvoorbeeld <code>stdout</code>, <code>inputs</code>, <code>replacements</code>, <code>eval</code> of <code>canvas</code> bevatten. Klik hieronder als je handmatige JSON terug in de visuele bouwer wil laden.</p>
+              <button id="syncJsonToBuilder" type="button" class="secondary compact-button">Lees JSON in bouwer</button>
+            </details>
+          </section>
+        </div>
+
+        <div class="actions">
+          <button id="generatePreview" type="button">Maak preview</button>
+          <button id="addToPackage" type="button">Voeg toe aan ZIP</button>
+          <button id="downloadZip" type="button">Download GitHub-upload ZIP</button>
+          <button id="reloadCatalog" type="button" class="secondary">Herlaad catalogus</button>
+        </div>
+
+        <ul id="packageList" class="package-list"></ul>
+
+        <div id="status" class="status warn">
+          Nog geen preview gemaakt.
+        </div>
+
+        <div class="callout upload-steps">
+          <strong>Zo zet je de ZIP in je GitHub-fork</strong>
+          <ol>
+            <li>Klik op <code>Download GitHub-upload ZIP</code>.</li>
+            <li>Pak de ZIP uit op je computer.</li>
+            <li>Open je GitHub-fork en ga naar de knop <code>Add file</code>, daarna <code>Upload files</code>.</li>
+            <li>Sleep de uitgepakte map <code>content</code> en het bestand <code>UPLOAD_INSTRUCTIONS.md</code> naar GitHub.</li>
+            <li>Klik op <code>Commit changes</code> om de nieuwe oefening te bewaren.</li>
+            <li>Open je GitHub Pages-site, ga naar het hoofdstuk, en test een correcte en een foute oplossing.</li>
+          </ol>
+          <p>Je hoeft geen lokale server te starten en geen build-script uit te voeren.</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-head">
+        <h2>Preview van bestanden</h2>
+      </div>
+      <div class="panel-body">
+        <pre id="preview" class="preview">De gegenereerde file tree verschijnt hier.</pre>
+      </div>
+    </aside>
+  </main>
+
+  <script src="exercise-author.js"></script>
+</body>
+</html>

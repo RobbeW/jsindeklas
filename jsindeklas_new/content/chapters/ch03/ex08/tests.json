@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Gelijke getallen",
+    "stdout": "De twee getallen zijn gelijk."
+  },
+  {
+    "label": "Eerste getal is groter",
+    "stdout": "Het eerste getal is groter.",
+    "replacements": [
+      {
+        "from": "var a = 7;",
+        "to": "var a = 9;"
+      },
+      {
+        "from": "var b = 7;",
+        "to": "var b = 4;"
+      }
+    ]
+  },
+  {
+    "label": "Tweede getal is groter",
+    "stdout": "Het tweede getal is groter.",
+    "replacements": [
+      {
+        "from": "var a = 7;",
+        "to": "var a = 4;"
+      },
+      {
+        "from": "var b = 7;",
+        "to": "var b = 9;"
+      }
+    ]
+  }
+]

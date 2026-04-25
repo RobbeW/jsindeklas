@@ -1,0 +1,7 @@
+{
+  "id": "ch04-ex02",
+  "title": "2. Rechthoek Tekenen",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

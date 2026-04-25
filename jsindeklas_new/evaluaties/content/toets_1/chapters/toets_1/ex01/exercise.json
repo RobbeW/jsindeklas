@@ -1,0 +1,8 @@
+{
+  "id": "toets_1-ex01",
+  "title": "1. Brandstofmeter",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Er staat nu 65 liter brandstof in de tank.",
+  "testsPath": "tests.json"
+}

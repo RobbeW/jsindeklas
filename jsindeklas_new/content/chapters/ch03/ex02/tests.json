@@ -1,0 +1,16 @@
+[
+  {
+    "label": "Temperatuur onder nul",
+    "stdout": "Het water vriest."
+  },
+  {
+    "label": "Temperatuur boven nul",
+    "stdout": "Het water vriest niet.",
+    "replacements": [
+      {
+        "from": "var temp = -3;",
+        "to": "var temp = 8;"
+      }
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex03",
+  "title": "3. Drie Vierkanten",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "toets_1-ex05",
+  "title": "5. Tegelpad rond de tentplaats",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De oppervlakte van het tegelpad is 24 vierkante meter.",
+  "testsPath": "tests.json"
+}

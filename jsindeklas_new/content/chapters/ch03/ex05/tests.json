@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Comfortabele temperatuur",
+    "stdout": "OK."
+  },
+  {
+    "label": "Te koud zwembad",
+    "stdout": "Te koud.",
+    "replacements": [
+      {
+        "from": "var temp = 38;",
+        "to": "var temp = 20;"
+      }
+    ]
+  },
+  {
+    "label": "Te heet zwembad",
+    "stdout": "Te heet.",
+    "replacements": [
+      {
+        "from": "var temp = 38;",
+        "to": "var temp = 44;"
+      }
+    ]
+  }
+]

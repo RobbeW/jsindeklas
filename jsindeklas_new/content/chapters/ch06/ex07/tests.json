@@ -1,0 +1,35 @@
+[
+  {
+    "label": "Alle temperaturen boven 25",
+    "stdin": [
+      "26",
+      "28",
+      "31",
+      "29",
+      "27"
+    ],
+    "stdout": "Alarm: hittegolf!"
+  },
+  {
+    "label": "Een temperatuur is te laag",
+    "stdin": [
+      "26",
+      "28",
+      "24",
+      "29",
+      "27"
+    ],
+    "stdout": "Geen hittegolf."
+  },
+  {
+    "label": "Alles exact 25 of lager",
+    "stdin": [
+      "25",
+      "25",
+      "25",
+      "25",
+      "25"
+    ],
+    "stdout": "Geen hittegolf."
+  }
+]

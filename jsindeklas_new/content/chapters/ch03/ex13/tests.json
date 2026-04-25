@@ -1,0 +1,77 @@
+[
+  {
+    "label": "Groene thermostaat",
+    "stdout": "Thermostaat: green.",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        80,
+        80,
+        80,
+        80
+      ],
+      "lineColour": "green",
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0,
+        "penColour": "green"
+      }
+    }
+  },
+  {
+    "label": "Blauwe thermostaat",
+    "stdout": "Thermostaat: blue.",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "lineColour": "blue",
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0,
+        "penColour": "blue"
+      }
+    },
+    "replacements": [
+      {
+        "from": "var temp = 20;",
+        "to": "var temp = -3;"
+      }
+    ]
+  },
+  {
+    "label": "Rode thermostaat",
+    "stdout": "Thermostaat: red.",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        120,
+        120,
+        120,
+        120
+      ],
+      "lineColour": "red",
+      "closedShape": true,
+      "finalState": {
+        "x": 0,
+        "y": 0,
+        "angle": 0,
+        "penColour": "red"
+      }
+    },
+    "replacements": [
+      {
+        "from": "var temp = 20;",
+        "to": "var temp = 120;"
+      }
+    ]
+  }
+]

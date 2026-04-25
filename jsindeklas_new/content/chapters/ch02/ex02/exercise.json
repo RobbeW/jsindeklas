@@ -1,0 +1,8 @@
+{
+  "id": "ch02-ex02",
+  "title": "2. Statiegeld",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Fred moet 15.4 euro betalen.",
+  "testsPath": "tests.json"
+}

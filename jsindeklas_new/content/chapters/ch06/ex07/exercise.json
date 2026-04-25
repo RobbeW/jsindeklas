@@ -1,0 +1,8 @@
+{
+  "id": "ch06-ex07",
+  "title": "7. Hittegolfalarm (while)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Alarm: hittegolf!",
+  "testsPath": "tests.json"
+}

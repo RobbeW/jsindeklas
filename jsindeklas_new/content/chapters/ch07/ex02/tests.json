@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Driehoek met zijde 70",
+    "canvas": {
+      "lineCount": 3,
+      "lineLengths": [
+        70,
+        70,
+        70
+      ],
+      "closedShape": true,
+      "actionTypeCounts": {
+        "moveForward": 3
+      }
+    }
+  },
+  {
+    "label": "Driehoek met zijde 40",
+    "canvas": {
+      "lineCount": 3,
+      "lineLengths": [
+        40,
+        40,
+        40
+      ],
+      "closedShape": true,
+      "actionTypeCounts": {
+        "moveForward": 3
+      }
+    },
+    "replacements": [
+      {
+        "from": "var zijde = 70;",
+        "to": "var zijde = 40;"
+      }
+    ]
+  }
+]

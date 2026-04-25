@@ -1,0 +1,8 @@
+{
+  "id": "toets_1-ex04",
+  "title": "4. Gemiddelde snelheid",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De gemiddelde snelheid van Fred is 60 km/u.",
+  "testsPath": "tests.json"
+}

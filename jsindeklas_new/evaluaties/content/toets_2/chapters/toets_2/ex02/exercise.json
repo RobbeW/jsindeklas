@@ -1,0 +1,8 @@
+{
+  "id": "toets_2-ex02",
+  "title": "2. Snackautomaat",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Aisha krijgt 2.2 euro terug.",
+  "testsPath": "tests.json"
+}

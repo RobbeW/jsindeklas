@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Drie vierkanten met oplopende lijndikte",
+    "canvas": {
+      "lineCount": 12,
+      "lineWidths": [
+        30,
+        30,
+        30,
+        30,
+        60,
+        60,
+        60,
+        60,
+        90,
+        90,
+        90,
+        90
+      ]
+    }
+  }
+]

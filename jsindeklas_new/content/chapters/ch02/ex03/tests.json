@@ -1,0 +1,72 @@
+[
+  {
+    "label": "De voorbeeldwaarden",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        15,
+        6,
+        50,
+        2.5,
+        100000,
+        2
+      ]
+    }
+  },
+  {
+    "label": "Andere operatorwaarden",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        15,
+        7,
+        36,
+        2.4,
+        1728,
+        2
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var x = 10;",
+        "to": "var x = 12;"
+      },
+      {
+        "from": "var y = 5;",
+        "to": "var y = 3;"
+      },
+      {
+        "from": "var z = 4;",
+        "to": "var z = 5;"
+      }
+    ]
+  },
+  {
+    "label": "Deling zonder rest",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        11,
+        6,
+        18,
+        3,
+        81,
+        0
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var x = 10;",
+        "to": "var x = 9;"
+      },
+      {
+        "from": "var y = 5;",
+        "to": "var y = 2;"
+      },
+      {
+        "from": "var z = 4;",
+        "to": "var z = 3;"
+      }
+    ]
+  }
+]

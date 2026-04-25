@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex09",
+  "title": "9. Geslaagd en vergelijking met het klasgemiddelde",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Geslaagd.\nNoor scoort onder het klasgemiddelde.",
+  "testsPath": "tests.json"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex03",
+  "title": "3. Waterstatus (bevroren / vloeibaar / kookt)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Het water is vloeibaar.",
+  "testsPath": "tests.json"
+}

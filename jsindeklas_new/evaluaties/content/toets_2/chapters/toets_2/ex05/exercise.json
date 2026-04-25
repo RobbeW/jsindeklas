@@ -1,0 +1,8 @@
+{
+  "id": "toets_2-ex05",
+  "title": "5. Gemiddelde schermtijd (afronden)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De gemiddelde schermtijd is 2.6 uur per dag.",
+  "testsPath": "tests.json"
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "label": "Rood vierkant",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "lineColour": "red",
+      "closedShape": true
+    }
+  },
+  {
+    "label": "Blauw vierkant",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "lineColour": "blue",
+      "closedShape": true
+    },
+    "replacements": [
+      {
+        "from": "var kleurKeuze = 'rood'; // of 'blauw'",
+        "to": "var kleurKeuze = 'blauw'; // of 'blauw'"
+      }
+    ]
+  }
+]

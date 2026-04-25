@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "toets_3",
+      "title": "Toets Hoofdstuk 3: De Selectie",
+      "order": 1,
+      "path": "chapters/toets_3/chapter.json"
+    }
+  ]
+}

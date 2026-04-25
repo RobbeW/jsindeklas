@@ -1,0 +1,8 @@
+{
+  "id": "ch05-ex02",
+  "title": "2. Verzamel dorpen van Fred",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Dag mama, ik ben nog steeds op reis. Ik bezocht: Bomal, Durbuy, Mormont, Manhay, Spa, Stoumont",
+  "testsPath": "tests.json"
+}

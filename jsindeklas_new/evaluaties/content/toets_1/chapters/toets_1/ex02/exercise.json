@@ -1,0 +1,8 @@
+{
+  "id": "toets_1-ex02",
+  "title": "2. Dagbudget op reis",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Fred heeft nog 38.75 euro over van zijn dagbudget.",
+  "testsPath": "tests.json"
+}

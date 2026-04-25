@@ -1,0 +1,82 @@
+{
+  "id": "ch07",
+  "title": "Hoofdstuk 7: Figuren Plotten II",
+  "order": 7,
+  "exercises": [
+    {
+      "id": "ch07-ex01",
+      "order": 1,
+      "path": "ex01/exercise.json"
+    },
+    {
+      "id": "ch07-ex02",
+      "order": 2,
+      "path": "ex02/exercise.json"
+    },
+    {
+      "id": "ch07-ex03",
+      "order": 3,
+      "path": "ex03/exercise.json"
+    },
+    {
+      "id": "ch07-ex04",
+      "order": 4,
+      "path": "ex04/exercise.json"
+    },
+    {
+      "id": "ch07-ex05",
+      "order": 5,
+      "path": "ex05/exercise.json"
+    },
+    {
+      "id": "ch07-ex06",
+      "order": 6,
+      "path": "ex06/exercise.json"
+    },
+    {
+      "id": "ch07-ex07",
+      "order": 7,
+      "path": "ex07/exercise.json"
+    },
+    {
+      "id": "ch07-ex08",
+      "order": 8,
+      "path": "ex08/exercise.json"
+    },
+    {
+      "id": "ch07-ex09",
+      "order": 9,
+      "path": "ex09/exercise.json"
+    },
+    {
+      "id": "ch07-ex10",
+      "order": 10,
+      "path": "ex10/exercise.json"
+    },
+    {
+      "id": "ch07-ex11",
+      "order": 11,
+      "path": "ex11/exercise.json"
+    },
+    {
+      "id": "ch07-ex12",
+      "order": 12,
+      "path": "ex12/exercise.json"
+    },
+    {
+      "id": "ch07-ex13",
+      "order": 13,
+      "path": "ex13/exercise.json"
+    },
+    {
+      "id": "ch07-ex14",
+      "order": 14,
+      "path": "ex14/exercise.json"
+    },
+    {
+      "id": "ch07-ex15",
+      "order": 15,
+      "path": "ex15/exercise.json"
+    }
+  ]
+}

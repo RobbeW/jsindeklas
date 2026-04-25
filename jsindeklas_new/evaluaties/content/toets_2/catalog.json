@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "toets_2",
+      "title": "JavaScript: Toets - Variabelen & Berekeningen",
+      "order": 1,
+      "path": "chapters/toets_2/chapter.json"
+    }
+  ]
+}

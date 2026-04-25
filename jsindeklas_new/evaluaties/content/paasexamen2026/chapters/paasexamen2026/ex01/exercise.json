@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex01",
+  "title": "1. Ik ga op reis naar...",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Thomas bezocht het vrijheidsbeeld, dat je kan vinden in New York.",
+  "testsPath": "tests.json"
+}

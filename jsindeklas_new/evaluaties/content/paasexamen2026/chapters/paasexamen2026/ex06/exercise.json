@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex06",
+  "title": "6. Snoepjes raden",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Helaas! Dat is niet juist, volgende keer beter.",
+  "testsPath": "tests.json"
+}

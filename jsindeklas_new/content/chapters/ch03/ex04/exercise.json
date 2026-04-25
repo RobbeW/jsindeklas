@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex04",
+  "title": "4. Exact 100°C (strikte gelijkheid)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Exact 100°C.",
+  "testsPath": "tests.json"
+}

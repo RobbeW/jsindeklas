@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex01",
+  "title": "1. Kookt het water?",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Het water kookt.",
+  "testsPath": "tests.json"
+}

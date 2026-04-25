@@ -1,0 +1,8 @@
+{
+  "id": "ch02-ex10",
+  "title": "10. Huurwaarborg",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Na vijf jaar krijgt Fred 2873.28 euro terug van zijn waarborg.",
+  "testsPath": "tests.json"
+}

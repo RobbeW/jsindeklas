@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Nog geen 18",
+    "stdout": "Je mag nog niet stemmen."
+  },
+  {
+    "label": "Exact 18 jaar",
+    "stdout": "Je mag stemmen.",
+    "replacements": [
+      {
+        "from": "var leeftijd = 17;",
+        "to": "var leeftijd = 18;"
+      }
+    ]
+  },
+  {
+    "label": "Ruim ouder dan 18",
+    "stdout": "Je mag stemmen.",
+    "replacements": [
+      {
+        "from": "var leeftijd = 17;",
+        "to": "var leeftijd = 42;"
+      }
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "id": "toets_3-ex09",
+  "title": "9. Beoordeling via percentage",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Beoordeling: B.",
+  "testsPath": "tests.json"
+}

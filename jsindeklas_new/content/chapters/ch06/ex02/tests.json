@@ -1,0 +1,35 @@
+[
+  {
+    "label": "De voorbeeldroute",
+    "stdin": [
+      "Locronan",
+      "Rochefort-en-Terre",
+      "Saint-Céneri-le-Gérei",
+      "Montrésor",
+      "Pesmes"
+    ],
+    "stdout": "Dag mama, ik ben nog steeds op reis in Frankrijk. Afgelopen dagen passeerde ik in: Bomal, Locronan, Rochefort-en-Terre, Saint-Céneri-le-Gérei, Montrésor, Pesmes"
+  },
+  {
+    "label": "Andere Franse dorpen",
+    "stdin": [
+      "Eguisheim",
+      "Gordes",
+      "Yvoire",
+      "Riquewihr",
+      "Turenne"
+    ],
+    "stdout": "Dag mama, ik ben nog steeds op reis in Frankrijk. Afgelopen dagen passeerde ik in: Bomal, Eguisheim, Gordes, Yvoire, Riquewihr, Turenne"
+  },
+  {
+    "label": "Route met korte namen",
+    "stdin": [
+      "Apt",
+      "Sare",
+      "Ainhoa",
+      "Mirepoix",
+      "Collioure"
+    ],
+    "stdout": "Dag mama, ik ben nog steeds op reis in Frankrijk. Afgelopen dagen passeerde ik in: Bomal, Apt, Sare, Ainhoa, Mirepoix, Collioure"
+  }
+]

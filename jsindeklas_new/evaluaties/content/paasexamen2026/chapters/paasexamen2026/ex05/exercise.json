@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex05",
+  "title": "5. Weerbericht",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Doe een regenjas aan!",
+  "testsPath": "tests.json"
+}

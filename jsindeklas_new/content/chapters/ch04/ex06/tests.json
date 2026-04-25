@@ -1,0 +1,19 @@
+[
+  {
+    "label": "Blauw vierkant",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        50,
+        50,
+        50,
+        50
+      ],
+      "lineColour": "blue",
+      "closedShape": true,
+      "finalState": {
+        "penColour": "blue"
+      }
+    }
+  }
+]

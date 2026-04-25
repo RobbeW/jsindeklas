@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Bevroren status",
+    "stdout": "Status: bevroren.",
+    "canvas": {
+      "textIncludes": [
+        "BEVROREN"
+      ],
+      "textCount": 1,
+      "actionTypesInclude": [
+        "writeText"
+      ]
+    }
+  },
+  {
+    "label": "Niet bevroren status",
+    "stdout": "Status: niet bevroren.",
+    "canvas": {
+      "textIncludes": [
+        "NIET BEVROREN"
+      ],
+      "textCount": 1,
+      "actionTypesInclude": [
+        "writeText"
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var temp = -2;",
+        "to": "var temp = 3;"
+      }
+    ]
+  }
+]

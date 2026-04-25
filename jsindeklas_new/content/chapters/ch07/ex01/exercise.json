@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex01",
+  "title": "1. Vierkant met for-lus",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

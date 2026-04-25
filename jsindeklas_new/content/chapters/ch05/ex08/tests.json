@@ -1,0 +1,38 @@
+[
+  {
+    "label": "De voorbeeldscores",
+    "stdin": [
+      "88",
+      "77",
+      "93",
+      "60",
+      "70",
+      "62"
+    ],
+    "stdout": "Het gemiddelde is 75.67"
+  },
+  {
+    "label": "Alle scores gelijk",
+    "stdin": [
+      "10",
+      "10",
+      "10",
+      "10",
+      "10",
+      "10"
+    ],
+    "stdout": "Het gemiddelde is 10"
+  },
+  {
+    "label": "Hogere gemengde scores",
+    "stdin": [
+      "100",
+      "95",
+      "80",
+      "75",
+      "70",
+      "60"
+    ],
+    "stdout": "Het gemiddelde is 80"
+  }
+]

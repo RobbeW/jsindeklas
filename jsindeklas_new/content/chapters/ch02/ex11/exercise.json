@@ -1,0 +1,8 @@
+{
+  "id": "ch02-ex11",
+  "title": "11. Energiefactuur",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Fred moet dit jaar 826.8 euro betalen voor de elektriciteit.\nDit is 292.32 euro meer dan vorig jaar.\nIn procenten uitgedrukt, is dit een stijging van 54.69 % ten opzichte van vorig jaar.",
+  "testsPath": "tests.json"
+}

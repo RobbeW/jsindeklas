@@ -1,0 +1,21 @@
+[
+  {
+    "label": "Rood vierkant met dikke lijn",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "lineColour": "red",
+      "lineWidth": 6,
+      "closedShape": true,
+      "finalState": {
+        "penColour": "red",
+        "lineWidth": 6
+      }
+    }
+  }
+]

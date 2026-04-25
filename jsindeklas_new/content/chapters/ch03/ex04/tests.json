@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Exact 100 graden",
+    "stdout": "Exact 100°C."
+  },
+  {
+    "label": "Net onder 100 graden",
+    "stdout": "",
+    "replacements": [
+      {
+        "from": "var temp = 100;",
+        "to": "var temp = 99;"
+      }
+    ]
+  },
+  {
+    "label": "Net boven 100 graden",
+    "stdout": "",
+    "replacements": [
+      {
+        "from": "var temp = 100;",
+        "to": "var temp = 101;"
+      }
+    ]
+  }
+]

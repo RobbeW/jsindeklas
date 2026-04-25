@@ -1,0 +1,46 @@
+[
+  {
+    "label": "Korte route",
+    "stdout": "Route: kort.",
+    "canvas": {
+      "lineCount": 2,
+      "lineLengths": [
+        80,
+        80
+      ],
+      "finalState": {
+        "x": 80,
+        "y": -80,
+        "angle": 270
+      },
+      "actionTypesInclude": [
+        "turnRight"
+      ]
+    }
+  },
+  {
+    "label": "Lange route",
+    "stdout": "Route: lang.",
+    "canvas": {
+      "lineCount": 2,
+      "lineLengths": [
+        140,
+        140
+      ],
+      "finalState": {
+        "x": 140,
+        "y": 140,
+        "angle": 90
+      },
+      "actionTypesInclude": [
+        "turnLeft"
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var batterij = 18;",
+        "to": "var batterij = 50;"
+      }
+    ]
+  }
+]

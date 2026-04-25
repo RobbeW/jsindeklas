@@ -1,0 +1,8 @@
+{
+  "id": "ch02-ex12",
+  "title": "12. Raakt Fred Op De Bestemming?",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Na de vier etappes van elk 112.34 km, blijft er nog 110.64 kilometer over in de batterij van Freds wagen.\nDit komt overeen met 19.76% van de totale batterijcapaciteit.",
+  "testsPath": "tests.json"
+}

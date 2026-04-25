@@ -1,0 +1,8 @@
+{
+  "id": "ch05-ex05",
+  "title": "5. Waarborg met Interest",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Na jaar 1 is de waarborg gegroeid tot 2147.55 euro.\nNa jaar 2 is de waarborg gegroeid tot 2211.98 euro.\nNa jaar 3 is de waarborg gegroeid tot 2278.34 euro.\nNa jaar 4 is de waarborg gegroeid tot 2346.69 euro.\nNa jaar 5 is de waarborg gegroeid tot 2417.09 euro.",
+  "testsPath": "tests.json"
+}

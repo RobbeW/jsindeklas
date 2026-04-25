@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex10",
+  "title": "10. Canvas: stoplicht",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Stoplicht: orange.",
+  "testsPath": "tests.json"
+}

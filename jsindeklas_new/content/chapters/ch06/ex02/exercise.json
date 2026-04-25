@@ -1,0 +1,8 @@
+{
+  "id": "ch06-ex02",
+  "title": "2. Verzamel dorpen van Fred (while)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Dag mama, ik ben nog steeds op reis in Frankrijk. Afgelopen dagen passeerde ik in: Bomal, Locronan, Rochefort-en-Terre, Saint-Céneri-le-Gérei, Montrésor, Pesmes",
+  "testsPath": "tests.json"
+}

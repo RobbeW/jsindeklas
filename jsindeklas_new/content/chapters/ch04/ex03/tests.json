@@ -1,0 +1,45 @@
+[
+  {
+    "label": "Driehoek vanaf (50, 50)",
+    "canvas": {
+      "lineCount": 3,
+      "lineLengths": [
+        60,
+        60,
+        60
+      ],
+      "closedShape": true,
+      "firstLineFrom": {
+        "x": 50,
+        "y": 50
+      },
+      "actionTypesInclude": [
+        "goTo",
+        "penUp",
+        "penDown"
+      ]
+    }
+  },
+  {
+    "label": "Kleinere driehoek",
+    "canvas": {
+      "lineCount": 3,
+      "lineLengths": [
+        30,
+        30,
+        30
+      ],
+      "closedShape": true,
+      "firstLineFrom": {
+        "x": 50,
+        "y": 50
+      }
+    },
+    "replacements": [
+      {
+        "from": "var zijde = 60;",
+        "to": "var zijde = 30;"
+      }
+    ]
+  }
+]

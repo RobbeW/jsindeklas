@@ -1,0 +1,8 @@
+{
+  "id": "toets_3-ex01",
+  "title": "1. Korting vanaf ...",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Korting toegepast.",
+  "testsPath": "tests.json"
+}

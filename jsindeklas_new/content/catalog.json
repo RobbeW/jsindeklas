@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "ch01",
+      "title": "Hoofdstuk 1: Hello, World!",
+      "order": 1,
+      "path": "chapters/ch01/chapter.json"
+    },
+    {
+      "id": "ch02",
+      "title": "Hoofdstuk 2: Datatypes en de Sequentie",
+      "order": 2,
+      "path": "chapters/ch02/chapter.json"
+    },
+    {
+      "id": "ch03",
+      "title": "Hoofdstuk 3: De Selectie",
+      "order": 3,
+      "path": "chapters/ch03/chapter.json"
+    },
+    {
+      "id": "ch04",
+      "title": "Hoofdstuk 4: Figuren Plotten",
+      "order": 4,
+      "path": "chapters/ch04/chapter.json"
+    },
+    {
+      "id": "ch05",
+      "title": "Hoofdstuk 5: De Begrensde Herhaling",
+      "order": 5,
+      "path": "chapters/ch05/chapter.json"
+    },
+    {
+      "id": "ch06",
+      "title": "Hoofdstuk 6: De Voorwaardelijke Herhaling",
+      "order": 6,
+      "path": "chapters/ch06/chapter.json"
+    },
+    {
+      "id": "ch07",
+      "title": "Hoofdstuk 7: Figuren Plotten II",
+      "order": 7,
+      "path": "chapters/ch07/chapter.json"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "toets_3-ex02",
+  "title": "2. Gratis verzending",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Verzendkosten betalen.",
+  "testsPath": "tests.json"
+}

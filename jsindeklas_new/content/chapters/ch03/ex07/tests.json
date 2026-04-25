@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Voldoende score",
+    "stdout": "Voldoende."
+  },
+  {
+    "label": "Uitstekende score",
+    "stdout": "Uitstekend.",
+    "replacements": [
+      {
+        "from": "var score = 14;",
+        "to": "var score = 18;"
+      }
+    ]
+  },
+  {
+    "label": "Onvoldoende score",
+    "stdout": "Onvoldoende.",
+    "replacements": [
+      {
+        "from": "var score = 14;",
+        "to": "var score = 7;"
+      }
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex05",
+  "title": "5. Subtropisch zwembad",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "OK.",
+  "testsPath": "tests.json"
+}

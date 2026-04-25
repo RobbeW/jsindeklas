@@ -1,0 +1,25 @@
+[
+  {
+    "label": "Naam in console en op canvas",
+    "stdout": "Ada Lovelace",
+    "canvas": {
+      "textCount": 1,
+      "textEntries": [
+        {
+          "text": "Ada Lovelace",
+          "x": 0,
+          "y": 120
+        }
+      ],
+      "actionTypeCounts": {
+        "goTo": 1,
+        "writeText": 1
+      },
+      "finalState": {
+        "x": 0,
+        "y": 120,
+        "penDown": false
+      }
+    }
+  }
+]

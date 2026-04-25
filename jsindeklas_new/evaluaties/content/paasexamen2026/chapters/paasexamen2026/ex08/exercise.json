@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex08",
+  "title": "8. Verbeterwerk",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Goed gewerkt! Doe zo voort!\nGeniet van de vakantie!",
+  "testsPath": "tests.json"
+}

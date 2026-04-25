@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Vier vierkanten met afnemende zijde",
+    "canvas": {
+      "lineCount": 16,
+      "sortedLineLengths": [
+        40,
+        40,
+        40,
+        40,
+        30,
+        30,
+        30,
+        30,
+        20,
+        20,
+        20,
+        20,
+        10,
+        10,
+        10,
+        10
+      ]
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex11",
+  "title": "11. Canvas: bevroren of niet",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Status: bevroren.",
+  "testsPath": "tests.json"
+}

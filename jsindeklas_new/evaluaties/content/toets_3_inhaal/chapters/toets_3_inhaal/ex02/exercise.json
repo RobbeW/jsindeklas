@@ -1,0 +1,8 @@
+{
+  "id": "toets_3_inhaal-ex02",
+  "title": "2. Leeftijdscategorie",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Volwassene.",
+  "testsPath": "tests.json"
+}

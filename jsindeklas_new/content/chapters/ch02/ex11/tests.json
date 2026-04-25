@@ -1,0 +1,13 @@
+[
+  {
+    "label": "De voorbeeldfactuur",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        826.8,
+        292.32,
+        54.69
+      ]
+    }
+  }
+]

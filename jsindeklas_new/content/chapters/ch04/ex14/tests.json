@@ -1,0 +1,34 @@
+[
+  {
+    "label": "Berekende zijde 50",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        50,
+        50,
+        50,
+        50
+      ],
+      "closedShape": true
+    }
+  },
+  {
+    "label": "Andere berekende zijde",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "closedShape": true
+    },
+    "replacements": [
+      {
+        "from": "var zijde = 100 / 2;",
+        "to": "var zijde = 80 / 2;"
+      }
+    ]
+  }
+]

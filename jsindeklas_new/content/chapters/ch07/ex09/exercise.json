@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex09",
+  "title": "9. Vierkanten met while-lus",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

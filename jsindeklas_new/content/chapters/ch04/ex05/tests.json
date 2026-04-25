@@ -1,0 +1,50 @@
+[
+  {
+    "label": "Vierkant met label 60",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        60,
+        60,
+        60,
+        60
+      ],
+      "closedShape": true,
+      "textIncludes": [
+        "60"
+      ],
+      "textCount": 1,
+      "actionTypesInclude": [
+        "penUp",
+        "writeText"
+      ]
+    }
+  },
+  {
+    "label": "Vierkant met label 45",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        45,
+        45,
+        45,
+        45
+      ],
+      "closedShape": true,
+      "textIncludes": [
+        "45"
+      ],
+      "textCount": 1,
+      "actionTypesInclude": [
+        "penUp",
+        "writeText"
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var zijde = 60;",
+        "to": "var zijde = 45;"
+      }
+    ]
+  }
+]

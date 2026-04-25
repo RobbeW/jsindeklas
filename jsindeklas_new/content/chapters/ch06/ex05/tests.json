@@ -1,0 +1,68 @@
+[
+  {
+    "label": "De voorbeeldwaarborg",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        1,
+        2147.55,
+        2,
+        2211.98,
+        3,
+        2278.34,
+        4,
+        2346.69,
+        5,
+        2417.09
+      ]
+    }
+  },
+  {
+    "label": "Lagere maandhuur",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        1,
+        1545,
+        2,
+        1591.35,
+        3,
+        1639.09,
+        4,
+        1688.26,
+        5,
+        1738.91
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var maandhuur = 695;",
+        "to": "var maandhuur = 500;"
+      }
+    ]
+  },
+  {
+    "label": "Hogere maandhuur",
+    "eval": {
+      "type": "numbers",
+      "expected": [
+        1,
+        2781,
+        2,
+        2864.43,
+        3,
+        2950.36,
+        4,
+        3038.87,
+        5,
+        3130.04
+      ]
+    },
+    "replacements": [
+      {
+        "from": "var maandhuur = 695;",
+        "to": "var maandhuur = 900;"
+      }
+    ]
+  }
+]

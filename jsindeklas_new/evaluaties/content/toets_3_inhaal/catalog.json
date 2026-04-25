@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "toets_3_inhaal",
+      "title": "Toets Hoofdstuk 3: De Selectie - Inhaaltoets",
+      "order": 1,
+      "path": "chapters/toets_3_inhaal/chapter.json"
+    }
+  ]
+}

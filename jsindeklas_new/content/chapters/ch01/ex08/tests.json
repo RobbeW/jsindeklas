@@ -1,0 +1,41 @@
+[
+  {
+    "label": "Vier namen in de vier kwadranten",
+    "canvas": {
+      "textCount": 4,
+      "textEntries": [
+        {
+          "text": "Ada",
+          "x": -150,
+          "y": 150
+        },
+        {
+          "text": "Grace",
+          "x": 150,
+          "y": 150
+        },
+        {
+          "text": "Alan",
+          "x": -150,
+          "y": -150
+        },
+        {
+          "text": "Linus",
+          "x": 150,
+          "y": -150
+        }
+      ],
+      "actionTypeCounts": {
+        "goTo": 4,
+        "writeText": 4
+      },
+      "minBoundsWidth": 300,
+      "minBoundsHeight": 300,
+      "finalState": {
+        "x": 150,
+        "y": -150,
+        "penDown": false
+      }
+    }
+  }
+]

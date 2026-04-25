@@ -1,0 +1,8 @@
+{
+  "id": "ch06-ex06",
+  "title": "6. Bevolkingsgroei Montpellier (while)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "In het jaar 2025 is de bevolking 304704 inwoners.\nIn het jaar 2026 is de bevolking 314150 inwoners.\nIn het jaar 2027 is de bevolking 323888 inwoners.\nIn het jaar 2028 is de bevolking 333929 inwoners.\nIn het jaar 2029 is de bevolking 344281 inwoners.\nIn het jaar 2030 is de bevolking 354953 inwoners.\nIn het jaar 2031 is de bevolking 365957 inwoners.\nIn het jaar 2032 is de bevolking 377301 inwoners.\nIn het jaar 2033 is de bevolking 388998 inwoners.\nIn het jaar 2034 is de bevolking 401057 inwoners.",
+  "testsPath": "tests.json"
+}

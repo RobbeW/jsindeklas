@@ -1,0 +1,41 @@
+[
+  {
+    "label": "Vier uitslagen op het scorebord",
+    "canvas": {
+      "textCount": 4,
+      "textEntries": [
+        {
+          "text": "12/04 Gent 3-1 Brugge",
+          "x": -150,
+          "y": 150
+        },
+        {
+          "text": "13/04 Antwerp 2-2 Genk",
+          "x": 150,
+          "y": 150
+        },
+        {
+          "text": "14/04 Anderlecht 1-0 Standard",
+          "x": -150,
+          "y": -150
+        },
+        {
+          "text": "15/04 Cercle 0-4 Union",
+          "x": 150,
+          "y": -150
+        }
+      ],
+      "actionTypeCounts": {
+        "goTo": 4,
+        "writeText": 4
+      },
+      "minBoundsWidth": 300,
+      "minBoundsHeight": 300,
+      "finalState": {
+        "x": 150,
+        "y": -150,
+        "penDown": false
+      }
+    }
+  }
+]

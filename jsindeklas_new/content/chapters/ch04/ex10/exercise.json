@@ -1,0 +1,7 @@
+{
+  "id": "ch04-ex10",
+  "title": "10. Kleurkeuze met if",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

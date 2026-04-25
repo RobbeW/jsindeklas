@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex02",
+  "title": "2. IJsjes bestellen",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Louise bestelt 2 bollen vanille-ijs, met daarbovenop extra chocoladesaus.",
+  "testsPath": "tests.json"
+}

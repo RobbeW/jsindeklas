@@ -1,0 +1,8 @@
+{
+  "id": "kerstexamen2025-ex01",
+  "title": "1. Hallo, ik ben ...",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Ik ben Lina, ik ben 14 jaar en ik woon in 9000 Gent.",
+  "testsPath": "tests.json"
+}

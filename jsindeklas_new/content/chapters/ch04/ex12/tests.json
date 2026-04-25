@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Kleine zijde: dun en rood",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        35,
+        35,
+        35,
+        35
+      ],
+      "lineColour": "red",
+      "maxLineWidth": 3,
+      "closedShape": true
+    }
+  },
+  {
+    "label": "Grote zijde: dik en blauw",
+    "canvas": {
+      "lineCount": 4,
+      "lineLengths": [
+        60,
+        60,
+        60,
+        60
+      ],
+      "lineColour": "blue",
+      "minLineWidth": 4,
+      "closedShape": true
+    },
+    "replacements": [
+      {
+        "from": "var zijde = 35;",
+        "to": "var zijde = 60;"
+      }
+    ]
+  }
+]

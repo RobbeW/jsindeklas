@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex08",
+  "title": "8. Vergelijk twee getallen (>, <, ===)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De twee getallen zijn gelijk.",
+  "testsPath": "tests.json"
+}

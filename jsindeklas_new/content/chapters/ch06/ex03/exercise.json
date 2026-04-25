@@ -1,0 +1,8 @@
+{
+  "id": "ch06-ex03",
+  "title": "3. Totale afstand berekenen (while)",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De totale afstand die ik heb afgelegd is: 1107.8 km.",
+  "testsPath": "tests.json"
+}

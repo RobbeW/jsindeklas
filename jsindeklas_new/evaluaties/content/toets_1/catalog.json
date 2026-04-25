@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "toets_1",
+      "title": "JavaScript: Toets 1",
+      "order": 1,
+      "path": "chapters/toets_1/chapter.json"
+    }
+  ]
+}

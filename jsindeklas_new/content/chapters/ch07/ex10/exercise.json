@@ -1,0 +1,7 @@
+{
+  "id": "ch07-ex10",
+  "title": "10. Spiraal van vierkanten",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

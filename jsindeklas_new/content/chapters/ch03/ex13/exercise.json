@@ -1,0 +1,8 @@
+{
+  "id": "ch03-ex13",
+  "title": "13. Canvas: mini-thermostaat",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Thermostaat: green.",
+  "testsPath": "tests.json"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "toets_1-ex03",
+  "title": "3. Gemiddelde temperatuur",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "De gemiddelde temperatuur vandaag is 15.5 graden.",
+  "testsPath": "tests.json"
+}

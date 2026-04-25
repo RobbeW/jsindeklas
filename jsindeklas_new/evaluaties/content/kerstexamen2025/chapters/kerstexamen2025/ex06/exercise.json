@@ -1,0 +1,8 @@
+{
+  "id": "kerstexamen2025-ex06",
+  "title": "6. Tuin met terras",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Het terras is 12 vierkante meter en er blijft 48 vierkante meter gras over.",
+  "testsPath": "tests.json"
+}

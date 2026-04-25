@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <!-- JavaScript in de Klas evaluatie-launcher | Robbe Wulgaert, AI in de Klas, robbewulgaert.be -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be">
+  <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert">
+  <title>Toets Hoofdstuk 3: De Selectie</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      background: #f3f5f8;
+      color: #23272e;
+      font: 16px/1.5 Roboto, Arial, Helvetica, sans-serif;
+    }
+    .card {
+      width: min(680px, 100%);
+      background: #fff;
+      border: 1px solid #ececf3;
+      border-radius: 18px;
+      padding: 1.4rem 1.5rem;
+      box-shadow: 0 8px 30px rgba(82, 0, 255, 0.08);
+    }
+    h1 {
+      margin: 0 0 0.5rem;
+      color: #5200FF;
+      font-size: 1.5rem;
+      line-height: 1.15;
+    }
+    p { margin: 0.55rem 0; }
+    code {
+      background: #f7f8fa;
+      border: 1px solid #ececf3;
+      border-radius: 6px;
+      padding: 0.1rem 0.35rem;
+      color: #5200FF;
+      font-weight: 700;
+    }
+    .hidden { display: none; }
+    .warn {
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      background: #fff7e9;
+      border: 1px solid #f0d39a;
+      color: #946200;
+    }
+    a { color: #5200FF; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Toets Hoofdstuk 3: De Selectie</h1>
+    <p id="launch-status">De evaluatie opent automatisch.</p>
+    <p><a href="../index.html?assessment=toets_3&assessmentTitle=Toets+Hoofdstuk+3%3A+De+Selectie&pageTitle=Toets+Hoofdstuk+3%3A+De+Selectie&contentRoot=evaluaties%2Fcontent%2Ftoets_3&testMode=1&testLabel=toets-3-2026-01-09&enableMenu=0&revealExpected=0&assignmentTextMode=comment">Klik hier als dat niet gebeurt.</a></p>
+    <div id="launch-warning" class="warn hidden">
+      <p>Deze evaluatie gebruikt losse JSON-bestanden en werkt daarom niet via <code>file://</code>.</p>
+      <p>Open ze via GitHub Pages of via een andere echte webserver. Je hoeft geen build-script uit te voeren; de GitHub Pages-link van je fork volstaat.</p>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var target = "../index.html?assessment=toets_3&assessmentTitle=Toets+Hoofdstuk+3%3A+De+Selectie&pageTitle=Toets+Hoofdstuk+3%3A+De+Selectie&contentRoot=evaluaties%2Fcontent%2Ftoets_3&testMode=1&testLabel=toets-3-2026-01-09&enableMenu=0&revealExpected=0&assignmentTextMode=comment";
+      var status = document.getElementById("launch-status");
+      var warning = document.getElementById("launch-warning");
+
+      if (window.location.protocol === "file:") {
+        if (status) {
+          status.textContent = "Deze evaluatie kan niet rechtstreeks vanaf je computer starten.";
+        }
+        if (warning) {
+          warning.classList.remove("hidden");
+        }
+        return;
+      }
+
+      window.location.replace(target);
+    })();
+  </script>
+</body>
+</html>

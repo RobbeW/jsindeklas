@@ -1,0 +1,8 @@
+{
+  "id": "paasexamen2026-ex07",
+  "title": "7. Op tijd in de les",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Perfect op tijd.",
+  "testsPath": "tests.json"
+}

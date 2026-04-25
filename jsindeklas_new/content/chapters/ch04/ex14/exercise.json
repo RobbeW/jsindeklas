@@ -1,0 +1,7 @@
+{
+  "id": "ch04-ex14",
+  "title": "14. Berekenen met Variabelen",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "testsPath": "tests.json"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "ch01-ex01",
+  "title": "1. Hello, World!",
+  "evaluationMode": "testcases",
+  "starterPath": "starter.js",
+  "evalOutput": "Hello, World!",
+  "testsPath": "tests.json"
+}
