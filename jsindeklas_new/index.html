@@ -37,6 +37,7 @@
     window.JSIK_ASSIGNMENT_TEXT_MODE = "empty"; // empty | comment | visible-comment
     window.JSIK_ACTIVE_ASSESSMENT_ID = "";
     window.JSIK_ACTIVE_ASSESSMENT_TITLE = "";
+    window.JSIK_COURSE_FETCH_CACHE = "default"; // default | no-store | reload | no-cache | force-cache
 
     (function applyRuntimeOverridesFromQuery(){
       const params = new URLSearchParams(window.location.search);
@@ -54,6 +55,13 @@
           return false;
         }
         return fallback;
+      }
+
+      function normalizeFetchCache(value, fallback){
+        const normalized = String(value || fallback || "default").trim().toLowerCase();
+        return ["default", "no-store", "reload", "no-cache", "force-cache"].includes(normalized)
+          ? normalized
+          : fallback;
       }
 
       function normalizeContentRoot(value, fallback){
@@ -96,6 +104,9 @@
         params.get("contentRoot"),
         window.JSIK_CONTENT_ROOT || "content"
       );
+      window.JSIK_COURSE_FETCH_CACHE = readBooleanParam("freshContent", false)
+        ? "no-store"
+        : normalizeFetchCache(params.get("contentCache"), window.JSIK_COURSE_FETCH_CACHE || "default");
       window.JSIK_ASSIGNMENT_TEXT_MODE = normalizeAssignmentTextMode(
         params.get("assignmentTextMode"),
         window.JSIK_ASSIGNMENT_TEXT_MODE || "empty"
@@ -190,6 +201,129 @@
       min-height:0;
       overflow:hidden;
       background:var(--bg);
+    }
+
+    .course-loading{
+      position:fixed;
+      inset:0;
+      z-index:5000;
+      display:grid;
+      place-items:center;
+      padding:1.5rem;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(61,255,208,0.22), transparent 26rem),
+        radial-gradient(circle at 82% 12%, rgba(82,0,255,0.18), transparent 24rem),
+        rgba(247,248,250,0.94);
+      backdrop-filter:blur(10px);
+      transition:opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .course-loading.is-hidden{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    .course-loading-card{
+      width:min(460px, 100%);
+      background:var(--card);
+      border:1.5px solid rgba(82,0,255,0.18);
+      border-radius:24px;
+      box-shadow:0 22px 70px rgba(35,39,46,0.18);
+      padding:1.6rem;
+      text-align:center;
+    }
+
+    .course-loading-mark{
+      width:82px;
+      height:82px;
+      margin:0 auto 1rem;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, var(--brand-purple), var(--brand-aqua));
+      box-shadow:0 12px 35px rgba(82,0,255,0.25);
+      position:relative;
+      isolation:isolate;
+    }
+
+    .course-loading-mark::before,
+    .course-loading-mark::after{
+      content:"";
+      position:absolute;
+      inset:9px;
+      border-radius:50%;
+      border:3px solid rgba(255,255,255,0.42);
+      border-top-color:#fff;
+      animation:courseSpin 1.05s linear infinite;
+      z-index:-1;
+    }
+
+    .course-loading-mark::after{
+      inset:20px;
+      border-color:rgba(255,255,255,0.30);
+      border-bottom-color:#fff;
+      animation-direction:reverse;
+      animation-duration:1.4s;
+    }
+
+    .course-loading-symbol{
+      color:#fff;
+      font-size:1.55rem;
+      font-weight:900;
+      letter-spacing:-0.08em;
+    }
+
+    .course-loading h2{
+      margin:0 0 0.45rem;
+      color:var(--brand-purple);
+      font-size:1.55rem;
+      line-height:1.15;
+    }
+
+    .course-loading-message{
+      margin:0;
+      color:var(--ink);
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .course-loading-detail{
+      min-height:1.35em;
+      margin:0.65rem 0 0;
+      color:#647084;
+      font-size:0.94rem;
+      line-height:1.35;
+    }
+
+    .course-loading-track{
+      height:10px;
+      margin-top:1.1rem;
+      border-radius:999px;
+      background:#ececf3;
+      overflow:hidden;
+    }
+
+    .course-loading-bar{
+      display:block;
+      width:12%;
+      height:100%;
+      border-radius:inherit;
+      background:linear-gradient(90deg, var(--brand-purple), var(--brand-aqua));
+      transition:width 0.2s ease;
+    }
+
+    .course-loading.has-error .course-loading-mark{
+      background:linear-gradient(135deg, #a91d1d, #ffb199);
+    }
+
+    .course-loading.has-error .course-loading-bar{
+      background:#a91d1d;
+      width:100% !important;
+    }
+
+    @keyframes courseSpin{
+      to{ transform:rotate(360deg); }
     }
 
     .editor-pane{
@@ -1019,6 +1153,27 @@
     body.dark .editor-label, body.dark .console-label, body.dark .canvas-label{ color:#fff !important; }
     body.dark #console-output{ background:#fff !important; color:#23272e !important; border-color:var(--brand-aqua) !important; }
     body.dark #coords, body.dark #metrics{ color:#fff !important; }
+    body.dark .course-loading{
+      background:
+        radial-gradient(circle at 18% 18%, rgba(61,255,208,0.16), transparent 26rem),
+        radial-gradient(circle at 82% 12%, rgba(82,0,255,0.24), transparent 24rem),
+        rgba(22,24,32,0.94);
+    }
+    body.dark .course-loading-card{
+      background:#23272e;
+      color:#fff;
+      border-color:rgba(61,255,208,0.22);
+    }
+    body.dark .course-loading h2,
+    body.dark .course-loading-message{
+      color:#fff;
+    }
+    body.dark .course-loading-detail{
+      color:#d8deea;
+    }
+    body.dark .course-loading-track{
+      background:#363c4a;
+    }
 
     body.dark .brand-btn, body.dark .zoom-btn, body.dark .help-btn{
       background:var(--brand-white);
@@ -1145,6 +1300,20 @@
 </head>
 
 <body>
+  <div id="course-loading" class="course-loading" role="status" aria-live="polite" aria-busy="true">
+    <div class="course-loading-card">
+      <div class="course-loading-mark" aria-hidden="true">
+        <span class="course-loading-symbol">JS</span>
+      </div>
+      <h2>Oefeningen laden</h2>
+      <p id="course-loading-message" class="course-loading-message">We bouwen de oefenboom op.</p>
+      <div class="course-loading-track" aria-hidden="true">
+        <span id="course-loading-bar" class="course-loading-bar"></span>
+      </div>
+      <p id="course-loading-detail" class="course-loading-detail">Catalogus openen...</p>
+    </div>
+  </div>
+
   <!-- Topbar: voortgang, opdracht, knoppen -->
   <header class="topbar">
     <div class="exercise-progress" id="exercise-progress"></div>
@@ -1474,6 +1643,45 @@ fillCircle(20);</code></pre>
     .replace(/\\/g, "/")
     .replace(/\/+/g, "/")
     .replace(/^\/+|\/+$/g, "") || "content";
+  const COURSE_FETCH_CACHE = ["default", "no-store", "reload", "no-cache", "force-cache"].includes(String(window.JSIK_COURSE_FETCH_CACHE || "").toLowerCase())
+    ? String(window.JSIK_COURSE_FETCH_CACHE).toLowerCase()
+    : "default";
+
+  function setCourseLoadingStatus(message, detail = "", progress = null){
+    const root = document.getElementById("course-loading");
+    if (!root) return;
+
+    const messageEl = document.getElementById("course-loading-message");
+    const detailEl = document.getElementById("course-loading-detail");
+    const barEl = document.getElementById("course-loading-bar");
+
+    if (messageEl && message) {
+      messageEl.textContent = message;
+    }
+    if (detailEl) {
+      detailEl.textContent = detail;
+    }
+    if (barEl && Number.isFinite(progress)) {
+      const clamped = Math.max(6, Math.min(100, progress));
+      barEl.style.width = `${clamped}%`;
+    }
+  }
+
+  function hideCourseLoading(){
+    const root = document.getElementById("course-loading");
+    if (!root) return;
+    root.classList.add("is-hidden");
+    root.setAttribute("aria-busy", "false");
+  }
+
+  function showCourseLoadingError(message, detail = ""){
+    const root = document.getElementById("course-loading");
+    if (!root) return;
+    root.classList.add("has-error");
+    root.classList.remove("is-hidden");
+    root.setAttribute("aria-busy", "false");
+    setCourseLoadingStatus(message, detail, 100);
+  }
 
   function _dirnamePosix(filePath){
     const normalized = String(filePath || "").replace(/\\/g, "/");
@@ -1493,7 +1701,7 @@ fillCircle(20);</code></pre>
   }
 
   async function _fetchCourseJson(url){
-    const response = await fetch(url, { cache:"no-store" });
+    const response = await fetch(url, { cache:COURSE_FETCH_CACHE });
     if (!response.ok) {
       throw new Error(`Kan ${url} niet laden (${response.status}).`);
     }
@@ -1501,7 +1709,7 @@ fillCircle(20);</code></pre>
   }
 
   async function _fetchCourseText(url){
-    const response = await fetch(url, { cache:"no-store" });
+    const response = await fetch(url, { cache:COURSE_FETCH_CACHE });
     if (!response.ok) {
       throw new Error(`Kan ${url} niet laden (${response.status}).`);
     }
@@ -1518,13 +1726,18 @@ fillCircle(20);</code></pre>
     const exerciseMeta = await _fetchCourseJson(exerciseJsonPath);
     const exerciseDir = _dirnamePosix(exerciseJsonPath);
     const evaluationMode = String(exerciseMeta.evaluationMode || "testcases").trim().toLowerCase();
+    const starterPromise = exerciseMeta.starterPath
+      ? _fetchCourseText(_joinPosix(exerciseDir, exerciseMeta.starterPath))
+      : Promise.resolve("");
+    const testsPromise = evaluationMode === "testcases" && exerciseMeta.testsPath
+      ? _fetchCourseJson(_joinPosix(exerciseDir, exerciseMeta.testsPath))
+      : Promise.resolve(null);
+    const [starterCode, tests] = await Promise.all([starterPromise, testsPromise]);
 
     const runtimeExercise = {
       id: String(exerciseMeta.id || _dirnamePosix(exerciseJsonPath).split("/").pop() || ""),
       title: String(exerciseMeta.title || ""),
-      starterCode: exerciseMeta.starterPath
-        ? await _fetchCourseText(_joinPosix(exerciseDir, exerciseMeta.starterPath))
-        : "",
+      starterCode,
     };
 
     if (typeof exerciseMeta.evalOutput === "string") {
@@ -1537,7 +1750,6 @@ fillCircle(20);</code></pre>
       if (!exerciseMeta.testsPath) {
         throw new Error(`Ontbrekende testsPath in ${exerciseJsonPath}.`);
       }
-      const tests = await _fetchCourseJson(_joinPosix(exerciseDir, exerciseMeta.testsPath));
       if (!Array.isArray(tests)) {
         throw new Error(`tests.json moet een array zijn: ${exerciseJsonPath}.`);
       }
@@ -1551,35 +1763,64 @@ fillCircle(20);</code></pre>
     return runtimeExercise;
   }
 
-  async function _buildRuntimeChapterFromSource(catalogEntry){
+  async function _loadChapterMetaFromSource(catalogEntry){
     const chapterJsonPath = _buildCoursePath(catalogEntry.path);
     const chapterMeta = await _fetchCourseJson(chapterJsonPath);
     const chapterDir = _dirnamePosix(chapterJsonPath);
-    const exerciseEntries = _sortByOrder(chapterMeta.exercises);
-    const exercises = [];
+    return {
+      catalogEntry,
+      chapterMeta,
+      chapterDir,
+      exerciseEntries:_sortByOrder(chapterMeta.exercises),
+    };
+  }
 
-    for (const exerciseEntry of exerciseEntries) {
+  async function _buildRuntimeChapterFromSource(chapterSource, progressState){
+    const exercises = await Promise.all(chapterSource.exerciseEntries.map(async (exerciseEntry) => {
       const exercisePath = exerciseEntry.path || `${exerciseEntry.id}/exercise.json`;
-      exercises.push(await _buildRuntimeExerciseFromSource(_joinPosix(chapterDir, exercisePath)));
-    }
+      const exercise = await _buildRuntimeExerciseFromSource(_joinPosix(chapterSource.chapterDir, exercisePath));
+      progressState.loadedExercises += 1;
+      setCourseLoadingStatus(
+        "Oefeningen worden klaargezet.",
+        `${progressState.loadedExercises}/${progressState.totalExercises} oefeningen geladen`,
+        18 + (progressState.loadedExercises / Math.max(1, progressState.totalExercises)) * 76
+      );
+      return exercise;
+    }));
 
     return {
-      id: String(chapterMeta.id || catalogEntry.id || ""),
-      title: String(chapterMeta.title || catalogEntry.title || ""),
-      order: Number(chapterMeta.order ?? catalogEntry.order ?? 0),
+      id: String(chapterSource.chapterMeta.id || chapterSource.catalogEntry.id || ""),
+      title: String(chapterSource.chapterMeta.title || chapterSource.catalogEntry.title || ""),
+      order: Number(chapterSource.chapterMeta.order ?? chapterSource.catalogEntry.order ?? 0),
       exercises,
     };
   }
 
   async function _loadCourseDataFromSourceFiles(){
+    const loadStartedAt = performance.now();
+    setCourseLoadingStatus("Catalogus laden.", _buildCoursePath("catalog.json"), 8);
     const catalog = await _fetchCourseJson(_buildCoursePath("catalog.json"));
-    const chaptersFromSource = [];
-
-    for (const catalogEntry of _sortByOrder(catalog.chapters)) {
-      chaptersFromSource.push(await _buildRuntimeChapterFromSource(catalogEntry));
-    }
+    const catalogEntries = _sortByOrder(catalog.chapters);
+    setCourseLoadingStatus("Hoofdstukken lezen.", `${catalogEntries.length} hoofdstukken gevonden`, 12);
+    const chapterSources = await Promise.all(catalogEntries.map(_loadChapterMetaFromSource));
+    const totalExercises = chapterSources.reduce((sum, chapterSource) => sum + chapterSource.exerciseEntries.length, 0);
+    const progressState = {
+      loadedExercises:0,
+      totalExercises,
+    };
+    setCourseLoadingStatus("Oefeningen worden klaargezet.", `${totalExercises} oefeningen voorbereiden`, 18);
+    const chaptersFromSource = await Promise.all(chapterSources.map(chapterSource =>
+      _buildRuntimeChapterFromSource(chapterSource, progressState)
+    ));
 
     window.JSIK_COURSE_CONTENT_SOURCE = "source-files";
+    window.JSIK_COURSE_LOAD_STATS = {
+      cache:COURSE_FETCH_CACHE,
+      chapterCount:chaptersFromSource.length,
+      exerciseCount:totalExercises,
+      durationMs:Math.round(performance.now() - loadStartedAt),
+    };
+    setCourseLoadingStatus("Bijna klaar.", "Editor en menu worden opgebouwd", 96);
     return _buildCourseData({ chapters: chaptersFromSource }, inlineChapters);
   }
 
@@ -5196,6 +5437,7 @@ y += headerH + 5 * rowH + 20;
 
     document.addEventListener("DOMContentLoaded", async function(){
       try {
+        setCourseLoadingStatus("Catalogus laden.", "We zoeken de hoofdstukken en oefeningen.", 6);
         chapters = await loadCourseData();
         window.JSIK_LAST_COURSE_LOAD_ERROR = "";
       } catch (error) {
@@ -5235,6 +5477,11 @@ y += headerH + 5 * rowH + 20;
       renderChapterMenu();
       renderExerciseProgress();
       loadExercise();
+      if (chapters.length > 0) {
+        hideCourseLoading();
+      } else {
+        showCourseLoadingError("Oefeningen konden niet geladen worden.", describeCourseLoadFailure());
+      }
     });
   </script>
 </body>
