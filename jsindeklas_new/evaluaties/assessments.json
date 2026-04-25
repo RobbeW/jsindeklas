@@ -14,7 +14,8 @@
       "testLabel": "toets-1-2025-11-24",
       "revealExpectedOnFail": false,
       "enableMenu": false,
-      "assignmentTextMode": "empty"
+      "assignmentTextMode": "empty",
+      "contentCache": "no-store"
     },
     {
       "id": "toets_2",
@@ -28,7 +29,8 @@
       "testLabel": "toets-2-2025-12-01",
       "revealExpectedOnFail": false,
       "enableMenu": false,
-      "assignmentTextMode": "empty"
+      "assignmentTextMode": "empty",
+      "contentCache": "no-store"
     },
     {
       "id": "toets_3",
@@ -42,7 +44,8 @@
       "testLabel": "toets-3-2026-01-09",
       "revealExpectedOnFail": false,
       "enableMenu": false,
-      "assignmentTextMode": "comment"
+      "assignmentTextMode": "comment",
+      "contentCache": "no-store"
     },
     {
       "id": "toets_3_inhaal",
@@ -56,7 +59,8 @@
       "testLabel": "toets-3-inhaal-2026-01-09",
       "revealExpectedOnFail": false,
       "enableMenu": false,
-      "assignmentTextMode": "comment"
+      "assignmentTextMode": "comment",
+      "contentCache": "no-store"
     },
     {
       "id": "kerstexamen2025",
@@ -70,7 +74,8 @@
       "testLabel": "kerstexamen-2025-12-18",
       "revealExpectedOnFail": false,
       "enableMenu": false,
-      "assignmentTextMode": "comment"
+      "assignmentTextMode": "comment",
+      "contentCache": "no-store"
     },
     {
       "id": "paasexamen2026",
@@ -84,7 +89,8 @@
       "testLabel": "paasexamen-2026",
       "revealExpectedOnFail": false,
       "enableMenu": false,
-      "assignmentTextMode": "empty"
+      "assignmentTextMode": "empty",
+      "contentCache": "no-store"
     }
   ]
 }

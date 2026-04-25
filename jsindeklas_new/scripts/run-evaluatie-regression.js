@@ -144,6 +144,7 @@ async function inspectAssessment(page, baseUrl, assessment) {
     readySnapshot = await page.evaluate(() => ({
       assessmentId: String(window.JSIK_ACTIVE_ASSESSMENT_ID || ""),
       courseSource: String(window.JSIK_COURSE_CONTENT_SOURCE || ""),
+      contentCache: String(window.JSIK_COURSE_FETCH_CACHE || ""),
       hasLoadExercise: typeof loadExercise === "function",
       hasEvaluateExercise: typeof evaluateExercise === "function",
       hasStructuredReveal: typeof structuredShouldRevealEvaluationDetails === "function",
@@ -203,7 +204,16 @@ async function inspectAssessment(page, baseUrl, assessment) {
       assessmentId: String(window.JSIK_ACTIVE_ASSESSMENT_ID || ""),
       assessmentTitle: String(window.JSIK_ACTIVE_ASSESSMENT_TITLE || ""),
       contentRoot: String(window.JSIK_CONTENT_ROOT || ""),
+      contentCache: String(window.JSIK_COURSE_FETCH_CACHE || ""),
       courseSource: String(window.JSIK_COURSE_CONTENT_SOURCE || ""),
+      loadStats: window.JSIK_COURSE_LOAD_STATS && typeof window.JSIK_COURSE_LOAD_STATS === "object"
+        ? {
+            cache: String(window.JSIK_COURSE_LOAD_STATS.cache || ""),
+            chapterCount: Number(window.JSIK_COURSE_LOAD_STATS.chapterCount) || 0,
+            exerciseCount: Number(window.JSIK_COURSE_LOAD_STATS.exerciseCount) || 0,
+          }
+        : null,
+      loaderHidden: !!(document.getElementById("course-loading") && document.getElementById("course-loading").classList.contains("is-hidden")),
       chapterCount: eval("chapters").length,
       exerciseCount: eval("chapters")[0].exercises.length,
       revealDetails: structuredShouldRevealEvaluationDetails(),
@@ -225,11 +235,23 @@ async function inspectAssessment(page, baseUrl, assessment) {
   if (snapshot.courseSource !== "source-files") {
     issues.push(`unexpected content source (${snapshot.courseSource})`);
   }
+  if (snapshot.contentCache !== (assessment.contentCache || "no-store")) {
+    issues.push(`unexpected content cache (${snapshot.contentCache})`);
+  }
   if (snapshot.chapterCount !== 1) {
     issues.push(`expected 1 chapter, got ${snapshot.chapterCount}`);
   }
   if (snapshot.exerciseCount !== assessment.exerciseCount) {
     issues.push(`expected ${assessment.exerciseCount} exercises, got ${snapshot.exerciseCount}`);
+  }
+  if (!snapshot.loadStats || snapshot.loadStats.exerciseCount !== assessment.exerciseCount) {
+    issues.push("course load stats are missing or inconsistent");
+  }
+  if (snapshot.loadStats && snapshot.loadStats.cache !== (assessment.contentCache || "no-store")) {
+    issues.push(`load stats cache is ${snapshot.loadStats.cache}`);
+  }
+  if (!snapshot.loaderHidden) {
+    issues.push("loading overlay did not hide after boot");
   }
   if (snapshot.menuTabDisplay !== "none") {
     issues.push(`menu tab display is ${snapshot.menuTabDisplay}`);

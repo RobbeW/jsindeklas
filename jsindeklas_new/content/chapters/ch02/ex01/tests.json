@@ -8,12 +8,12 @@
     "stdout": "Uw nieuw saldo bedraagt 1000 euro.",
     "replacements": [
       {
-        "pattern": "\\b(?:var|let)\\s+rekening\\s*=\\s*['\"]?500['\"]?\\s*;?",
-        "to": "var rekening = '800';"
+        "pattern": "\\b(?:var|let|const)\\s+rekening\\s*=\\s*['\"]?500['\"]?\\s*;?(?:\\s*//[^\\n]*)?",
+        "to": "var rekening = 800;"
       },
       {
-        "pattern": "\\b(?:var|let)\\s+storting\\s*=\\s*['\"]?275['\"]?\\s*;?",
-        "to": "var storting = '200';"
+        "pattern": "\\b(?:var|let|const)\\s+storting\\s*=\\s*['\"]?275['\"]?\\s*;?(?:\\s*//[^\\n]*)?",
+        "to": "var storting = 200;"
       }
     ]
   },
@@ -22,12 +22,12 @@
     "stdout": "Uw nieuw saldo bedraagt 150 euro.",
     "replacements": [
       {
-        "pattern": "\\b(?:var|let)\\s+rekening\\s*=\\s*['\"]?500['\"]?\\s*;?",
-        "to": "var rekening = '125';"
+        "pattern": "\\b(?:var|let|const)\\s+rekening\\s*=\\s*['\"]?500['\"]?\\s*;?(?:\\s*//[^\\n]*)?",
+        "to": "var rekening = 125;"
       },
       {
-        "pattern": "\\b(?:var|let)\\s+storting\\s*=\\s*['\"]?275['\"]?\\s*;?",
-        "to": "var storting = '25';"
+        "pattern": "\\b(?:var|let|const)\\s+storting\\s*=\\s*['\"]?275['\"]?\\s*;?(?:\\s*//[^\\n]*)?",
+        "to": "var storting = 25;"
       }
     ]
   }

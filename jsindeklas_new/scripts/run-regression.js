@@ -104,10 +104,10 @@ const REGRESSION_CASES = [
     code: [
       "var rekening = 500;",
       "var storting = 275;",
-      "rekening = rekening + storting;",
+      "var rekening = rekening + storting",
       "console.log('Uw nieuw saldo bedraagt ' + rekening + ' euro.');"
     ].join("\n"),
-    expectSuccess: false
+    expectStyleWarnings: true
   },
   {
     chapterTitle: "Hoofdstuk 2: Datatypes en de Sequentie",

@@ -19,10 +19,61 @@ function expect(condition, message) {
   }
 }
 
+function launcherTargets(wrapperHtml) {
+  return Array.from(wrapperHtml.matchAll(/["'](\.\.\/index\.html\?[^"']+)["']/g))
+    .map(match => match[1]);
+}
+
+function queryParamsFromTarget(target) {
+  return new URL(target, "https://example.invalid/evaluaties/").searchParams;
+}
+
+function expectQueryParam(params, name, expected, context) {
+  expect(
+    params.get(name) === String(expected),
+    `${context} heeft ${name}=${params.get(name)}, verwacht ${expected}`
+  );
+}
+
+function expectBooleanQueryParam(params, name, expected, context) {
+  expectQueryParam(params, name, expected ? "1" : "0", context);
+}
+
 function readExerciseEntries(chapterPath) {
   const chapter = readJson(chapterPath);
   expect(Array.isArray(chapter.exercises), `chapter.json van ${chapterPath} bevat geen oefeningenarray.`);
   return chapter.exercises;
+}
+
+function validateReplacementRegex(testcase, context) {
+  const replacements = Array.isArray(testcase.replacements) ? testcase.replacements : [];
+  replacements.forEach((replacement, index) => {
+    expect(!Object.prototype.hasOwnProperty.call(replacement, "from"), `${context} replacement ${index + 1} gebruikt nog "from" in plaats van "pattern".`);
+    expect(typeof replacement.pattern === "string" && replacement.pattern.length > 0, `${context} replacement ${index + 1} mist pattern.`);
+    expect(Object.prototype.hasOwnProperty.call(replacement, "to"), `${context} replacement ${index + 1} mist to.`);
+
+    const flags = typeof replacement.flags === "string"
+      ? replacement.flags
+      : (replacement.replaceAll === false ? "" : "g");
+    try {
+      new RegExp(replacement.pattern, flags);
+    } catch (error) {
+      throw new Error(`${context} replacement ${index + 1} bevat een ongeldig regex-patroon: ${error.message}`);
+    }
+  });
+}
+
+function validateEvalRegex(testcase, context) {
+  if (!testcase.eval || testcase.eval.type !== "regex") {
+    return;
+  }
+
+  expect(typeof testcase.eval.pattern === "string" && testcase.eval.pattern.length > 0, `${context} regex-evaluatie mist pattern.`);
+  try {
+    new RegExp(testcase.eval.pattern, testcase.eval.flags || "i");
+  } catch (error) {
+    throw new Error(`${context} regex-evaluatie bevat een ongeldig regex-patroon: ${error.message}`);
+  }
 }
 
 function main() {
@@ -47,6 +98,20 @@ function main() {
       wrapperHtml.includes(`assessment=${assessment.id}`),
       `${assessment.launchFile} verwijst niet naar assessment=${assessment.id}`
     );
+    const targets = launcherTargets(wrapperHtml);
+    expect(targets.length >= 2, `${assessment.launchFile} moet zowel een fallback-link als automatische redirect bevatten.`);
+    targets.forEach((target, index) => {
+      const context = `${assessment.launchFile} target ${index + 1}`;
+      const params = queryParamsFromTarget(target);
+      expectQueryParam(params, "assessment", assessment.id, context);
+      expectQueryParam(params, "contentRoot", assessment.contentRoot, context);
+      expectQueryParam(params, "testLabel", assessment.testLabel, context);
+      expectQueryParam(params, "assignmentTextMode", assessment.assignmentTextMode, context);
+      expectQueryParam(params, "contentCache", assessment.contentCache || "no-store", context);
+      expectBooleanQueryParam(params, "testMode", !!assessment.testMode, context);
+      expectBooleanQueryParam(params, "enableMenu", !!assessment.enableMenu, context);
+      expectBooleanQueryParam(params, "revealExpected", !!assessment.revealExpectedOnFail, context);
+    });
 
     const contentRoot = path.join(ROOT_DIR, assessment.contentRoot.replace(/^evaluaties[\\/]/, "evaluaties/"));
     const catalogPath = path.join(contentRoot, "catalog.json");
@@ -84,6 +149,11 @@ function main() {
         typeof tests[0].stdout === "string" || (tests[0].eval && typeof tests[0].eval === "object"),
         `${assessment.id} oefening ${index + 1} testcase mist stdout/eval`
       );
+      tests.forEach((testcase, testcaseIndex) => {
+        const context = `${assessment.id} oefening ${index + 1} testcase ${testcaseIndex + 1}`;
+        validateReplacementRegex(testcase, context);
+        validateEvalRegex(testcase, context);
+      });
     });
   });
 
