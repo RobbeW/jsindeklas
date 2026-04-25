@@ -99,6 +99,17 @@ const REGRESSION_CASES = [
     ].join("\n")
   },
   {
+    chapterTitle: "Hoofdstuk 2: Datatypes en de Sequentie",
+    exerciseTitle: "1. Defect Geldautomaat",
+    code: [
+      "var rekening = 500;",
+      "var storting = 275;",
+      "rekening = rekening + storting;",
+      "console.log('Uw nieuw saldo bedraagt ' + rekening + ' euro.');"
+    ].join("\n"),
+    expectSuccess: false
+  },
+  {
     chapterTitle: "Hoofdstuk 3: De Selectie",
     exerciseTitle: "9. Canvas: kleur kiezen op basis van temperatuur",
     code: [
@@ -408,25 +419,35 @@ async function main() {
     const results = [];
     for (const testCase of REGRESSION_CASES) {
       const result = await runRegressionCase(page, testCase);
+      const expectedSuccess = testCase.expectSuccess !== false;
+      const hasStyleWarnings = Array.isArray(result.styleWarnings) && result.styleWarnings.length > 0;
       results.push({
         chapterTitle: testCase.chapterTitle,
         exerciseTitle: testCase.exerciseTitle,
         success: !!result.success,
+        expectedSuccess,
+        successMatchesExpectation: !!result.success === expectedSuccess,
         total: Number.isFinite(result.total) ? result.total : 0,
         failedCount: Number.isFinite(result.failedCount) ? result.failedCount : 0,
-        styleWarnings: Array.isArray(result.styleWarnings) ? result.styleWarnings.length : 0,
-        styleWarningMismatch: !!testCase.expectStyleWarnings !== (Array.isArray(result.styleWarnings) && result.styleWarnings.length > 0),
+        styleWarnings: hasStyleWarnings ? result.styleWarnings.length : 0,
+        styleWarningMismatch: !!testCase.expectStyleWarnings !== hasStyleWarnings,
         firstFailInfo: result.firstFailCase && result.firstFailCase.info ? result.firstFailCase.info : "",
         runtimeError: result.errorMessage || ""
       });
     }
 
-    const failedCases = results.filter(result => !result.success || result.styleWarningMismatch);
+    const failedCases = results.filter(result => !result.successMatchesExpectation || result.styleWarningMismatch);
     results.forEach(result => {
-      const prefix = result.success && !result.styleWarningMismatch ? "[OK]" : "[FAIL]";
-      const suffix = result.success && !result.styleWarningMismatch
-        ? `${result.total} testcase(s)${result.styleWarnings ? `, ${result.styleWarnings} stijlmelding(en)` : ""}`
-        : `${result.failedCount} mislukte testcase(s)${result.styleWarningMismatch ? " - stijlcheck kwam niet overeen met verwachting" : ""}${result.firstFailInfo ? ` - ${result.firstFailInfo}` : ""}${result.runtimeError ? ` - ${result.runtimeError}` : ""}`;
+      const prefix = result.successMatchesExpectation && !result.styleWarningMismatch ? "[OK]" : "[FAIL]";
+      const successSuffix = result.expectedSuccess
+        ? `${result.total} testcase(s)`
+        : `verwacht afgewezen (${result.failedCount} mislukte testcase(s))`;
+      const failureSuffix = result.expectedSuccess
+        ? `${result.failedCount} mislukte testcase(s)`
+        : "onverwacht geslaagd";
+      const suffix = result.successMatchesExpectation && !result.styleWarningMismatch
+        ? `${successSuffix}${result.styleWarnings ? `, ${result.styleWarnings} stijlmelding(en)` : ""}`
+        : `${failureSuffix}${result.styleWarningMismatch ? " - stijlcheck kwam niet overeen met verwachting" : ""}${result.firstFailInfo ? ` - ${result.firstFailInfo}` : ""}${result.runtimeError ? ` - ${result.runtimeError}` : ""}`;
       console.log(`${prefix} ${result.chapterTitle} / ${result.exerciseTitle}: ${suffix}`);
     });
 
@@ -440,7 +461,7 @@ async function main() {
       process.exitCode = 1;
     } else {
       console.log("");
-      console.log(`Alle ${results.length} regressiecases zijn geslaagd.`);
+      console.log(`Alle ${results.length} regressiecases hebben het verwachte resultaat.`);
     }
   } finally {
     await page.close();

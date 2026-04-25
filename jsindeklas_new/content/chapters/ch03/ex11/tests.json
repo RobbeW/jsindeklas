@@ -26,7 +26,7 @@
     },
     "replacements": [
       {
-        "from": "var temp = -2;",
+        "pattern": "\\b(?:var|let|const)\\s+temp\\s*=\\s*-2\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var temp = 3;"
       }
     ]

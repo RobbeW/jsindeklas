@@ -8,7 +8,7 @@
     "stdout": "Het water is bevroren.",
     "replacements": [
       {
-        "from": "var temp = 20;",
+        "pattern": "\\b(?:var|let|const)\\s+temp\\s*=\\s*20\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var temp = -5;"
       }
     ]
@@ -18,7 +18,7 @@
     "stdout": "Het water kookt.",
     "replacements": [
       {
-        "from": "var temp = 20;",
+        "pattern": "\\b(?:var|let|const)\\s+temp\\s*=\\s*20\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var temp = 105;"
       }
     ]

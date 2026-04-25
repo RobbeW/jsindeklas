@@ -28,7 +28,7 @@
     },
     "replacements": [
       {
-        "from": "var kleurKeuze = 'groen';",
+        "pattern": "\\b(?:var|let|const)\\s+kleurKeuze\\s*=\\s*[\"']groen[\"']\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var kleurKeuze = 'rood';"
       }
     ]
@@ -48,7 +48,7 @@
     },
     "replacements": [
       {
-        "from": "var kleurKeuze = 'groen';",
+        "pattern": "\\b(?:var|let|const)\\s+kleurKeuze\\s*=\\s*[\"']groen[\"']\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var kleurKeuze = 'blauw';"
       }
     ]

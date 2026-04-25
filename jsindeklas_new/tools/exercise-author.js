@@ -96,6 +96,51 @@
     return parts;
   }
 
+  function escapeRegExp(value){
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function flexibleWhitespacePattern(value){
+    return escapeRegExp(value).replace(/\s+/g, "\\s*");
+  }
+
+  function expressionPatternFromLiteral(expression){
+    const trimmed = String(expression || "").trim();
+    const stringMatch = trimmed.match(/^(['"])([\s\S]*)\1$/);
+    if (stringMatch) {
+      const inner = stringMatch[2];
+      if (/^[+-]?\d+(?:[.,]\d+)?$/.test(inner)) {
+        return `['"]?${escapeRegExp(inner)}['"]?`;
+      }
+      return `['"]${flexibleWhitespacePattern(inner)}['"]`;
+    }
+    return flexibleWhitespacePattern(trimmed);
+  }
+
+  function patternFromReplacementSource(source){
+    const trimmed = normalizeNewlines(source).trim();
+    if (!trimmed) {
+      return "";
+    }
+
+    const declarationMatch = trimmed.match(/^(?:var|let|const)\s+([A-Za-z_$][\w$]*)\s*=\s*([\s\S]*?)\s*;?\s*(?:\/\/[^\n]*)?$/);
+    if (declarationMatch) {
+      return `\\b(?:var|let|const)\\s+${escapeRegExp(declarationMatch[1])}\\s*=\\s*${expressionPatternFromLiteral(declarationMatch[2])}\\s*;?(?:\\s*//[^\\n]*)?`;
+    }
+
+    return escapeRegExp(trimmed);
+  }
+
+  function replacementSourceForForm(replacement){
+    if (!replacement) {
+      return "";
+    }
+    if (typeof replacement.pattern === "string") {
+      return replacement.pattern;
+    }
+    return String(replacement.from || "");
+  }
+
   function splitNonEmptyLines(value){
     return splitInputLines(value)
       .map(part => part.trim())
@@ -214,7 +259,7 @@
     });
   }
 
-  function addReplacementRow(from = "", to = ""){
+  function addReplacementRow(from = "", to = "", mode = "auto"){
     const row = document.createElement("div");
     row.className = "replacement-row";
 
@@ -226,6 +271,7 @@
     fromInput.value = from;
     fromInput.placeholder = "var score = 10;";
     fromInput.dataset.replacementFrom = "true";
+    fromInput.dataset.replacementMode = mode;
     fromWrap.appendChild(fromLabel);
     fromWrap.appendChild(fromInput);
 
@@ -266,16 +312,31 @@
       addReplacementRow();
       return;
     }
-    replacements.forEach(replacement => addReplacementRow(replacement.from, replacement.to));
+    replacements.forEach(replacement => {
+      const mode = replacement && replacement.pattern ? "pattern" : "auto";
+      addReplacementRow(
+        replacementSourceForForm(replacement),
+        replacement && replacement.to !== undefined ? replacement.to : "",
+        mode
+      );
+    });
   }
 
   function replacementValuesFromForm(){
     return Array.from(els.replacementRows.querySelectorAll(".replacement-row"))
-      .map(row => ({
-        from:String(row.querySelector("[data-replacement-from]").value || ""),
-        to:String(row.querySelector("[data-replacement-to]").value || ""),
-      }))
-      .filter(replacement => replacement.from.length > 0);
+      .map(row => {
+        const sourceInput = row.querySelector("[data-replacement-from]");
+        const source = String(sourceInput.value || "").trim();
+        const to = String(row.querySelector("[data-replacement-to]").value || "");
+        if (!source) {
+          return null;
+        }
+        return {
+          pattern:sourceInput.dataset.replacementMode === "pattern" ? source : patternFromReplacementSource(source),
+          to,
+        };
+      })
+      .filter(Boolean);
   }
 
   function canvasConfigFromForm(){

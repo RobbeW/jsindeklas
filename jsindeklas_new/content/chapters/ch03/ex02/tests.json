@@ -8,7 +8,7 @@
     "stdout": "Het water vriest niet.",
     "replacements": [
       {
-        "from": "var temp = -3;",
+        "pattern": "\\b(?:var|let|const)\\s+temp\\s*=\\s*-3\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var temp = 8;"
       }
     ]

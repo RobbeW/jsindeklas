@@ -610,17 +610,70 @@
       margin-bottom:1.9em;
     }
     .chapter-list li{
-      margin:0.65em 0;
       list-style:none;
-      font-size:1em;
-      cursor:pointer;
-      padding:0.45em 0.5em;
+    }
+    .menu-chapter-item{
+      margin:0.65em 0;
+      padding:0.45em 0.5em 0.55em;
       border-radius:8px;
     }
     .menu-chapter-item.active{
       background:#fff2;
       color:var(--brand-aqua);
       font-weight:bold;
+    }
+    .menu-chapter-title{
+      width:100%;
+      display:block;
+      color:inherit;
+      font:inherit;
+      font-weight:800;
+      text-align:left;
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:0;
+    }
+    .menu-exercise-list{
+      margin:0.55em 0 0;
+      padding:0;
+      display:grid;
+      gap:0.25em;
+    }
+    .menu-exercise-item{
+      width:100%;
+      color:#fff;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:7px;
+      cursor:pointer;
+      display:grid;
+      grid-template-columns:2.2em minmax(0,1fr);
+      gap:0.45em;
+      align-items:start;
+      padding:0.38em 0.45em;
+      text-align:left;
+      font:inherit;
+      font-size:0.88em;
+      line-height:1.25;
+    }
+    .menu-exercise-item:hover,
+    .menu-exercise-item:focus-visible{
+      background:rgba(255,255,255,0.18);
+      outline:none;
+    }
+    .menu-exercise-item.current{
+      background:var(--brand-aqua);
+      border-color:var(--brand-aqua);
+      color:var(--ink);
+      font-weight:800;
+    }
+    .menu-exercise-number{
+      opacity:0.76;
+      font-weight:900;
+    }
+    .menu-exercise-title{
+      overflow-wrap:anywhere;
     }
     .menu-footer{
       border-top:1.3px solid #fff2;
@@ -1966,11 +2019,40 @@ document.addEventListener("visibilitychange", () => {
       chapters.forEach((chapter, idx) => {
         const li = document.createElement("li");
         li.className = "menu-chapter-item" + (idx === currentChapterIdx ? " active" : "");
-        li.textContent = chapter.title;
-        li.tabIndex = 0;
-        li.setAttribute("role", "button");
-        li.onclick = () => switchChapter(idx);
-        li.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") switchChapter(idx); };
+
+        const chapterButton = document.createElement("button");
+        chapterButton.type = "button";
+        chapterButton.className = "menu-chapter-title";
+        chapterButton.textContent = chapter.title;
+        chapterButton.onclick = () => switchChapter(idx);
+        li.appendChild(chapterButton);
+
+        const exerciseList = document.createElement("ul");
+        exerciseList.className = "menu-exercise-list";
+        (chapter.exercises || []).forEach((exercise, exerciseIdx) => {
+          const exerciseLi = document.createElement("li");
+          const exerciseButton = document.createElement("button");
+          exerciseButton.type = "button";
+          exerciseButton.className = "menu-exercise-item" +
+            (idx === currentChapterIdx && exerciseIdx === currentExerciseIdx ? " current" : "");
+          exerciseButton.title = exercise.title || `Oefening ${exerciseIdx + 1}`;
+          exerciseButton.onclick = () => switchChapter(idx, exerciseIdx);
+
+          const number = document.createElement("span");
+          number.className = "menu-exercise-number";
+          number.textContent = String(exerciseIdx + 1).padStart(2, "0");
+
+          const title = document.createElement("span");
+          title.className = "menu-exercise-title";
+          title.textContent = exercise.title || `Oefening ${exerciseIdx + 1}`;
+
+          exerciseButton.appendChild(number);
+          exerciseButton.appendChild(title);
+          exerciseLi.appendChild(exerciseButton);
+          exerciseList.appendChild(exerciseLi);
+        });
+
+        li.appendChild(exerciseList);
         chapterMenuList.appendChild(li);
       });
     }
@@ -2168,6 +2250,7 @@ document.addEventListener("visibilitychange", () => {
     function switchExercise(exIdx){
       confirmSwitch(() => {
         currentExerciseIdx = exIdx;
+        renderChapterMenu();
         renderExerciseProgress();
         loadExercise();
         isDirty = false;
@@ -3627,13 +3710,28 @@ document.addEventListener("visibilitychange", () => {
       let transformed = String(code || "");
 
       replacements.forEach((replacement) => {
-        if (!replacement || typeof replacement.from !== "string" || replacement.from.length === 0) {
+        if (!replacement) {
+          return;
+        }
+
+        const to = String(replacement.to ?? "");
+        if (typeof replacement.pattern === "string" && replacement.pattern.length > 0) {
+          try {
+            const flags = typeof replacement.flags === "string"
+              ? replacement.flags
+              : (replacement.replaceAll === false ? "" : "g");
+            transformed = transformed.replace(new RegExp(replacement.pattern, flags), to);
+          } catch (error) {
+            console.warn("Ongeldige testcase-regex overgeslagen.", replacement.pattern, error);
+          }
+          return;
+        }
+
+        if (typeof replacement.from !== "string" || replacement.from.length === 0) {
           return;
         }
 
         const from = replacement.from;
-        const to = String(replacement.to ?? "");
-
         if (replacement.replaceAll === false) {
           transformed = transformed.replace(from, to);
         } else {

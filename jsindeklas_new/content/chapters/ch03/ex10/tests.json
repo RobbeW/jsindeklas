@@ -42,7 +42,7 @@
     },
     "replacements": [
       {
-        "from": "var code = 2;",
+        "pattern": "\\b(?:var|let|const)\\s+code\\s*=\\s*2\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var code = 1;"
       }
     ]
@@ -69,7 +69,7 @@
     },
     "replacements": [
       {
-        "from": "var code = 2;",
+        "pattern": "\\b(?:var|let|const)\\s+code\\s*=\\s*2\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var code = 3;"
       }
     ]

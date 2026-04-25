@@ -42,7 +42,7 @@
     },
     "replacements": [
       {
-        "from": "var temp = 20;",
+        "pattern": "\\b(?:var|let|const)\\s+temp\\s*=\\s*20\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var temp = -3;"
       }
     ]
@@ -69,7 +69,7 @@
     },
     "replacements": [
       {
-        "from": "var temp = 20;",
+        "pattern": "\\b(?:var|let|const)\\s+temp\\s*=\\s*20\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var temp = 120;"
       }
     ]

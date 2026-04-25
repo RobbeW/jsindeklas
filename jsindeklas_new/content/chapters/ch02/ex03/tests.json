@@ -28,15 +28,15 @@
     },
     "replacements": [
       {
-        "from": "var x = 10;",
+        "pattern": "\\b(?:var|let|const)\\s+x\\s*=\\s*10\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var x = 12;"
       },
       {
-        "from": "var y = 5;",
+        "pattern": "\\b(?:var|let|const)\\s+y\\s*=\\s*5\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var y = 3;"
       },
       {
-        "from": "var z = 4;",
+        "pattern": "\\b(?:var|let|const)\\s+z\\s*=\\s*4\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var z = 5;"
       }
     ]
@@ -56,15 +56,15 @@
     },
     "replacements": [
       {
-        "from": "var x = 10;",
+        "pattern": "\\b(?:var|let|const)\\s+x\\s*=\\s*10\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var x = 9;"
       },
       {
-        "from": "var y = 5;",
+        "pattern": "\\b(?:var|let|const)\\s+y\\s*=\\s*5\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var y = 2;"
       },
       {
-        "from": "var z = 4;",
+        "pattern": "\\b(?:var|let|const)\\s+z\\s*=\\s*4\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var z = 3;"
       }
     ]

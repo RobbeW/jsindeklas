@@ -8,7 +8,7 @@
     "stdout": "Je mag stemmen.",
     "replacements": [
       {
-        "from": "var leeftijd = 17;",
+        "pattern": "\\b(?:var|let|const)\\s+leeftijd\\s*=\\s*17\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var leeftijd = 18;"
       }
     ]
@@ -18,7 +18,7 @@
     "stdout": "Je mag stemmen.",
     "replacements": [
       {
-        "from": "var leeftijd = 17;",
+        "pattern": "\\b(?:var|let|const)\\s+leeftijd\\s*=\\s*17\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var leeftijd = 42;"
       }
     ]

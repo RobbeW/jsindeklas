@@ -26,11 +26,11 @@
     },
     "replacements": [
       {
-        "from": "var lengte = 80;",
+        "pattern": "\\b(?:var|let|const)\\s+lengte\\s*=\\s*80\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var lengte = 60;"
       },
       {
-        "from": "var breedte = 40;",
+        "pattern": "\\b(?:var|let|const)\\s+breedte\\s*=\\s*40\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var breedte = 20;"
       }
     ]

@@ -38,7 +38,7 @@
     },
     "replacements": [
       {
-        "from": "var batterij = 18;",
+        "pattern": "\\b(?:var|let|const)\\s+batterij\\s*=\\s*18\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var batterij = 50;"
       }
     ]

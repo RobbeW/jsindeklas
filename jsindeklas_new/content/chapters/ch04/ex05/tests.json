@@ -42,7 +42,7 @@
     },
     "replacements": [
       {
-        "from": "var zijde = 60;",
+        "pattern": "\\b(?:var|let|const)\\s+zijde\\s*=\\s*60\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var zijde = 45;"
       }
     ]

@@ -8,11 +8,11 @@
     "stdout": "Het eerste getal is groter.",
     "replacements": [
       {
-        "from": "var a = 7;",
+        "pattern": "\\b(?:var|let|const)\\s+a\\s*=\\s*7\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var a = 9;"
       },
       {
-        "from": "var b = 7;",
+        "pattern": "\\b(?:var|let|const)\\s+b\\s*=\\s*7\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var b = 4;"
       }
     ]
@@ -22,11 +22,11 @@
     "stdout": "Het tweede getal is groter.",
     "replacements": [
       {
-        "from": "var a = 7;",
+        "pattern": "\\b(?:var|let|const)\\s+a\\s*=\\s*7\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var a = 4;"
       },
       {
-        "from": "var b = 7;",
+        "pattern": "\\b(?:var|let|const)\\s+b\\s*=\\s*7\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var b = 9;"
       }
     ]

@@ -8,7 +8,7 @@
     "stdout": "Uitstekend.",
     "replacements": [
       {
-        "from": "var score = 14;",
+        "pattern": "\\b(?:var|let|const)\\s+score\\s*=\\s*14\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var score = 18;"
       }
     ]
@@ -18,7 +18,7 @@
     "stdout": "Onvoldoende.",
     "replacements": [
       {
-        "from": "var score = 14;",
+        "pattern": "\\b(?:var|let|const)\\s+score\\s*=\\s*14\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var score = 7;"
       }
     ]

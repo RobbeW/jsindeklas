@@ -8,11 +8,11 @@
     "stdout": "Uw nieuw saldo bedraagt 1000 euro.",
     "replacements": [
       {
-        "from": "var rekening = '500';",
+        "pattern": "\\b(?:var|let)\\s+rekening\\s*=\\s*['\"]?500['\"]?\\s*;?",
         "to": "var rekening = '800';"
       },
       {
-        "from": "var storting = '275';",
+        "pattern": "\\b(?:var|let)\\s+storting\\s*=\\s*['\"]?275['\"]?\\s*;?",
         "to": "var storting = '200';"
       }
     ]
@@ -22,11 +22,11 @@
     "stdout": "Uw nieuw saldo bedraagt 150 euro.",
     "replacements": [
       {
-        "from": "var rekening = '500';",
+        "pattern": "\\b(?:var|let)\\s+rekening\\s*=\\s*['\"]?500['\"]?\\s*;?",
         "to": "var rekening = '125';"
       },
       {
-        "from": "var storting = '275';",
+        "pattern": "\\b(?:var|let)\\s+storting\\s*=\\s*['\"]?275['\"]?\\s*;?",
         "to": "var storting = '25';"
       }
     ]

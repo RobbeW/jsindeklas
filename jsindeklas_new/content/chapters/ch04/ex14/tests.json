@@ -26,7 +26,7 @@
     },
     "replacements": [
       {
-        "from": "var zijde = 100 / 2;",
+        "pattern": "\\b(?:var|let|const)\\s+zijde\\s*=\\s*100\\s*/\\s*2\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var zijde = 80 / 2;"
       }
     ]

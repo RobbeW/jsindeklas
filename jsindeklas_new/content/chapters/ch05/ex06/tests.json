@@ -56,7 +56,7 @@
     },
     "replacements": [
       {
-        "from": "var bevolking = 295542;",
+        "pattern": "\\b(?:var|let|const)\\s+bevolking\\s*=\\s*295542\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var bevolking = 100000;"
       }
     ]
@@ -90,7 +90,7 @@
     },
     "replacements": [
       {
-        "from": "var bevolking = 295542;",
+        "pattern": "\\b(?:var|let|const)\\s+bevolking\\s*=\\s*295542\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var bevolking = 50000;"
       }
     ]

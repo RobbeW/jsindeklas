@@ -44,11 +44,11 @@
     },
     "replacements": [
       {
-        "from": "var lengte = 329;",
+        "pattern": "\\b(?:var|let|const)\\s+lengte\\s*=\\s*329\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var lengte = 10;"
       },
       {
-        "from": "var breedte = 277.32;",
+        "pattern": "\\b(?:var|let|const)\\s+breedte\\s*=\\s*277\\.32\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var breedte = 5;"
       }
     ]
@@ -76,11 +76,11 @@
     },
     "replacements": [
       {
-        "from": "var lengte = 329;",
+        "pattern": "\\b(?:var|let|const)\\s+lengte\\s*=\\s*329\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var lengte = 8;"
       },
       {
-        "from": "var breedte = 277.32;",
+        "pattern": "\\b(?:var|let|const)\\s+breedte\\s*=\\s*277\\.32\\s*;?(?:\\s*//[^\\n]*)?",
         "to": "var breedte = 12.5;"
       }
     ]
