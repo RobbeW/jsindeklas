@@ -110,6 +110,18 @@ const REGRESSION_CASES = [
     expectSuccess: false
   },
   {
+    chapterTitle: "Hoofdstuk 2: Datatypes en de Sequentie",
+    exerciseTitle: "2. Statiegeld",
+    code: [
+      "var cola = 3.5;",
+      "var aantal = 4;",
+      "var taks = (cola * aantal)/10;",
+      "var totaal = cola*aantal+taks;",
+      "console.log(\"Fred moet\", totaal, \"euro betalen\");"
+    ].join("\n"),
+    expectStyleWarnings: true
+  },
+  {
     chapterTitle: "Hoofdstuk 3: De Selectie",
     exerciseTitle: "9. Canvas: kleur kiezen op basis van temperatuur",
     code: [

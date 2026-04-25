@@ -2019,6 +2019,16 @@ function _trimEvalResultForStorage(evalResult){
                 codeLine: String(item && item.codeLine || ""),
               }))
             : [],
+          languageIssues: Array.isArray(warning && warning.languageIssues)
+            ? warning.languageIssues.map(item => ({
+                testcaseLabel: String(item && item.testcaseLabel || ""),
+                lineNumber: Number.isFinite(item && item.lineNumber) ? item.lineNumber : null,
+                expectedEnding: String(item && item.expectedEnding || ""),
+                actualEnding: String(item && item.actualEnding || ""),
+                expectedLine: String(item && item.expectedLine || ""),
+                actualLine: String(item && item.actualLine || ""),
+              }))
+            : [],
         }))
       : [],
   };
@@ -2756,6 +2766,52 @@ document.addEventListener("visibilitychange", () => {
       return t;
     }
 
+    function _terminalSentencePunctuation(text){
+      const match = String(text || "").trim().match(/[.!?]+$/);
+      return match ? match[0] : "";
+    }
+
+    function _withoutTerminalSentencePunctuation(text){
+      return String(text || "").trim().replace(/[.!?]+$/g, "").trim();
+    }
+
+    function _buildTerminalSentencePunctuationIssue(expectedCompare, actualCompare, lineNumber, opts, expectedDisplay, actualDisplay){
+      const expectedNormalized = _normalizeText(expectedCompare, opts);
+      const actualNormalized = _normalizeText(actualCompare, opts);
+      if (expectedNormalized === actualNormalized) {
+        return null;
+      }
+
+      const expectedBase = _withoutTerminalSentencePunctuation(expectedNormalized);
+      const actualBase = _withoutTerminalSentencePunctuation(actualNormalized);
+      if (!expectedBase || expectedBase !== actualBase) {
+        return null;
+      }
+
+      const expectedEnding = _terminalSentencePunctuation(expectedNormalized);
+      const actualEnding = _terminalSentencePunctuation(actualNormalized);
+      if (expectedEnding === actualEnding) {
+        return null;
+      }
+
+      return {
+        lineNumber,
+        expectedEnding,
+        actualEnding,
+        expectedLine:String(expectedDisplay ?? expectedCompare ?? ""),
+        actualLine:String(actualDisplay ?? actualCompare ?? ""),
+      };
+    }
+
+    function _buildLanguagePunctuationWarning(issues){
+      return {
+        id:"sentence-punctuation",
+        title:"Controleer je leestekens",
+        message:"Je oplossing is correct. Kijk nog even of elke zin eindigt met het juiste leesteken.",
+        languageIssues:Array.isArray(issues) ? issues : [],
+      };
+    }
+
     function _extractNumbers(s){
       const norm = (s ?? "").replace(/(\d),(\d)/g, "$1.$2");
       const matches = norm.match(/-?\d+(?:\.\d+)?/g) || [];
@@ -2767,6 +2823,7 @@ document.addEventListener("visibilitychange", () => {
     }
 
     function _looseCompare(expectedRaw, userRaw, opts = _DEFAULT_NORM_OPTS){
+      const languageIssues = [];
       const linesE = (expectedRaw ?? "")
         .split(/\r?\n/)
         .map(l => l.replace(/\u00A0/g, " ").trim())
@@ -2798,18 +2855,36 @@ document.addEventListener("visibilitychange", () => {
           const eText = _normalizeText(e.replace(/-?\d+(?:\.\d+)?/g, ""), opts);
           const uText = _normalizeText(u.replace(/-?\d+(?:\.\d+)?/g, ""), opts);
           if (eText !== uText){
+            const punctuationIssue = _buildTerminalSentencePunctuationIssue(eText, uText, i + 1, opts, e, u);
+            if (punctuationIssue) {
+              languageIssues.push(punctuationIssue);
+              continue;
+            }
             return { ok:false, info:`Tekst op regel ${i+1} wijkt af (we negeren spaties/case/komma-punt).` };
           }
         } else {
           const eN = _normalizeText(e, opts);
           const uN = _normalizeText(u, opts);
           if (eN !== uN){
+            const punctuationIssue = _buildTerminalSentencePunctuationIssue(eN, uN, i + 1, opts, e, u);
+            if (punctuationIssue) {
+              languageIssues.push(punctuationIssue);
+              continue;
+            }
             return { ok:false, info:`Regel ${i+1} wijkt af.` };
           }
         }
       }
 
-      return { ok:true, info:"Uitvoer komt overeen." };
+      return {
+        ok:true,
+        info:languageIssues.length > 0
+          ? "Uitvoer komt overeen. Let nog even op afsluitende leestekens."
+          : "Uitvoer komt overeen.",
+        styleWarnings:languageIssues.length > 0
+          ? [_buildLanguagePunctuationWarning(languageIssues)]
+          : [],
+      };
     }
 
     function _evalByMode(exercise, userRaw){
@@ -3049,21 +3124,47 @@ document.addEventListener("visibilitychange", () => {
       };
     }
 
+    function _collectLanguageStyleWarning(caseResults){
+      const languageIssues = [];
+      (Array.isArray(caseResults) ? caseResults : []).forEach((caseResult) => {
+        const warnings = Array.isArray(caseResult && caseResult.styleWarnings) ? caseResult.styleWarnings : [];
+        warnings.forEach((warning) => {
+          const issues = Array.isArray(warning && warning.languageIssues) ? warning.languageIssues : [];
+          issues.forEach((issue) => {
+            languageIssues.push({
+              testcaseLabel:String((caseResult && caseResult.label) || ""),
+              lineNumber:Number.isFinite(issue && issue.lineNumber) ? issue.lineNumber : null,
+              expectedEnding:String((issue && issue.expectedEnding) || ""),
+              actualEnding:String((issue && issue.actualEnding) || ""),
+              expectedLine:String((issue && issue.expectedLine) || ""),
+              actualLine:String((issue && issue.actualLine) || ""),
+            });
+          });
+        });
+      });
+
+      return languageIssues.length > 0 ? _buildLanguagePunctuationWarning(languageIssues) : null;
+    }
+
     function _attachPostSuccessStyleChecks(evalResult, code){
       if (!evalResult || !evalResult.success) {
         return evalResult;
       }
+      const styleWarnings = [];
+      const languageWarning = _collectLanguageStyleWarning(evalResult.caseResults);
+      if (languageWarning) {
+        styleWarnings.push(languageWarning);
+      }
       const semicolonStyle = analyzeSemicolonStyle(code);
       if (!semicolonStyle.ok) {
-        evalResult.styleWarnings = [{
+        styleWarnings.push({
           id:"missing-semicolons",
           title:"Controleer je puntkomma's",
           message:"Je oplossing is correct. Kijk nog even na of elke actie eindigt met een puntkomma (;).",
           missingSemicolons: semicolonStyle.missingSemicolons,
-        }];
-      } else {
-        evalResult.styleWarnings = [];
+        });
       }
+      evalResult.styleWarnings = styleWarnings;
       return evalResult;
     }
 
@@ -3152,6 +3253,7 @@ document.addEventListener("visibilitychange", () => {
           ok: !!(result && result.ok),
           info: result && result.info ? result.info : "",
           expectedLabel: _describeEvalConfig(evalConfig),
+          styleWarnings:[],
         };
       }
 
@@ -3160,6 +3262,7 @@ document.addEventListener("visibilitychange", () => {
         ok: loose.ok,
         info: loose.info,
         expectedLabel: String(expectedOutput || ""),
+        styleWarnings:Array.isArray(loose.styleWarnings) ? loose.styleWarnings : [],
       };
     }
 
@@ -3914,6 +4017,7 @@ document.addEventListener("visibilitychange", () => {
         actual: String(options.actual || ""),
         runtimeError: String(options.runtimeError || ""),
         info: String(options.info || ""),
+        styleWarnings: Array.isArray(options.styleWarnings) ? options.styleWarnings : [],
       };
     }
 
@@ -4077,6 +4181,7 @@ document.addEventListener("visibilitychange", () => {
         actual,
         runtimeError,
         info:runtimeError || evaluation.info,
+        styleWarnings:evaluation.styleWarnings,
       });
 
       return _rememberEvaluationResult(_attachPostSuccessStyleChecks({
@@ -4155,6 +4260,7 @@ document.addEventListener("visibilitychange", () => {
         actual:_combineCaseDetails(outputEvaluation.actualLabel, canvasEvaluation.actualLabel),
         runtimeError,
         info:combinedInfo,
+        styleWarnings:outputEvaluation.styleWarnings,
       });
     }
 
@@ -4333,9 +4439,16 @@ document.addEventListener("visibilitychange", () => {
     }
 
     function createStyleWarningEvaluationNode(styleWarnings){
-      const warning = Array.isArray(styleWarnings) ? styleWarnings[0] : null;
-      const missing = Array.isArray(warning && warning.missingSemicolons) ? warning.missingSemicolons : [];
+      const warnings = Array.isArray(styleWarnings) ? styleWarnings.filter(Boolean) : [];
+      const warning = warnings[0] || null;
+      const missing = warnings.flatMap(item =>
+        Array.isArray(item && item.missingSemicolons) ? item.missingSemicolons : []
+      );
+      const languageIssues = warnings.flatMap(item =>
+        Array.isArray(item && item.languageIssues) ? item.languageIssues : []
+      );
       const shown = missing.slice(0, 6);
+      const shownLanguageIssues = languageIssues.slice(0, 6);
 
       const card = document.createElement("article");
       card.className = "eval-case style-warning";
@@ -4345,7 +4458,9 @@ document.addEventListener("visibilitychange", () => {
 
       const title = document.createElement("div");
       title.className = "eval-case-title";
-      title.textContent = warning && warning.title ? warning.title : "Stijlcheck";
+      title.textContent = warnings.length > 1
+        ? "Stijl- en taalcheck"
+        : warning && warning.title ? warning.title : "Stijlcheck";
 
       const badge = document.createElement("span");
       badge.className = "eval-case-badge style-warning";
@@ -4359,9 +4474,10 @@ document.addEventListener("visibilitychange", () => {
       grid.className = "eval-case-grid";
       grid.appendChild(createStructuredEvaluationKv(
         "Status",
-        warning && warning.message
-          ? warning.message
-          : "Je oplossing is correct. Kijk nog even naar je stijl."
+        warnings
+          .map(item => String((item && item.message) || "").trim())
+          .filter(Boolean)
+          .join("\n\n") || "Je oplossing is correct. Kijk nog even naar je stijl."
       ));
 
       if (shown.length > 0) {
@@ -4369,6 +4485,19 @@ document.addEventListener("visibilitychange", () => {
           "Regels om te controleren",
           shown.map(item => `Regel ${item.lineNumber}: ${item.codeLine}`).join("\n") +
             (missing.length > shown.length ? `\n... en ${missing.length - shown.length} extra regel(s).` : "")
+        ));
+      }
+
+      if (shownLanguageIssues.length > 0) {
+        grid.appendChild(createStructuredEvaluationKv(
+          "Leestekens om te controleren",
+          shownLanguageIssues.map((item) => {
+            const expectedEnding = item.expectedEnding ? `"${item.expectedEnding}"` : "een afsluitend leesteken";
+            const actualEnding = item.actualEnding ? `"${item.actualEnding}"` : "geen afsluitend leesteken";
+            const prefix = item.testcaseLabel ? `${item.testcaseLabel} - ` : "";
+            return `${prefix}regel ${item.lineNumber}: verwacht ${expectedEnding}, kreeg ${actualEnding}.\nJouw tekst: ${item.actualLine}`;
+          }).join("\n\n") +
+            (languageIssues.length > shownLanguageIssues.length ? `\n\n... en ${languageIssues.length - shownLanguageIssues.length} extra regel(s).` : "")
         ));
       }
 
