@@ -554,6 +554,22 @@
       font-weight: 700;
     }
 
+    .course-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .course-stats .stat {
+      padding: 18px;
+    }
+
+    .course-stats .stat-label {
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+      hyphens: auto;
+    }
+
     .authoring {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(320px, 0.82fr);
@@ -1144,8 +1160,9 @@
         <article class="authoring-card">
           <h3 class="card-title">Evaluatie in het PDF-rapport</h3>
           <p class="card-copy">
-            De PDF-export bevat een compacte rubriek voor gerichte feedback. De criteria helpen om
-            programmeeroefeningen consistenter te beoordelen.
+            De PDF-export bundelt code, uitvoer en een compacte rubriek voor feedback. Zo beoordeel je
+            niet alleen of de oplossing werkt, maar ook hoe leesbaar de code is en welk denkconcept de
+            leerling gebruikt.
           </p>
 
           <div class="rubric" aria-label="Beoordelingsrubriek">
@@ -1156,22 +1173,22 @@
             <span>Creativiteit</span>
           </div>
 
-          <div class="stats" aria-label="Projectkenmerken">
+          <div class="stats course-stats" aria-label="Cursusinhoud">
             <div class="stat">
-              <div class="stat-value">12–14</div>
-              <div class="stat-label">jaar</div>
+              <div class="stat-value">7</div>
+              <div class="stat-label">hoofdstukken</div>
             </div>
             <div class="stat">
-              <div class="stat-value">0</div>
-              <div class="stat-label">accounts</div>
+              <div class="stat-value">81</div>
+              <div class="stat-label">oefeningen</div>
             </div>
             <div class="stat">
-              <div class="stat-value">1</div>
-              <div class="stat-label">browser</div>
+              <div class="stat-value">5</div>
+              <div class="stat-label">concepten</div>
             </div>
             <div class="stat">
-              <div class="stat-value">PDF</div>
-              <div class="stat-label">rapport</div>
+              <div class="stat-value">2</div>
+              <div class="stat-label">figuren plotten</div>
             </div>
           </div>
         </article>
@@ -1282,8 +1299,8 @@
           </p>
 
           <div class="compare-actions">
-            <a class="btn btn-primary" href="https://dodona.be/nl/">
-              Open Dodona
+            <a class="btn btn-primary" href="https://dodona.be/nl/courses/2641/">
+              Python in de Klas op Dodona
             </a>
           </div>
         </article>
