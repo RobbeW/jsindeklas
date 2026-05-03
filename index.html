@@ -1,3 +1,8 @@
+<!--
+  JavaScript in de Klas - landing page
+  Copyright (c) 2026 Robbe Wulgaert
+  Citeer/vermeld als: Robbe Wulgaert, AI in de Klas, robbewulgaert.be
+-->
 <!doctype html>
 <html lang="nl-BE">
 <head>
@@ -8,6 +13,8 @@
     name="description"
     content="JavaScript in de Klas is een lichte browseromgeving voor computationeel denken en JavaScript, zonder installatie of accounts."
   />
+  <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be" />
+  <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert" />
 
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="shortcut icon" type="image/png" href="favicon.png" />
@@ -21,10 +28,10 @@
 
   <style>
     :root {
-      --brand: #5200ff;
-      --brand-dark: #3a00b8;
+      --brand: #5200FF;
+      --brand-dark: #3700B3;
       --brand-softer: #f7f3ff;
-      --accent: #03ddef;
+      --accent: #3dffd0;
       --bg-soft: #f8f7f3;
       --text: #181421;
       --muted: #625b70;
@@ -240,6 +247,7 @@
       letter-spacing: -0.075em;
       margin: 0;
       max-width: 820px;
+      color: var(--brand-dark);
     }
 
     .hero-lead {
@@ -729,6 +737,137 @@
       margin-top: 22px;
     }
 
+    .family-tree {
+      margin-top: 34px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow-card);
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .tree-root { display: flex; justify-content: center; margin-bottom: 24px; }
+
+    .tree-node {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fff;
+      padding: 18px;
+      box-shadow: 0 10px 28px rgba(82, 0, 255, 0.08);
+    }
+
+    .tree-node strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--brand-dark);
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .tree-node span { display: block; color: var(--muted); }
+
+    .tree-node.root {
+      width: min(560px, 100%);
+      text-align: center;
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .tree-node.root strong,
+    .tree-node.root span { color: #fff; }
+
+    .tree-node:hover,
+    .tree-node:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--brand);
+      box-shadow: 0 18px 38px rgba(82, 0, 255, 0.14);
+      outline: none;
+    }
+
+    .tree-branches {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .tree-branches::before {
+      content: "";
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      width: 2px;
+      height: 24px;
+      background: var(--brand);
+      opacity: 0.32;
+    }
+
+    .tree-branch {
+      position: relative;
+      border: 1.5px dashed rgba(82, 0, 255, 0.28);
+      border-radius: 24px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(247, 243, 255, 0.92), rgba(255, 255, 255, 0.94));
+    }
+
+    .tree-branch::before {
+      content: "";
+      position: absolute;
+      top: -17px;
+      width: 50%;
+      height: 17px;
+      border-top: 2px solid rgba(82, 0, 255, 0.32);
+    }
+
+    .tree-branch:first-child::before { right: 0; border-left: 2px solid rgba(82, 0, 255, 0.32); border-radius: 14px 0 0 0; }
+    .tree-branch:last-child::before { left: 0; border-right: 2px solid rgba(82, 0, 255, 0.32); border-radius: 0 14px 0 0; }
+
+    .branch-title {
+      display: inline-flex;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #0d2130;
+      padding: 8px 13px;
+      font-weight: 900;
+    }
+
+    .tree-stack { display: grid; gap: 12px; }
+
+    .tree-node.current {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 4px rgba(82, 0, 255, 0.08), 0 16px 32px rgba(82, 0, 255, 0.14);
+    }
+
+    .tree-node.bridge,
+    .tree-node.dodona {
+      background: linear-gradient(135deg, #ffffff, #dffff7);
+      border-color: rgba(3, 221, 239, 0.72);
+    }
+
+    .delphi-dodona-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .logic-note {
+      margin-top: 18px;
+      border-left: 6px solid var(--brand);
+      border-radius: 16px;
+      background: #fff;
+      padding: 16px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
     .cta-band {
       border-radius: var(--radius-xl);
       background:
@@ -834,6 +973,11 @@
       .comparison.platform-cards {
         grid-template-columns: 1fr;
       }
+
+      .tree-branches,
+      .delphi-dodona-pair { grid-template-columns: 1fr; }
+      .tree-branches::before,
+      .tree-branch::before { display: none; }
 
       .hero-panel { min-height: 420px; }
 
@@ -948,7 +1092,7 @@
         <a href="#werking">Werking</a>
         <a href="#features">Onderdelen</a>
         <a href="#leerkrachten">Voor leerkrachten</a>
-        <a href="#platformen">Platformkeuze</a>
+        <a href="#platformen">Familie</a>
         <a href="#oefeningen">Oefeningen maken</a>
       </div>
 
@@ -976,7 +1120,7 @@
 
         <div class="hero-actions" aria-label="Belangrijke acties">
           <a class="btn btn-primary" href="jsindeklas_new/index.html">
-            Start het leerplatform
+            Start leerplatform
           </a>
           <a class="btn btn-secondary" href="jsindeklas_new/tools/exercise-author.html">
             Open oefeningmaker
@@ -1013,7 +1157,7 @@
                     stroke-linejoin="round"
                     stroke-linecap="round"
                   />
-                  <circle cx="42" cy="42" r="8" fill="#03ddef" />
+                  <circle cx="42" cy="42" r="8" fill="#3dffd0" />
                 </svg>
               </div>
 
@@ -1196,142 +1340,59 @@
     </section>
 
     <section class="section" id="platformen">
-      <p class="section-kicker">Dodona, JavaScript in de Klas & Delphi</p>
-      <h2 class="section-title">Kies het platform volgens je onderwijsdoel.</h2>
+      <p class="section-kicker">Plaats in de familie</p>
+      <h2 class="section-title">JavaScript is de brug tussen web en programmeren.</h2>
       <p class="section-lead">
-        Dodona is het meest volledige platform voor structurele programmeerlessen. JavaScript in de Klas en
-        Delphi zijn lichtere browsertools voor korte oefenmomenten, demonstraties en lokale export.
+        JavaScript in de Klas sluit aan op HTML omdat het webpagina's interactief maakt. Tegelijk bouwt het verder op
+        de programmeerconcepten uit Blockly: sequentie, selectie, herhaling, variabelen en functies.
       </p>
 
-      <div class="platform-table-wrap" aria-label="Vergelijking van programmeerplatformen">
-        <table class="platform-table">
-          <thead>
-            <tr>
-              <th scope="col">Mogelijkheid</th>
-              <th scope="col">Dodona</th>
-              <th scope="col">JavaScript in de Klas</th>
-              <th scope="col">Delphi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Browsergebaseerd werken</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark yes">✓</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Automatische feedback</th>
-              <td><span class="mark yes">✓</span><span class="cell-note">Uitgebreid</span></td>
-              <td><span class="mark partial">◐</span><span class="cell-note">Via testcases</span></td>
-              <td><span class="mark partial">◐</span><span class="cell-note">Via testcases</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Performantiecontrole en linting</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark no">×</span></td>
-              <td><span class="mark no">×</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Dashboards en leeranalyses</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark no">×</span></td>
-              <td><span class="mark no">×</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Klassenbeheer en accounts</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark no">×</span><span class="cell-note">Bewust lokaal</span></td>
-              <td><span class="mark no">×</span><span class="cell-note">Bewust lokaal</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Oefenreeksen, deadlines en evaluaties</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark no">×</span></td>
-              <td><span class="mark no">×</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Grote oefenbibliotheek</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark no">×</span><span class="cell-note">Eigen content</span></td>
-              <td><span class="mark no">×</span><span class="cell-note">Eigen content</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Meerdere programmeertalen</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark no">×</span><span class="cell-note">JavaScript</span></td>
-              <td><span class="mark no">×</span><span class="cell-note">Python</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Plagiaatdetectie</th>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark no">×</span></td>
-              <td><span class="mark no">×</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Lokale opslag zonder login</th>
-              <td><span class="mark no">×</span></td>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark yes">✓</span></td>
-            </tr>
-            <tr>
-              <th scope="row">PDF-export voor indienen of feedback</th>
-              <td><span class="mark partial">◐</span><span class="cell-note">Platformfeedback</span></td>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark yes">✓</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Snel inzetten via GitHub Pages</th>
-              <td><span class="mark no">×</span></td>
-              <td><span class="mark yes">✓</span></td>
-              <td><span class="mark yes">✓</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="comparison platform-cards">
-        <article class="compare-card featured">
-          <h3 class="card-title">Dodona</h3>
-          <p class="card-copy">
-            De beste keuze voor volledige leerlijnen, klasopvolging, deadlines, automatische evaluatie,
-            leeranalyses en grotere oefencollecties.
-          </p>
-
-          <div class="compare-actions">
-            <a class="btn btn-primary" href="https://dodona.be/nl/courses/2641/">
-              Python in de Klas op Dodona
-            </a>
+      <div class="family-tree" aria-label="Familieboom van de projecten">
+        <div class="tree-root">
+          <a class="tree-node root" href="https://www.aiindeklas.be" target="_blank" rel="noopener">
+                  <strong>Informaticawetenschappen in de klas</strong>
+                  <span>digitale systemen begrijpen, maken en kritisch gebruiken</span>
+                </a>
+        </div>
+        <div class="tree-branches">
+          <div class="tree-branch">
+            <div class="branch-title">Webontwikkeling</div>
+            <div class="tree-stack">
+              <a class="tree-node" href="../htmlindeklas-main/index.html">
+                  <strong>HTML in de Klas</strong>
+                  <span>structuur, inhoud, tags en attributen. De pagina staat er.</span>
+                </a>
+              <a class="tree-node current" href="index.html">
+                  <strong>JavaScript in de Klas</strong>
+                  <span>gedrag, interactie en logica toevoegen aan webpagina's.</span>
+                </a>
+            </div>
           </div>
-        </article>
-
-        <article class="compare-card">
-          <h3 class="card-title">JavaScript in de Klas</h3>
-          <p class="card-copy">
-            Geschikt voor korte JavaScript-oefeningen, turtle graphics, snelle demonstraties, lokale opslag
-            en PDF-export zonder leerlingenaccounts.
-          </p>
-
-          <div class="compare-actions">
-            <a class="btn btn-primary" href="jsindeklas_new/index.html">
-              Start leerplatform
-            </a>
+          <div class="tree-branch">
+            <div class="branch-title">Computationeel denken en programmeren</div>
+            <div class="tree-stack">
+              <a class="tree-node" href="../Blockly-main/index.html">
+                  <strong>Blockly in de Klas</strong>
+                  <span>de visuele opstap naar sequentie, selectie en herhaling.</span>
+                </a>
+              <a class="tree-node current" href="index.html">
+                  <strong>JavaScript in de Klas</strong>
+                  <span>dezelfde denkpatronen in echte code: if, loops, functies en variabelen.</span>
+                </a>
+              <div class="delphi-dodona-pair" aria-label="Project Delphi en Dodona">
+                <a class="tree-node" href="../delphi-main/index.html">
+                  <strong>Project Delphi</strong>
+                  <span>de kleinere, lichtere Python-oefenomgeving voor snel oefenen in de browser.</span>
+                </a>
+                <a class="tree-node dodona" href="https://dodona.be/nl/" target="_blank" rel="noopener">
+                  <strong>Dodona</strong>
+                  <span>de sterkere, volledige omgeving voor leertrajecten, evaluaties en klasopvolging.</span>
+                </a>
+              </div>
+            </div>
           </div>
-        </article>
-
-        <article class="compare-card">
-          <h3 class="card-title">Project Delphi</h3>
-          <p class="card-copy">
-            Een lichte browseromgeving voor Python-oefeningen met testcase-evaluatie, lokale opslag en
-            PDF-export.
-          </p>
-
-          <div class="compare-actions">
-            <a class="btn btn-primary" href="https://robbew.github.io/delphi/">
-              Open Delphi
-            </a>
-          </div>
-        </article>
+        </div>
+        <div class="logic-note">JavaScript is hier de scharnierplek: het kan webpagina's tot leven brengen en tegelijk de stap zetten naar algemene programmeerconcepten. Voor volledige opvolging blijft Dodona de sterkste keuze.</div>
       </div>
     </section>
 
