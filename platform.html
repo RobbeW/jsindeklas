@@ -1296,6 +1296,96 @@
       .toolbar{ justify-content:flex-start; }
       .help-content{ width:99vw; }
     }
+    /* Canonieke JS in de Klas platformheader. */
+    .topbar{
+      background:#fff;
+      color:var(--ink);
+      border-bottom:1.5px solid #eee;
+      box-shadow:none;
+      overflow:visible;
+      padding:0.8rem 1.2rem;
+    }
+
+    .toolbar{
+      gap:0.6rem;
+    }
+
+    .brand-btn,
+    .toolbar button{
+      min-height:42px;
+      border:0;
+      border-radius:8px;
+      padding:0.7em 1.1em;
+      background:var(--brand-purple);
+      color:#fff;
+      font-weight:700;
+      line-height:1;
+      box-shadow:0 2px 8px rgba(82,0,255,0.10);
+      white-space:nowrap;
+    }
+
+    .brand-btn:hover,
+    .brand-btn:focus-visible,
+    .toolbar button:hover,
+    .toolbar button:focus-visible{
+      background:var(--brand-purple-dark);
+      color:#fff;
+      outline:none;
+    }
+
+    .exercise-progress{
+      max-width:min(42vw, 620px);
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding:0.18rem 0.25rem;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(82,0,255,0.45) transparent;
+    }
+
+    .exercise-btn{
+      flex:0 0 32px;
+      width:32px;
+      height:32px;
+      background:var(--brand-purple);
+      color:#fff;
+      border:0;
+      opacity:0.74;
+    }
+
+    .exercise-btn.current{
+      background:#fff;
+      color:var(--brand-purple);
+      border:2px solid var(--brand-purple);
+      box-shadow:0 0 0 3px #ece6fa;
+      transform:scale(1.13);
+      opacity:1;
+    }
+
+    @media (max-width:980px){
+      .topbar{
+        align-items:stretch;
+      }
+
+      .exercise-progress{
+        max-width:100%;
+        width:100%;
+        order:3;
+      }
+    }
+
+    @media (max-width:640px){
+      .toolbar{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        width:100%;
+      }
+
+      .brand-btn,
+      .toolbar button{
+        width:100%;
+        white-space:normal;
+      }
+    }
   </style>
 </head>
 
