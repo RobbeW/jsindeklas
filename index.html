@@ -1075,6 +1075,43 @@
       }
     }
   </style>
+  <style id="language-toggle-styles">
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(82, 0, 255, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  padding: 4px;
+  box-shadow: 0 10px 24px rgba(82, 0, 255, 0.08);
+}
+.language-toggle button {
+  min-width: 44px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--muted, var(--delphi-muted, #625b70));
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+.language-toggle button.is-active {
+  background: var(--brand, var(--brand-purple, var(--delphi-blue, #5200FF)));
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(82, 0, 255, 0.20);
+}
+.language-toggle button:focus-visible {
+  outline: 3px solid rgba(61, 255, 208, 0.75);
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  .language-toggle { order: 2; }
+}
+</style>
 </head>
 
 <body>
@@ -1099,6 +1136,10 @@
       </div>
 
       <div class="nav-actions">
+        <div class="language-toggle" role="group" aria-label="Taalkeuze">
+          <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
+          <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
+        </div>
         <a class="btn btn-primary" href="https://robbew.github.io/jsindeklas/platform.html">
           Start leerplatform
         </a>
@@ -1523,5 +1564,202 @@ content/chapters/chXX/exNN/tests.json
       }
     });
   </script>
+<script id="language-toggle-script">
+(() => {
+  const LANGUAGE_KEY = "aiindeklas:index-language";
+  const TRANSLATIONS = {
+  "Spring naar inhoud": "Skip to content",
+  "Spring naar hoofdinhoud": "Skip to main content",
+  "Hoofdnavigatie": "Main navigation",
+  "Paginaonderdelen": "Page sections",
+  "Taalkeuze": "Language selection",
+  "Werking": "How it works",
+  "Wat leer je?": "What will you learn?",
+  "Onderdelen": "Components",
+  "Familie": "Family",
+  "Voor leerkrachten": "For teachers",
+  "Leerlijn": "Learning path",
+  "Benodigdheden": "Materials",
+  "Privacy": "Privacy",
+  "Opstelling": "Setup",
+  "Gebruik": "Use",
+  "README": "README",
+  "Platform": "Platform",
+  "Pythia": "Pythia",
+  "Start leerplatform": "Start learning platform",
+  "Start platform": "Start platform",
+  "Menu": "Menu",
+  "Bekijk de opdracht": "View the assignment",
+  "Lees README": "Read README",
+  "Leerplatform": "Learning platform",
+  "Onderzoeksplatform": "Research platform",
+  "Oefeningmaker": "Exercise builder",
+  "Open oefeningmaker": "Open exercise builder",
+  "Plaats in de leerlijn": "Place in the learning path",
+  "Van platformen naar projecten.": "From platforms to projects.",
+  "De platformen bouwen het computationeel denken op. De projecten gebruiken dat denken in een vakoverschrijdende opdracht waarin leerlingen bouwen, meten, testen en besluiten.": "The platforms build computational thinking. The projects use that thinking in a cross-curricular assignment in which students build, measure, test and conclude.",
+  "Leren computationeel denken": "Learning computational thinking",
+  "van blokken naar code, van code naar onderzoek": "from blocks to code, from code to research",
+  "Platformen": "Platforms",
+  "STEaM-projecten": "STEaM projects",
+  "Blockly": "Blockly",
+  "JavaScript": "JavaScript",
+  "HTML": "HTML",
+  "Dodona": "Dodona",
+  "Delphi": "Delphi",
+  "Robothand": "Robotic hand",
+  "Wind": "Wind",
+  "Slimme vuilnisbak": "Smart bin",
+  "Slimme Vuilnisbak": "Smart Bin",
+  "Fijnstof": "Particulate matter",
+  "visueel denken in stappen.": "visual step-by-step thinking.",
+  "logica in echte code.": "logic in real code.",
+  "webpagina's structureren.": "structuring webpages.",
+  "Python in de Klas met opvolging.": "Python in the Classroom with tracking.",
+  "licht oefenen in de browser.": "lightweight practice in the browser.",
+  "Arduino, sensoren, servo's en beweging.": "Arduino, sensors, servos and movement.",
+  "Micro:bit, energie, spanning en stroom.": "Micro:bit, energy, voltage and current.",
+  "AI, beeldherkenning, data en microcontrollers.": "AI, image recognition, data and microcontrollers.",
+  "Arduino, luchtkwaliteit, data en postersessie.": "Arduino, air quality, data and poster session.",
+  "De platformen trainen computationeel denken. De projecten laten leerlingen dat denken inzetten in een vakoverschrijdende opdracht.": "The platforms train computational thinking. The projects let students apply that thinking in a cross-curricular assignment.",
+  "Geen accounts, geen serveropslag.": "No accounts, no server storage.",
+  "Privacyvriendelijk": "Privacy-friendly",
+  "Geen installatie of leerlingenaccount.": "No installation or student account.",
+  "Lokale bibliotheken voor grafieken en PDF-export.": "Local libraries for charts and PDF export.",
+  "Geschikt voor GitHub Pages.": "Suitable for GitHub Pages.",
+  "robbewulgaert.be": "robbewulgaert.be",
+  "AI in de Klas": "AI in de Klas",
+  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be",
+  "© 2026 Robbe Wulgaert. Alle rechten voorbehouden.": "© 2026 Robbe Wulgaert. All rights reserved.",
+  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.",
+  "Robbe Wulgaert, AI in de Klas, robbewulgaert.be": "Robbe Wulgaert, AI in de Klas, robbewulgaert.be",
+  "Licentie": "License",
+  "Third-party notices": "Third-party notices",
+  "Contact": "Contact",
+  "JavaScript in de Klas": "JavaScript in the Classroom",
+  "Oefeningen maken": "Create exercises",
+  "Leer computationeel denken en programmeren in JavaScript": "Learn computational thinking and programming in JavaScript",
+  "JavaScript in de Klas is een kleine webomgeving voor leerlingen die computationeel denken en JavaScript willen oefenen. De focus ligt op snelle inzetbaarheid: opgave, editor en uitvoer in één scherm, met opdrachten rond selectie, herhaling, turtle graphics en eenvoudige grafieken.": "JavaScript in the Classroom is a small web environment for students practising computational thinking and JavaScript. It focuses on quick classroom use: assignment, editor and output in one screen, with exercises on selection, loops, turtle graphics and simple charts.",
+  "Opgave · Editor · Canvas": "Assignment · Editor · Canvas",
+  "vooruit": "forward",
+  "rechts": "right",
+  "Vierkant klaar": "Square done",
+  "Bewust light.": "Deliberately light.",
+  "Snel starten, lokaal oefenen en eenvoudig exporteren.": "Start quickly, practise locally and export easily.",
+  "Opgave, editor en uitvoer naast elkaar.": "Assignment, editor and output side by side.",
+  "Leerlingen schrijven code, voeren die uit en zien meteen wat er gebeurt in de console of op het canvas. De omgeving is bedoeld voor korte oefenmomenten, studie-uren en lessen waarin programmeren een beperkt deel van de beschikbare tijd inneemt.": "Students write code, run it and immediately see what happens in the console or on the canvas. The environment is designed for short practice moments, study periods and lessons where programming takes up only part of the available time.",
+  "Lees de opdracht": "Read the assignment",
+  "Elke oefening bevat startcode en een afgebakende opdracht. Leerlingen kunnen meteen in de browser beginnen.": "Each exercise contains starter code and a clearly defined assignment. Students can begin directly in the browser.",
+  "Voer de code uit": "Run the code",
+  "De uitvoer verschijnt in dezelfde pagina. Dat kan console-output zijn, een tekening met turtle graphics of een eenvoudige canvasopdracht.": "The output appears on the same page. It can be console output, a turtle graphics drawing or a simple canvas task.",
+  "Stuur bij": "Improve",
+  "Statusicoontjes, testcases en foutmeldingen helpen leerlingen hun oplossing te verbeteren zonder dat syntax meteen de volledige aandacht opeist.": "Status icons, test cases and error messages help students improve their solution without syntax immediately taking all the attention.",
+  "Browseromgeving": "Browser environment",
+  "Turtle en canvas": "Turtle and canvas",
+  "Leerlingen kunnen algoritmes zichtbaar maken via een tekenraster. Dat helpt vooral bij herhaling, volgorde, hoeken en patronen.": "Students can make algorithms visible on a drawing grid. This especially helps with loops, order, angles and patterns.",
+  "Opslag in de browser": "Storage in the browser",
+  "Voortgang wordt lokaal bewaard via de browser. Dat werkt vlot voor losse oefenmomenten en zelfstandig oefenen.": "Progress is stored locally in the browser. That works well for separate practice moments and independent work.",
+  "Voor beperkte lestijd, extra oefening en studie.": "For limited lesson time, extra practice and study.",
+  "Evaluatie in het PDF-rapport": "Evaluation in the PDF report",
+  "Functionaliteit": "Functionality",
+  "Leesbaarheid": "Readability",
+  "Programmeerkernconcept": "Core programming concept",
+  "Vakkennis / wiskunde": "Subject knowledge / mathematics",
+  "Creativiteit": "Creativity",
+  "hoofdstukken": "chapters",
+  "oefeningen": "exercises",
+  "concepten": "concepts",
+  "figuren plotten": "plotting shapes",
+  "Oefeningen aanpassen": "Adapting exercises",
+  "Ervaren met GitHub? Maak je eigen oefeningen.": "Comfortable with GitHub? Create your own exercises.",
+  "Contentstructuur": "Content structure",
+  "Outputtests voor gewone console-uitvoer.": "Output tests for regular console output.",
+  "Inputtests.": "Input tests.",
+  "Canvascontroles voor tekenopdrachten.": "Canvas checks for drawing assignments.",
+  "Manuele oefeningen voor open opdrachten.": "Manual exercises for open-ended assignments.",
+  "Test de webtool in je browser.": "Test the web tool in your browser.",
+  "Delphi voor Python": "Delphi for Python"
+};
+  const META = {
+  "title": "JavaScript in the Classroom",
+  "description": "JavaScript in the Classroom is a lightweight browser environment for computational thinking and JavaScript, without installation or accounts."
+};
+  const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT", "SELECT", "OPTION"]);
+  const TEXT_NODES = [];
+  const ATTR_NODES = [];
+  let originalTitle = document.title;
+  let originalDescription = null;
+  const normalize = (value) => String(value || "").replace(/\s+/g, " ").trim();
+  function preserveOuterWhitespace(original, translated) {
+    const start = original.match(/^\s*/)?.[0] || "";
+    const end = original.match(/\s*$/)?.[0] || "";
+    return start + translated + end;
+  }
+  function collectTextNodes() {
+    if (TEXT_NODES.length) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent || SKIP_TAGS.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        return normalize(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      TEXT_NODES.push({ node, original: node.nodeValue, key: normalize(node.nodeValue) });
+    }
+  }
+  function collectAttributes() {
+    if (ATTR_NODES.length) return;
+    document.querySelectorAll("[aria-label], [alt], [title], [placeholder]").forEach((element) => {
+      ["aria-label", "alt", "title", "placeholder"].forEach((attr) => {
+        if (element.hasAttribute(attr)) {
+          const original = element.getAttribute(attr);
+          ATTR_NODES.push({ element, attr, original, key: normalize(original) });
+        }
+      });
+    });
+  }
+  function setLanguage(language) {
+    const useEnglish = language === "en";
+    collectTextNodes();
+    collectAttributes();
+    TEXT_NODES.forEach((entry) => {
+      const translated = TRANSLATIONS[entry.key];
+      entry.node.nodeValue = useEnglish && translated ? preserveOuterWhitespace(entry.original, translated) : entry.original;
+    });
+    ATTR_NODES.forEach((entry) => {
+      const translated = TRANSLATIONS[entry.key];
+      entry.element.setAttribute(entry.attr, useEnglish && translated ? translated : entry.original);
+    });
+    document.documentElement.lang = useEnglish ? "en" : "nl-BE";
+    document.title = useEnglish && META.title ? META.title : originalTitle;
+    const description = document.querySelector('meta[name="description"]');
+    if (description) {
+      if (originalDescription === null) originalDescription = description.getAttribute("content") || "";
+      description.setAttribute("content", useEnglish && META.description ? META.description : originalDescription);
+    }
+    document.querySelectorAll("[data-language-choice]").forEach((button) => {
+      const isActive = button.dataset.languageChoice === (useEnglish ? "en" : "nl");
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+    try { localStorage.setItem(LANGUAGE_KEY, useEnglish ? "en" : "nl"); } catch (error) {}
+  }
+  function initLanguageToggle() {
+    document.querySelectorAll("[data-language-choice]").forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.languageChoice));
+    });
+    let saved = "nl";
+    try {
+      const requested = new URLSearchParams(window.location.search).get("lang");
+      saved = requested || localStorage.getItem(LANGUAGE_KEY) || "nl";
+    } catch (error) {}
+    setLanguage(saved === "en" ? "en" : "nl");
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initLanguageToggle);
+  else initLanguageToggle();
+})();
+</script>
 </body>
 </html>
