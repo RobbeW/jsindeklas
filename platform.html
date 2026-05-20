@@ -14,8 +14,10 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
   <title>JavaScript in de Klas</title>
-<!-- Externe bron: Google Fonts / Roboto -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap">
+  <!-- Externe bron: Google Fonts / Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700,900&display=swap">
   <!-- Externe bron: CodeMirror 5 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
 
@@ -1603,6 +1605,172 @@ body > header .tab.active {
     min-width: 0;
   }
 }
+
+/* Shared learning-platform header rhythm. */
+body > header.topbar.learning-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(82, 0, 255, 0.12);
+  box-shadow: var(--platform-shadow);
+  color: var(--platform-ink);
+  backdrop-filter: blur(14px);
+}
+
+.topbar.learning-header .exercise-progress,
+.topbar.learning-header .tabs {
+  flex: 0 1 auto;
+  max-width: min(44vw, 620px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(82, 0, 255, 0.45) transparent;
+}
+
+.topbar.learning-header .opdracht {
+  flex: 1 1 260px;
+  min-width: 200px;
+  max-width: 44rem;
+  line-height: 1.3;
+}
+
+.topbar.learning-header .opdracht strong {
+  color: var(--platform-ink);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.topbar.learning-header .opdracht span,
+.topbar.learning-header .opdracht .opdracht-tekst {
+  color: var(--platform-muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar.learning-header .toolbar,
+.topbar.learning-header .app-actions {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.topbar.learning-header .language-toggle {
+  order: 0 !important;
+}
+
+.topbar.learning-header .toolbar > button,
+.topbar.learning-header .app-actions > button,
+.topbar.learning-header .app-actions > .btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(82, 0, 255, 0.18);
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: var(--platform-brand-dark);
+  font: inherit;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: var(--platform-shadow);
+}
+
+.topbar.learning-header .toolbar > button:hover,
+.topbar.learning-header .toolbar > button:focus-visible,
+.topbar.learning-header .app-actions > button:hover,
+.topbar.learning-header .app-actions > button:focus-visible,
+.topbar.learning-header .app-actions > .btn:hover,
+.topbar.learning-header .app-actions > .btn:focus-visible {
+  background: #ffffff;
+  border-color: rgba(82, 0, 255, 0.45);
+  color: var(--platform-brand-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(82, 0, 255, 0.12);
+  outline: none;
+}
+
+body.dark > header.topbar.learning-header,
+html[data-theme="dark"] body > header.topbar.learning-header,
+html.dark body > header.topbar.learning-header {
+  background: rgba(35, 39, 46, 0.96);
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+body.dark .topbar.learning-header .opdracht strong,
+html[data-theme="dark"] .topbar.learning-header .opdracht strong,
+html.dark .topbar.learning-header .opdracht strong {
+  color: #ffffff;
+}
+
+body.dark .topbar.learning-header .opdracht span,
+html[data-theme="dark"] .topbar.learning-header .opdracht span,
+html.dark .topbar.learning-header .opdracht span {
+  color: #cbd2df;
+}
+
+@media (max-width: 900px) {
+  body > header.topbar.learning-header {
+    align-items: stretch;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .topbar.learning-header .exercise-progress,
+  .topbar.learning-header .tabs,
+  .topbar.learning-header .opdracht,
+  .topbar.learning-header .toolbar,
+  .topbar.learning-header .app-actions {
+    flex-basis: 100%;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .topbar.learning-header .toolbar,
+  .topbar.learning-header .app-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar.learning-header .toolbar,
+  .topbar.learning-header .app-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .topbar.learning-header .language-toggle,
+  .topbar.learning-header .toolbar > button,
+  .topbar.learning-header .app-actions > button,
+  .topbar.learning-header .app-actions > .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 460px) {
+  .topbar.learning-header .toolbar,
+  .topbar.learning-header .app-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar.learning-header .toolbar > button,
+  .topbar.learning-header .app-actions > button,
+  .topbar.learning-header .app-actions > .btn {
+    white-space: normal;
+  }
+}
 </style>
 </head>
 
@@ -1622,7 +1790,7 @@ body > header .tab.active {
   </div>
 
   <!-- Topbar: voortgang, opdracht, knoppen -->
-  <header class="topbar">
+  <header class="topbar learning-header">
     <div class="exercise-progress" id="exercise-progress"></div>
 
     <div class="opdracht" id="opdracht">
@@ -1636,9 +1804,9 @@ body > header .tab.active {
         <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
         <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
       </div>
-<button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">Thema</button>
-      <button class="brand-btn" id="export-pdf">Reeks exporteren naar PDF</button>
-      <button class="brand-btn" id="reset-progress">Vooruitgang wissen</button>
+      <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">Thema</button>
+      <button class="brand-btn" id="export-pdf" title="Exporteer reeks naar PDF">PDF-reeks</button>
+      <button class="brand-btn" id="reset-progress" title="Wis opgeslagen voortgang">Voortgang wissen</button>
     </div>
   </header>
 
@@ -1826,7 +1994,7 @@ fillCircle(20);</code></pre>
     <!-- Reset modal -->
   <div id="reset-modal" class="modal">
     <div class="modal-box">
-      <div class="modal-message" style="font-weight:900;margin-bottom:0.6em;">Vooruitgang wissen</div>
+      <div class="modal-message" style="font-weight:900;margin-bottom:0.6em;">Voortgang wissen</div>
       <div class="modal-extra" style="display:block;">
         Kies wat je wil wissen.
       </div>
@@ -5995,8 +6163,11 @@ y += headerH + 5 * rowH + 20;
   "Exporteren": "Export",
   "Exporteren naar PDF": "Export to PDF",
   "Reeks exporteren naar PDF": "Export series to PDF",
+  "PDF-reeks": "PDF series",
+  "Exporteer reeks naar PDF": "Export series to PDF",
   "Vooruitgang wissen": "Clear progress",
   "Voortgang wissen": "Clear progress",
+  "Wis opgeslagen voortgang": "Clear saved progress",
   "Alleen huidige oefening": "Current exercise only",
   "Alle voortgang": "All progress",
   "Volledige reeks": "Full series",
