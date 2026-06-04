@@ -1,0 +1,12 @@
+{
+  "id": "intro",
+  "title": "Inleiding",
+  "order": 0,
+  "exercises": [
+    {
+      "id": "intro-tour",
+      "order": 1,
+      "path": "ex01/exercise.json"
+    }
+  ]
+}

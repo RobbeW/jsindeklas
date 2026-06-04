@@ -1,0 +1,46 @@
+{
+  "title": "Wegwijs in JS in de Klas",
+  "intro": "Deze rondleiding toont waar je opdrachten leest, code schrijft, uitvoert, output bekijkt en de inhoud of het formularium opent.",
+  "steps": [
+    {
+      "selector": "#exercise-progress",
+      "title": "Oefeningen",
+      "text": "Bovenaan zie je de oefeningen van het huidige hoofdstuk. De actieve oefening krijgt een duidelijke paarse rand."
+    },
+    {
+      "selector": "#opdracht",
+      "title": "Opdracht",
+      "text": "Hier staat de titel van de oefening. Bij sommige instellingen verschijnt hier ook de korte opdrachttekst."
+    },
+    {
+      "selector": ".CodeMirror",
+      "title": "Code-editor",
+      "text": "Links schrijf je JavaScript. In deze rondleiding staat er al een volledig voorbeeld klaar."
+    },
+    {
+      "selector": "#run-code",
+      "title": "Uitvoeren",
+      "text": "Met deze knop voer je je code uit. Foutmeldingen en feedback verschijnen daarna onder de editor."
+    },
+    {
+      "selector": "#console-output",
+      "title": "Console",
+      "text": "Alles wat je met console.log() schrijft, komt hier terecht. Ook runtimefouten worden hier getoond."
+    },
+    {
+      "selector": "#turtlecanvas",
+      "title": "Canvas",
+      "text": "Veel oefeningen tekenen op het canvas. Dit voorbeeld tekent een blauw vierkant van 50 pixels."
+    },
+    {
+      "selector": "#menu-tab",
+      "title": "Menu en inhoud",
+      "text": "Met de menutab open je Inhoud. Daar spring je naar hoofdstukken, oefeningen en deze inleiding."
+    },
+    {
+      "selector": "#help-btn",
+      "title": "Formularium",
+      "text": "Het vraagteken opent het formularium met JavaScript-, canvas- en turtlecommando's."
+    }
+  ]
+}

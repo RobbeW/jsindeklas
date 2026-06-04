@@ -1,0 +1,9 @@
+{
+  "id": "intro-tour",
+  "title": "Rondleiding door de leeromgeving",
+  "type": "theory",
+  "theoryKind": "tour",
+  "evaluationMode": "manual",
+  "starterPath": "starter.js",
+  "theoryPath": "theory.json"
+}

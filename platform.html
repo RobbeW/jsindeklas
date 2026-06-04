@@ -405,6 +405,7 @@
       background:#fff;
       border:2px solid var(--brand-purple);
       border-radius:12px;
+      box-sizing:border-box;
       box-shadow:var(--shadow);
       display:block;
       margin:0 auto;
@@ -485,6 +486,110 @@
     .exercise-btn:disabled{
       opacity:0.32;
       cursor:not-allowed;
+    }
+
+    .tour-intro{
+      margin:0 0 1rem;
+      border:1.5px solid rgba(82,0,255,0.16);
+      border-radius:12px;
+      background:#fff;
+      box-shadow:0 10px 26px rgba(26,34,76,0.06);
+      padding:0.9rem;
+    }
+    .tour-intro h3{
+      margin:0 0 0.35rem;
+      color:var(--brand-purple);
+      font-size:1.08rem;
+      line-height:1.2;
+    }
+    .tour-intro p{
+      margin:0 0 0.75rem;
+      color:var(--ink);
+      line-height:1.45;
+    }
+    .tour-start-button{
+      margin-top:0.1rem;
+    }
+    .tour-start-nudge{
+      animation:tour-start-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes tour-start-pulse{
+      0%,100%{
+        box-shadow:0 2px 8px rgba(82,0,255,0.10);
+        transform:translateY(0);
+      }
+      50%{
+        box-shadow:0 0 0 6px rgba(82,0,255,0.11), 0 12px 24px rgba(82,0,255,0.18);
+        transform:translateY(-1px);
+      }
+    }
+    .tour-overlay{
+      position:fixed;
+      inset:0;
+      z-index:9000;
+      pointer-events:none;
+    }
+    .tour-highlight{
+      position:fixed;
+      border:3px solid var(--brand-purple);
+      border-radius:10px;
+      background:rgba(82,0,255,0.08);
+      box-shadow:0 0 0 9999px rgba(18,15,28,0.20), 0 14px 40px rgba(82,0,255,0.22);
+      transition:left 260ms ease, top 260ms ease, width 260ms ease, height 260ms ease;
+    }
+    .tour-callout{
+      position:fixed;
+      pointer-events:auto;
+      box-sizing:border-box;
+      width:min(360px, calc(100vw - 24px));
+      border:1px solid rgba(82,0,255,0.18);
+      border-radius:8px;
+      background:#fff;
+      color:var(--ink);
+      padding:0.9rem;
+      box-shadow:0 18px 48px rgba(32,22,64,0.18);
+      transition:left 260ms ease, top 260ms ease;
+    }
+    .tour-callout h3{
+      margin:0 0 0.35rem;
+      color:var(--brand-purple);
+      font-size:1.05rem;
+      line-height:1.2;
+    }
+    .tour-callout p{
+      margin:0 0 0.75rem;
+      line-height:1.45;
+    }
+    .tour-status{
+      display:block;
+      margin-bottom:0.75rem;
+      color:#6b7280;
+      font-size:0.84rem;
+      font-weight:900;
+    }
+    .tour-controls{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:0.45rem;
+    }
+    .tour-controls .brand-btn{
+      flex:0 1 auto;
+      width:auto;
+      min-width:0;
+      min-height:38px;
+      padding:0.55em 0.85em;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    @media (max-width:420px){
+      .tour-controls{
+        gap:0.38rem;
+      }
+      .tour-controls .brand-btn{
+        padding:0.55em 0.65em;
+        font-size:0.9rem;
+      }
     }
 
     /* Splitter */
@@ -1276,13 +1381,44 @@
       background:#303543;
     }
 
+    body.dark .tour-intro,
+    body.dark .tour-callout{
+      background:#23272e;
+      color:#fff;
+      border-color:rgba(255,255,255,0.14);
+    }
+
+    body.dark .tour-intro p,
+    body.dark .tour-callout p{
+      color:#eef1f7;
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      .tour-start-nudge,
+      .tour-highlight,
+      .tour-callout{
+        animation:none;
+        transition:none;
+      }
+    }
+
     @media (max-width:980px){
-      .main-layout{ flex-direction:column; gap:2.2rem; }
+      .main-layout{
+        flex:0 0 auto;
+        flex-direction:column;
+        gap:1.2rem;
+        height:auto;
+        min-height:0;
+        overflow:visible;
+        width:100%;
+      }
       .editor-pane, .canvas-pane{
+        flex:0 0 auto !important;
         width:98vw !important;
         min-width:0 !important;
         padding:1rem 0.6rem !important;
         border-radius:18px !important;
+        overflow:visible;
       }
       .splitter{ display:none !important; }
       #turtlecanvas{
@@ -1392,6 +1528,7 @@
   </style>
   <style id="platform-language-toggle-styles">
 .language-toggle {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1830,6 +1967,7 @@ html.dark .topbar.learning-header .opdracht span {
   <main class="main-layout" id="main-layout">
     <!-- Editor -->
     <section class="editor-pane" id="editor-pane">
+      <section id="tour-intro" class="tour-intro" hidden></section>
       <div class="editor-label">Code-editor</div>
       <div id="code-editor"></div>
       <br><br>
@@ -2057,6 +2195,15 @@ fillCircle(20);</code></pre>
     if (typeof (exercise && exercise.evaluationMode) === "string") {
       normalized.evaluationMode = exercise.evaluationMode;
     }
+    if (typeof (exercise && exercise.type) === "string") {
+      normalized.type = exercise.type;
+    }
+    if (typeof (exercise && exercise.theoryKind) === "string") {
+      normalized.theoryKind = exercise.theoryKind;
+    }
+    if (typeof (exercise && exercise.theoryPath) === "string") {
+      normalized.theoryPath = exercise.theoryPath;
+    }
 
     return normalized;
   }
@@ -2219,6 +2366,16 @@ fillCircle(20);</code></pre>
       title: String(exerciseMeta.title || ""),
       starterCode,
     };
+
+    if (typeof exerciseMeta.type === "string") {
+      runtimeExercise.type = exerciseMeta.type;
+    }
+    if (typeof exerciseMeta.theoryKind === "string") {
+      runtimeExercise.theoryKind = exerciseMeta.theoryKind;
+    }
+    if (typeof exerciseMeta.theoryPath === "string") {
+      runtimeExercise.theoryPath = _joinPosix(exerciseDir, exerciseMeta.theoryPath);
+    }
 
     if (typeof exerciseMeta.evalOutput === "string") {
       runtimeExercise.evalOutput = exerciseMeta.evalOutput;
@@ -2656,11 +2813,16 @@ function saveCompletedExerciseSnapshot(status /* "success" | "fail" */, evalResu
 
     let currentChapterIdx = 0;
     let currentExerciseIdx = 0;
+    let activeTourCleanup = null;
 
     let _workTimer = { running:false, lastStart:0, intervalId:null };
 
     function exKey(suffix){
       return `jsprog-${currentChapterIdx}-${currentExerciseIdx}-${suffix}`;
+    }
+
+    function evalKeyFor(chapterIdx = currentChapterIdx, exerciseIdx = currentExerciseIdx){
+      return `jsprog-eval-${chapterIdx}-${exerciseIdx}`;
     }
 
     function getPogingen(){
@@ -2802,7 +2964,7 @@ document.addEventListener("visibilitychange", () => {
         btn.type = "button";
         btn.title = exercise.title || `Oefening ${idx + 1}`;
 
-        const evalKey = `jsprog-eval-${currentChapterIdx}-${idx}`;
+        const evalKey = evalKeyFor(currentChapterIdx, idx);
         const evalStatus = localStorage.getItem(evalKey);
         if (evalStatus === "success") {
           btn.style.background = "#3dffd0";
@@ -2815,6 +2977,280 @@ document.addEventListener("visibilitychange", () => {
         btn.onclick = () => switchExercise(idx);
         progressBar.appendChild(btn);
       });
+    }
+
+    function isTourExercise(exercise){
+      return !!exercise && exercise.type === "theory" && exercise.theoryKind === "tour";
+    }
+
+    function clearActiveTour(){
+      if (typeof activeTourCleanup === "function") {
+        const cleanup = activeTourCleanup;
+        activeTourCleanup = null;
+        cleanup();
+        return;
+      }
+      document.querySelector(".tour-overlay")?.remove();
+      document.body.classList.remove("tour-active");
+    }
+
+    function closeTourBlockingUi(){
+      document.getElementById("course-menu")?.classList.remove("open");
+      const helpModal = document.getElementById("help-modal");
+      if (helpModal) helpModal.style.display = "none";
+      ["ask-modal", "confirm-modal", "pdf-modal", "reset-modal", "eval-modal"].forEach((id) => {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = "none";
+      });
+    }
+
+    function resetTourIntro(){
+      const intro = document.getElementById("tour-intro");
+      if (!intro) return;
+      intro.hidden = true;
+      intro.innerHTML = "";
+    }
+
+    function markCurrentTourCompleted(){
+      try {
+        localStorage.setItem(evalKeyFor(), "success");
+      } catch (_) {}
+      renderExerciseProgress();
+    }
+
+    function renderTheoryTour(exercise, tour){
+      const intro = document.getElementById("tour-intro");
+      if (!intro) return;
+
+      clearActiveTour();
+      intro.hidden = false;
+      intro.innerHTML = "";
+
+      const steps = Array.isArray(tour && tour.steps) ? tour.steps : [];
+      const title = document.createElement("h3");
+      title.textContent = (tour && tour.title) || "Rondleiding";
+      const text = document.createElement("p");
+      text.textContent = (tour && tour.intro) || "Doorloop de belangrijkste onderdelen van de leeromgeving.";
+      const startButton = document.createElement("button");
+      startButton.type = "button";
+      startButton.className = "brand-btn tour-start-button";
+      const tourCompleted = localStorage.getItem(evalKeyFor()) === "success";
+      startButton.textContent = tourCompleted ? "Rondleiding opnieuw starten" : "Start rondleiding";
+      if (!tourCompleted) startButton.classList.add("tour-start-nudge");
+      startButton.disabled = steps.length === 0;
+
+      intro.append(title, text, startButton);
+
+      if (steps.length === 0) return;
+
+      const overlay = document.createElement("div");
+      overlay.className = "tour-overlay";
+      overlay.setAttribute("aria-live", "polite");
+
+      const highlight = document.createElement("div");
+      highlight.className = "tour-highlight";
+
+      const callout = document.createElement("section");
+      callout.className = "tour-callout";
+      callout.setAttribute("role", "dialog");
+      callout.setAttribute("aria-label", (tour && tour.title) || "Rondleiding");
+
+      const calloutTitle = document.createElement("h3");
+      const calloutText = document.createElement("p");
+      const status = document.createElement("span");
+      status.className = "tour-status";
+
+      const controls = document.createElement("div");
+      controls.className = "tour-controls";
+
+      const prevButton = document.createElement("button");
+      prevButton.type = "button";
+      prevButton.className = "brand-btn";
+      prevButton.textContent = "Vorige";
+
+      const nextButton = document.createElement("button");
+      nextButton.type = "button";
+      nextButton.className = "brand-btn";
+      nextButton.textContent = "Volgende";
+
+      const skipButton = document.createElement("button");
+      skipButton.type = "button";
+      skipButton.className = "brand-btn";
+      skipButton.textContent = "Overslaan";
+
+      controls.append(prevButton, nextButton, skipButton);
+      callout.append(calloutTitle, calloutText, status, controls);
+      overlay.append(highlight, callout);
+
+      let stepIndex = 0;
+
+      function usableTarget(target){
+        if (!target || target === document.body) return false;
+        const rect = target.getBoundingClientRect();
+        const style = getComputedStyle(target);
+        return rect.width > 0 && rect.height > 0 && style.display !== "none" && style.visibility !== "hidden";
+      }
+
+      function getStepTarget(step){
+        const target = step && step.selector ? document.querySelector(step.selector) : null;
+        if (usableTarget(target)) return target;
+        return document.querySelector("#opdracht") || document.querySelector("#editor-pane") || document.body;
+      }
+
+      function positionTour(){
+        const step = steps[stepIndex];
+        const target = getStepTarget(step);
+        const firstRect = target.getBoundingClientRect();
+        const offscreen =
+          firstRect.top < 0 ||
+          firstRect.left < 0 ||
+          firstRect.bottom > window.innerHeight ||
+          firstRect.right > window.innerWidth;
+
+        if (target !== document.body && offscreen && typeof target.scrollIntoView === "function") {
+          target.scrollIntoView({ block:"center", inline:"center", behavior:"auto" });
+        }
+
+        const rect = target.getBoundingClientRect();
+        const margin = 8;
+        const left = Math.max(8, rect.left - margin);
+        const top = Math.max(8, rect.top - margin);
+        const width = Math.min(window.innerWidth - left - 8, rect.width + margin * 2);
+        const height = Math.min(window.innerHeight - top - 8, rect.height + margin * 2);
+
+        highlight.style.left = `${left}px`;
+        highlight.style.top = `${top}px`;
+        highlight.style.width = `${Math.max(56, width)}px`;
+        highlight.style.height = `${Math.max(40, height)}px`;
+
+        const calloutWidth = Math.min(360, window.innerWidth - 24);
+        callout.style.width = `${calloutWidth}px`;
+        const measuredHeight = Math.min(callout.offsetHeight || 220, window.innerHeight - 24);
+        const roomRight = window.innerWidth - (left + width + 14);
+        const preferredLeft = roomRight >= calloutWidth
+          ? left + width + 14
+          : Math.max(12, Math.min(left, window.innerWidth - calloutWidth - 12));
+
+        const minTop = 12;
+        const maxTop = Math.max(minTop, window.innerHeight - measuredHeight - 12);
+        const belowTop = top + height + 12;
+        const aboveTop = top - measuredHeight - 12;
+        let preferredTop = belowTop;
+
+        if (belowTop > maxTop) {
+          preferredTop = aboveTop >= minTop ? aboveTop : maxTop;
+        }
+        if (belowTop > maxTop && aboveTop < minTop) {
+          const overlapFor = (candidateTop) => {
+            const candidateBottom = candidateTop + measuredHeight;
+            return Math.max(0, Math.min(candidateBottom, top + height) - Math.max(candidateTop, top));
+          };
+          preferredTop = overlapFor(minTop) <= overlapFor(maxTop) ? minTop : maxTop;
+        }
+        preferredTop = Math.max(minTop, Math.min(preferredTop, maxTop));
+
+        callout.style.left = `${preferredLeft}px`;
+        callout.style.top = `${preferredTop}px`;
+      }
+
+      function renderStep(){
+        const step = steps[stepIndex] || {};
+        calloutTitle.textContent = step.title || `Stap ${stepIndex + 1}`;
+        calloutText.textContent = step.text || "";
+        status.textContent = `Stap ${stepIndex + 1} van ${steps.length}`;
+        prevButton.disabled = stepIndex === 0;
+        nextButton.textContent = stepIndex === steps.length - 1 ? "Klaar" : "Volgende";
+        positionTour();
+        requestAnimationFrame(positionTour);
+      }
+
+      function finishTour(markComplete){
+        clearActiveTour();
+        if (markComplete) {
+          markCurrentTourCompleted();
+          startButton.textContent = "Rondleiding opnieuw starten";
+          startButton.classList.remove("tour-start-nudge");
+        }
+        startButton.focus();
+      }
+
+      function onKeyDown(event){
+        if (event.key === "Escape") {
+          event.preventDefault();
+          finishTour(false);
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          nextButton.click();
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          prevButton.click();
+        }
+      }
+
+      async function prepareTourBackground(){
+        closeTourBlockingUi();
+        if (editor && exercise && typeof exercise.starterCode === "string") {
+          editor.setValue(exercise.starterCode);
+        }
+        clearConsole();
+        capturedOutput = "";
+        if (window.resetTurtle) window.resetTurtle();
+        if (window.clearCanvas) window.clearCanvas();
+        try {
+          if (typeof runStudentCode === "function" && editor) {
+            await runStudentCode(editor.getValue());
+          }
+        } catch (error) {
+          appendToConsole("Fout in demo: " + translateError(error && error.message ? error.message : String(error)));
+        }
+      }
+
+      async function startTour(){
+        clearActiveTour();
+        await prepareTourBackground();
+        document.body.appendChild(overlay);
+        document.body.classList.add("tour-active");
+        activeTourCleanup = () => {
+          window.removeEventListener("resize", positionTour);
+          window.removeEventListener("scroll", positionTour, true);
+          document.removeEventListener("keydown", onKeyDown);
+          overlay.remove();
+          document.body.classList.remove("tour-active");
+        };
+        window.addEventListener("resize", positionTour);
+        window.addEventListener("scroll", positionTour, true);
+        document.addEventListener("keydown", onKeyDown);
+        stepIndex = 0;
+        renderStep();
+        nextButton.focus();
+      }
+
+      startButton.addEventListener("click", startTour);
+      prevButton.addEventListener("click", () => {
+        stepIndex = Math.max(0, stepIndex - 1);
+        renderStep();
+      });
+      nextButton.addEventListener("click", () => {
+        if (stepIndex >= steps.length - 1) {
+          finishTour(true);
+          return;
+        }
+        stepIndex += 1;
+        renderStep();
+      });
+      skipButton.addEventListener("click", () => finishTour(false));
+    }
+
+    function renderTourLoadError(message){
+      const intro = document.getElementById("tour-intro");
+      if (!intro) return;
+      intro.hidden = false;
+      intro.innerHTML = "";
+      const title = document.createElement("h3");
+      title.textContent = "Rondleiding";
+      const text = document.createElement("p");
+      text.textContent = message || "De rondleiding kon niet geladen worden.";
+      intro.append(title, text);
     }
 
     /* =========================================================
@@ -5192,6 +5628,9 @@ document.addEventListener("visibilitychange", () => {
     }
     
     function loadExercise(){
+      clearActiveTour();
+      resetTourIntro();
+
       if (!chapters[currentChapterIdx] || !chapters[currentChapterIdx].exercises || !chapters[currentChapterIdx].exercises[currentExerciseIdx]) {
         const opdrachtTitleEl = document.getElementById("opdracht-titel");
         const opdrachtTextEl  = document.getElementById("opdracht-tekst");
@@ -5229,6 +5668,26 @@ document.addEventListener("visibilitychange", () => {
 
       if (window.resetTurtle) window.resetTurtle();
       if (window.clearCanvas) window.clearCanvas();
+
+      if (isTourExercise(exercise)) {
+        const activeChapterIdx = currentChapterIdx;
+        const activeExerciseIdx = currentExerciseIdx;
+        if (exercise.theoryPath) {
+          _fetchCourseJson(exercise.theoryPath)
+            .then((tour) => {
+              if (currentChapterIdx === activeChapterIdx && currentExerciseIdx === activeExerciseIdx) {
+                renderTheoryTour(exercise, tour);
+              }
+            })
+            .catch((error) => {
+              if (currentChapterIdx === activeChapterIdx && currentExerciseIdx === activeExerciseIdx) {
+                renderTourLoadError(error && error.message ? error.message : String(error));
+              }
+            });
+        } else {
+          renderTourLoadError("Deze rondleiding heeft nog geen theoryPath.");
+        }
+      }
 
       isDirty = false;
       stopWerkTimer();
@@ -6205,6 +6664,30 @@ y += headerH + 5 * rowH + 20;
   "Projectstappen": "Project steps",
   "Onderzoeksstappen": "Research steps",
   "Auteur: Robbe Wulgaert Â· AI in de Klas Â· robbewulgaert.be Â· Â© 2026 Robbe Wulgaert. Alle rechten voorbehouden.": "Author: Robbe Wulgaert Â· AI in de Klas Â· robbewulgaert.be Â· Â© 2026 Robbe Wulgaert. All rights reserved.",
+  "Inleiding": "Introduction",
+  "Rondleiding": "Tour",
+  "Rondleiding door de leeromgeving": "Tour of the learning environment",
+  "Wegwijs in JS in de Klas": "Getting around JS in the Classroom",
+  "Start rondleiding": "Start tour",
+  "Rondleiding opnieuw starten": "Restart tour",
+  "Vorige": "Previous",
+  "Volgende": "Next",
+  "Overslaan": "Skip",
+  "Klaar": "Done",
+  "Oefeningen": "Exercises",
+  "Opdracht": "Assignment",
+  "Console": "Console",
+  "Menu en inhoud": "Menu and contents",
+  "Deze rondleiding toont waar je opdrachten leest, code schrijft, uitvoert, output bekijkt en de inhoud of het formularium opent.": "This tour shows where to read assignments, write and run code, inspect output, and open the contents or reference sheet.",
+  "Doorloop de belangrijkste onderdelen van de leeromgeving.": "Walk through the most important parts of the learning environment.",
+  "Bovenaan zie je de oefeningen van het huidige hoofdstuk. De actieve oefening krijgt een duidelijke paarse rand.": "At the top you see the exercises in the current chapter. The active exercise gets a clear purple outline.",
+  "Hier staat de titel van de oefening. Bij sommige instellingen verschijnt hier ook de korte opdrachttekst.": "This is where the exercise title appears. In some settings, the short assignment text appears here too.",
+  "Links schrijf je JavaScript. In deze rondleiding staat er al een volledig voorbeeld klaar.": "On the left you write JavaScript. In this tour, a complete example is already prepared.",
+  "Met deze knop voer je je code uit. Foutmeldingen en feedback verschijnen daarna onder de editor.": "Use this button to run your code. Error messages and feedback then appear below the editor.",
+  "Alles wat je met console.log() schrijft, komt hier terecht. Ook runtimefouten worden hier getoond.": "Everything you write with console.log() appears here. Runtime errors are shown here too.",
+  "Veel oefeningen tekenen op het canvas. Dit voorbeeld tekent een blauw vierkant van 50 pixels.": "Many exercises draw on the canvas. This example draws a blue square of 50 pixels.",
+  "Met de menutab open je Inhoud. Daar spring je naar hoofdstukken, oefeningen en deze inleiding.": "Use the menu tab to open Contents. There you jump to chapters, exercises and this introduction.",
+  "Het vraagteken opent het formularium met JavaScript-, canvas- en turtlecommando's.": "The question mark opens the reference sheet with JavaScript, canvas and turtle commands.",
   "Oefeningen laden": "Loading exercises",
   "We bouwen de oefenboom op.": "Building the exercise tree.",
   "Catalogus openen...": "Opening catalogue...",
@@ -6281,6 +6764,10 @@ y += headerH + 5 * rowH + 20;
   {
     "pattern": "^Pogingen: (.+) \\| Tijd: (.+)$",
     "replacement": "Attempts: $1 | Time: $2"
+  },
+  {
+    "pattern": "^Stap (.+) van (.+)$",
+    "replacement": "Step $1 of $2"
   },
   {
     "pattern": "^Level (.+)$",

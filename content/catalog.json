@@ -2,6 +2,12 @@
   "version": 1,
   "chapters": [
     {
+      "id": "intro",
+      "title": "Inleiding",
+      "order": 0,
+      "path": "chapters/intro/chapter.json"
+    },
+    {
       "id": "ch01",
       "title": "Hoofdstuk 1: Hello, World!",
       "order": 1,
