@@ -3437,18 +3437,22 @@ document.addEventListener("visibilitychange", () => {
        7) Canvas view controls + coords (zoom/pan hook)
        ========================================================= */
 
-    const CANVAS_SIZE = 500;
-    let panX = 0;
-    let panY = 0;
-    let zoom = 1.0;
-
-    function zoomIn(){
-      zoom = Math.min(3.0, zoom + 0.1);
-      if (typeof window.draw === "function") window.draw();
+    function getCanvasViewState(){
+      if (typeof window.getCanvasViewState === "function") {
+        return window.getCanvasViewState();
+      }
+      return {
+        panX:Number(window.panX) || 0,
+        panY:Number(window.panY) || 0,
+        zoom:Number(window.zoom) || 1
+      };
     }
-    function zoomOut(){
-      zoom = Math.max(0.3, zoom - 0.1);
-      if (typeof window.draw === "function") window.draw();
+
+    function platformZoomIn(){
+      if (typeof window.zoomIn === "function") window.zoomIn();
+    }
+    function platformZoomOut(){
+      if (typeof window.zoomOut === "function") window.zoomOut();
     }
 
     (function bindCoords(){
@@ -3485,8 +3489,13 @@ document.addEventListener("visibilitychange", () => {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
-        const worldX = (cx - centerX - panX) / zoom;
-        const worldY = (centerY - cy - panY) / zoom;
+        const view = getCanvasViewState();
+        const viewZoom = Number(view && view.zoom) || 1;
+        const viewPanX = Number(view && view.panX) || 0;
+        const viewPanY = Number(view && view.panY) || 0;
+
+        const worldX = (cx - centerX - viewPanX) / viewZoom;
+        const worldY = (centerY - cy - viewPanY) / viewZoom;
 
         coordsSpan.textContent = `X:${Math.round(worldX)} Y:${Math.round(worldY)}`;
       });
@@ -6408,8 +6417,8 @@ y += headerH + 5 * rowH + 20;
     };
 
     // Zoom
-    document.getElementById("zoom-in").onclick = zoomIn;
-    document.getElementById("zoom-out").onclick = zoomOut;
+    document.getElementById("zoom-in").onclick = platformZoomIn;
+    document.getElementById("zoom-out").onclick = platformZoomOut;
 
     // Menu enable/disable
     function setupMenu(){

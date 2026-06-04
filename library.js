@@ -86,6 +86,11 @@
       canvasTrace.shift();
     }
   }
+  function syncCanvasViewGlobals() {
+    window.panX = panX;
+    window.panY = panY;
+    window.zoom = zoom;
+  }
 
     // --- Rounding helper for students ---
   // round(waarde, decimalen) -> number
@@ -172,6 +177,7 @@ window.runStudentCode = async function(studentCode) {
   }
 
   function redrawAll() {
+  syncCanvasViewGlobals();
   // Clear en reset
   turtleCtx.save();
   turtleCtx.setTransform(1, 0, 0, 1, 0, 0); 
@@ -559,10 +565,12 @@ window.writeText = function(text) {
   
 function zoomIn() {
   zoom *= 1.25;
+  syncCanvasViewGlobals();
   redrawAll(); 
 }
 function zoomOut() {
   zoom /= 1.25;
+  syncCanvasViewGlobals();
   redrawAll();
 }
 
@@ -572,6 +580,7 @@ function zoomOut() {
 window.pan = function(dx, dy) {
   panX += dx;
   panY += dy;
+  syncCanvasViewGlobals();
   redrawAll();
 };
 
@@ -609,14 +618,21 @@ window.pan = function(dx, dy) {
   panX = CANVAS_SIZE/2 - zoom * centerXOfDrawing;
   panY = CANVAS_SIZE/2 - zoom * centerYOfDrawing;
 
+  syncCanvasViewGlobals();
   redrawAll();
 }
 
 
 window.CANVAS_SIZE = CANVAS_SIZE;
-window.panX = panX;
-window.panY = panY;
-window.zoom = zoom;
+window.getCanvasViewState = function() {
+  return {
+    panX,
+    panY,
+    zoom,
+    canvasSize: CANVAS_SIZE
+  };
+};
+syncCanvasViewGlobals();
 window.zoomOut = zoomOut;
 window.zoomIn = zoomIn;
 
