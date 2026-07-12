@@ -1904,6 +1904,34 @@ label, button, table, th, td,
   letter-spacing: 0;
 }
 
+/* Compact exercise navigation uses the shared Smart Plants control states. */
+.exercise-btn {
+  border: 1px solid rgba(82, 0, 255, 0.32);
+  background: #ffffff;
+  color: var(--brand-purple);
+  transition: transform var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-medium) var(--ease-standard);
+}
+
+.exercise-btn.current,
+.exercise-btn.current.done,
+.exercise-btn.current.fail {
+  border-color: var(--brand-purple);
+  background: var(--brand-purple);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px #ece6fa;
+}
+
+.exercise-btn:hover,
+.exercise-btn:focus-visible {
+  border-color: var(--brand-purple);
+  transform: translateY(-2px);
+}
+
+.exercise-btn:focus-visible {
+  outline: 3px solid rgba(61, 255, 208, 0.6);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
