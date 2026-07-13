@@ -149,6 +149,12 @@
       font-size: 0.94rem;
     }
 
+    .nav-panel {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
     .nav-links a {
       padding: 10px 12px;
       border-radius: 999px;
@@ -170,13 +176,14 @@
     .menu-button {
       display: none;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
       border: 1px solid var(--border);
       background: #fff;
       color: var(--text);
-      border-radius: 999px;
-      padding: 10px 12px;
-      font-weight: 800;
+      border-radius: 50%;
+      padding: 0;
       cursor: pointer;
     }
 
@@ -1020,37 +1027,41 @@
       .nav {
         position: relative;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
+        grid-template-columns: auto minmax(0, 1fr);
+        justify-content: initial;
+        gap: 12px;
       }
 
-      .menu-button { display: inline-flex; }
+      .menu-button { display: inline-flex; grid-column: 1; grid-row: 1; }
+      .brand-link { grid-column: 2; grid-row: 1; }
+      .brand-mark,
+      .brand-subtitle { display: none; }
 
-      .nav-links {
+      .nav-panel {
         display: none;
         grid-column: 1 / -1;
         grid-row: 2;
         padding: 12px;
         border: 1px solid var(--border);
         background: #fff;
-        border-radius: 20px;
+        border-radius: 8px;
         box-shadow: var(--shadow-card);
-        flex-direction: column;
-        align-items: stretch;
       }
 
-      .nav-links.is-open { display: flex; }
+      .nav-panel.is-open { display: grid; gap: 12px; }
+
+      .nav-links { display: grid; gap: 2px; }
 
       .nav-actions {
-        grid-column: 2;
-        grid-row: 1;
-        min-width: 0;
-        justify-content: flex-end;
+        display: grid;
+        gap: 12px;
+        justify-items: stretch;
       }
 
       .nav-links a { border-radius: 14px; }
 
-      .nav-actions > .btn { display: none; }
+      .nav-actions .language-toggle { justify-self: start; }
+      .nav-actions .btn { width: 100%; }
 
       .brand-subtitle { max-width: 170px; }
 
@@ -1101,11 +1112,6 @@
         padding-inline: 16px;
       }
 
-      .menu-button {
-        padding-inline: 10px;
-      }
-
-      .menu-label { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1160,9 +1166,6 @@
   outline: 3px solid rgba(61, 255, 208, 0.75);
   outline-offset: 2px;
 }
-@media (max-width: 760px) {
-  .language-toggle { order: 2; }
-}
 </style>
 </head>
 
@@ -1171,6 +1174,9 @@
 
   <header class="site-header">
     <nav class="nav" aria-label="Hoofdnavigatie">
+      <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navPanel" aria-label="Open navigatiemenu">
+        <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
       <a class="brand-link" href="#top" aria-label="JavaScript in de Klas">
         <span class="brand-mark">JS</span>
         <span class="brand-copy">
@@ -1179,24 +1185,21 @@
         </span>
       </a>
 
-      <div class="nav-links" id="navLinks">
-        <a href="#werking">Opdracht</a>
-        <a href="#platformen">Leerlijn</a>
-        <a href="#leerkrachten">Leerkrachten</a>
-      </div>
-
-      <div class="nav-actions">
-        <div class="language-toggle" role="group" aria-label="Taalkeuze">
-          <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
-          <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
+      <div class="nav-panel" id="navPanel">
+        <div class="nav-links" id="navLinks">
+          <a href="#werking">Opdracht</a>
+          <a href="#platformen">Leerlijn</a>
+          <a href="#leerkrachten">Leerkrachten</a>
         </div>
-        <a class="btn btn-primary" href="https://robbew.github.io/jsindeklas/platform.html">
-          Start leerplatform
-        </a>
-        <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Menu">
-          <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
-          <span class="menu-label">Menu</span>
-        </button>
+        <div class="nav-actions">
+          <div class="language-toggle" role="group" aria-label="Taalkeuze">
+            <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
+            <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
+          </div>
+          <a class="btn btn-primary" href="https://robbew.github.io/jsindeklas/platform.html">
+            Start leerplatform
+          </a>
+        </div>
       </div>
     </nav>
   </header>
@@ -1605,13 +1608,13 @@ content/chapters/chXX/exNN/tests.json
 
   <script>
     const menuButton = document.getElementById("menuButton");
-    const navLinks = document.getElementById("navLinks");
+    const navPanel = document.getElementById("navPanel");
 
     const setMenuState = (isOpen, { focusFirstLink = false } = {}) => {
-      if (!menuButton || !navLinks) return;
-      navLinks.classList.toggle("is-open", isOpen);
+      if (!menuButton || !navPanel) return;
+      navPanel.classList.toggle("is-open", isOpen);
       menuButton.setAttribute("aria-expanded", String(isOpen));
-      if (focusFirstLink && isOpen) navLinks.querySelector("a")?.focus();
+      if (focusFirstLink && isOpen) navPanel.querySelector("a")?.focus();
     };
 
     menuButton?.addEventListener("click", () => {
@@ -1619,7 +1622,7 @@ content/chapters/chXX/exNN/tests.json
       setMenuState(!isOpen, { focusFirstLink: !isOpen });
     });
 
-    navLinks?.addEventListener("click", (event) => {
+    navPanel?.addEventListener("click", (event) => {
       if (event.target instanceof Element && event.target.closest("a")) {
         setMenuState(false);
       }
@@ -1636,9 +1639,13 @@ content/chapters/chXX/exNN/tests.json
 
     document.addEventListener("click", (event) => {
       if (menuButton?.getAttribute("aria-expanded") !== "true") return;
-      if (event.target instanceof Node && !menuButton.contains(event.target) && !navLinks?.contains(event.target)) {
+      if (event.target instanceof Node && !menuButton.contains(event.target) && !navPanel?.contains(event.target)) {
         setMenuState(false);
       }
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 760) setMenuState(false);
     });
   </script>
 <script id="language-toggle-script">
@@ -1650,6 +1657,7 @@ content/chapters/chXX/exNN/tests.json
   "Hoofdnavigatie": "Main navigation",
   "Paginaonderdelen": "Page sections",
   "Taalkeuze": "Language selection",
+  "Open navigatiemenu": "Open navigation menu",
   "Opdracht": "Assignment",
   "Werking": "How it works",
   "Wat leer je?": "What will you learn?",
