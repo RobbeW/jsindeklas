@@ -127,6 +127,9 @@
       letter-spacing: 0;
       line-height: 1.05;
       white-space: nowrap;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .brand-subtitle {
@@ -166,6 +169,8 @@
 
     .menu-button {
       display: none;
+      align-items: center;
+      gap: 8px;
       border: 1px solid var(--border);
       background: #fff;
       color: var(--text);
@@ -173,6 +178,26 @@
       padding: 10px 12px;
       font-weight: 800;
       cursor: pointer;
+    }
+
+    .menu-button:hover,
+    .menu-button:focus-visible {
+      border-color: rgba(82, 0, 255, 0.40);
+      background: var(--brand-softer);
+      outline: none;
+    }
+
+    .menu-icon {
+      display: inline-grid;
+      gap: 3px;
+      width: 16px;
+    }
+
+    .menu-icon span {
+      display: block;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
     }
 
     .btn {
@@ -992,16 +1017,19 @@
     }
 
     @media (max-width: 760px) {
-      .nav { align-items: flex-start; }
+      .nav {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+      }
 
       .menu-button { display: inline-flex; }
 
       .nav-links {
         display: none;
-        position: absolute;
-        left: 16px;
-        right: 16px;
-        top: 76px;
+        grid-column: 1 / -1;
+        grid-row: 2;
         padding: 12px;
         border: 1px solid var(--border);
         background: #fff;
@@ -1012,6 +1040,13 @@
       }
 
       .nav-links.is-open { display: flex; }
+
+      .nav-actions {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        justify-content: flex-end;
+      }
 
       .nav-links a { border-radius: 14px; }
 
@@ -1057,6 +1092,20 @@
       .footer-inner { grid-template-columns: 1fr; }
 
       .footer-links { justify-content: flex-start; }
+    }
+
+    @media (max-width: 480px) {
+      .brand-subtitle { display: none; }
+      .nav {
+        gap: 12px;
+        padding-inline: 16px;
+      }
+
+      .menu-button {
+        padding-inline: 10px;
+      }
+
+      .menu-label { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1144,8 +1193,9 @@
         <a class="btn btn-primary" href="https://robbew.github.io/jsindeklas/platform.html">
           Start leerplatform
         </a>
-        <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks">
-          Menu
+        <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks" aria-label="Menu">
+          <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="menu-label">Menu</span>
         </button>
       </div>
     </nav>
@@ -1557,15 +1607,37 @@ content/chapters/chXX/exNN/tests.json
     const menuButton = document.getElementById("menuButton");
     const navLinks = document.getElementById("navLinks");
 
-    menuButton?.addEventListener("click", () => {
-      const isOpen = navLinks.classList.toggle("is-open");
+    const setMenuState = (isOpen, { focusFirstLink = false } = {}) => {
+      if (!menuButton || !navLinks) return;
+      navLinks.classList.toggle("is-open", isOpen);
       menuButton.setAttribute("aria-expanded", String(isOpen));
+      if (focusFirstLink && isOpen) navLinks.querySelector("a")?.focus();
+    };
+
+    menuButton?.addEventListener("click", () => {
+      const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+      setMenuState(!isOpen, { focusFirstLink: !isOpen });
     });
 
     navLinks?.addEventListener("click", (event) => {
-      if (event.target instanceof HTMLAnchorElement) {
-        navLinks.classList.remove("is-open");
-        menuButton.setAttribute("aria-expanded", "false");
+      if (event.target instanceof Element && event.target.closest("a")) {
+        setMenuState(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        const isOpen = menuButton?.getAttribute("aria-expanded") === "true";
+        if (!isOpen) return;
+        setMenuState(false);
+        menuButton?.focus();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (menuButton?.getAttribute("aria-expanded") !== "true") return;
+      if (event.target instanceof Node && !menuButton.contains(event.target) && !navLinks?.contains(event.target)) {
+        setMenuState(false);
       }
     });
   </script>
