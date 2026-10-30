@@ -1,0 +1,1955 @@
+<!--
+  JavaScript in de Klas
+  Copyright (c) 2026 Robbe Wulgaert
+  Citeer/vermeld als: Robbe Wulgaert, AI in de Klas, robbewulgaert.be
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be" />
+  <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert" />
+  <!-- generated:favicon -->
+  <link rel="icon" type="image/png" sizes="64x64" href="./favicon.png?v=ff7968036640">
+  <link rel="shortcut icon" type="image/png" sizes="64x64" href="./favicon.png?v=ff7968036640">
+  <!-- /generated:favicon -->
+  <style>
+    :root {
+      --brand: #5200FF;
+      --brand-dark: #3700B3;
+      --brand-softer: #F7F3FF;
+      --accent: #3DFFD0;
+      --ink: #160033;
+      --bg-soft: #F8F7F3;
+      --surface: #FFFFFF;
+      --text: #1D1930;
+      --muted: #625B70;
+      --border: #E2DDEA;
+      --good: #16834a;
+      --neutral: #6d6677;
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --shadow-soft: 0 18px 55px rgba(32, 20, 54, 0.10);
+      --shadow-card: 0 10px 30px rgba(32, 20, 54, 0.08);
+      --max: 1180px;
+      --motion-fast: 150ms;
+      --motion-medium: 260ms;
+      --motion-slow: 520ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      background: var(--bg-soft);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.94em;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 12px;
+      z-index: 100;
+      background: var(--brand);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+
+    .skip-link:focus { left: 12px; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(226, 221, 234, 0.78);
+    }
+
+    .nav {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--brand);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 0;
+      box-shadow: 0 12px 24px rgba(82, 0, 255, 0.24);
+      flex: 0 0 auto;
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-weight: 900;
+      letter-spacing: 0;
+      line-height: 1.05;
+      white-space: nowrap;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 0.86rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.94rem;
+    }
+
+    .nav-panel {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-links a {
+      padding: 10px 12px;
+      border-radius: 999px;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      color: var(--brand);
+      background: var(--brand-softer);
+      outline: none;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .menu-button {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 50%;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .menu-button:hover,
+    .menu-button:focus-visible {
+      border-color: rgba(82, 0, 255, 0.40);
+      background: var(--brand-softer);
+      outline: none;
+    }
+
+    .menu-icon {
+      display: inline-grid;
+      gap: 3px;
+      width: 16px;
+    }
+
+    .menu-icon span {
+      display: block;
+      height: 2px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 46px;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-weight: 900;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--brand);
+      box-shadow: 0 16px 30px rgba(82, 0, 255, 0.23);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+      background: var(--brand-dark);
+      outline: none;
+    }
+
+    .btn-secondary {
+      color: var(--brand);
+      background: #fff;
+      border-color: rgba(82, 0, 255, 0.22);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:focus-visible {
+      background: var(--brand-softer);
+      border-color: rgba(82, 0, 255, 0.40);
+      outline: none;
+    }
+
+    .btn-small {
+      min-height: 46px;
+      padding: 13px 18px;
+      font-size: 1rem;
+    }
+
+    main { overflow: hidden; }
+
+    .section {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 82px 22px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(360px, 0.88fr);
+      align-items: center;
+      gap: 64px;
+      padding-top: 70px;
+      padding-bottom: 78px;
+    }
+
+    /* Prevent hero content from forcing either grid column wider than its track. */
+    .hero > * {
+      min-width: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 4.8vw, 4.75rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+      margin: 0;
+      max-width: 760px;
+      color: var(--brand-dark);
+      text-wrap: balance;
+    }
+
+    .hero-lead {
+      font-size: clamp(1.08rem, 2vw, 1.28rem);
+      color: var(--muted);
+      margin: 26px 0 0;
+      max-width: 720px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .hero-panel {
+      position: relative;
+      min-height: 470px;
+      border-radius: var(--radius-xl);
+      background: var(--ink);
+      box-shadow: var(--shadow-soft);
+      padding: 24px;
+      color: #fff;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .mock-browser {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 22px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .mock-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .mock-dots { display: flex; gap: 7px; }
+
+    .mock-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .mock-label {
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .mock-body {
+      display: grid;
+      grid-template-columns: 1fr 0.85fr;
+      min-height: 310px;
+    }
+
+    .code-pane {
+      padding: 18px;
+      background: rgba(5, 4, 10, 0.58);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: #e8dcff;
+    }
+
+    .code-pane .purple { color: #bfa6ff; }
+    .code-pane .cyan { color: #7cf5ff; }
+    .code-pane .green { color: #87f5b2; }
+
+    .result-pane {
+      padding: 18px;
+      background: #fbfaff;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .canvas-card {
+      flex: 1;
+      min-height: 180px;
+      border: 2px solid #ded5ef;
+      border-radius: 18px;
+      background:
+        linear-gradient(#eee9f8 1px, transparent 1px),
+        linear-gradient(90deg, #eee9f8 1px, transparent 1px),
+        #ffffff;
+      background-size: 24px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .canvas-card svg {
+      position: absolute;
+      inset: 18px;
+      width: calc(100% - 36px);
+      height: calc(100% - 36px);
+    }
+
+    .feedback-card {
+      display: grid;
+      gap: 8px;
+      padding: 13px;
+      border-radius: 16px;
+      background: var(--brand-softer);
+      border: 1px solid #e5dcff;
+    }
+
+    .feedback-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--good);
+    }
+
+    .status::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--good);
+    }
+
+    .floating-card {
+      position: absolute;
+      z-index: 2;
+      right: 22px;
+      bottom: 24px;
+      max-width: 260px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+    }
+
+    .floating-card strong {
+      display: block;
+      font-size: 1.04rem;
+      letter-spacing: 0;
+    }
+
+    .floating-card p {
+      color: var(--muted);
+      margin: 5px 0 0;
+      font-size: 0.92rem;
+    }
+
+    .section-kicker {
+      color: var(--brand);
+      font-weight: 900;
+      margin: 0 0 10px;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.03;
+      letter-spacing: 0;
+      margin: 0;
+      max-width: 840px;
+    }
+
+    .section-lead {
+      color: var(--muted);
+      font-size: 1.12rem;
+      max-width: 780px;
+      margin: 18px 0 0;
+    }
+
+    .steps,
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 38px;
+    }
+
+    .privacy-license-list { display: grid; gap: 14px; margin-top: 28px; }
+    .privacy-license-details { margin: 0; }
+    .privacy-license-details summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      color: var(--brand);
+      cursor: pointer;
+      font-size: 1.12rem;
+      font-weight: 900;
+      list-style: none;
+    }
+    .privacy-license-details summary::-webkit-details-marker { display: none; }
+    .privacy-license-details summary::after {
+      content: "+";
+      display: grid;
+      place-items: center;
+      flex: 0 0 32px;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--brand-softer);
+      color: var(--brand);
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+    .privacy-license-details[open] summary::after { content: "−"; }
+    .privacy-license-content { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .privacy-license-content p + p { margin-top: 12px; }
+
+    .step-card,
+    .feature-card,
+    .audience-card,
+    .authoring-card,
+    .compare-card {
+      background: rgba(255, 255, 255, 0.90);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      min-width: 0;
+    }
+
+    .step-number,
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: var(--brand-softer);
+      color: var(--brand);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      margin-bottom: 18px;
+    }
+
+    .step-number {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.18rem;
+      letter-spacing: 0;
+    }
+
+    .card-copy {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+
+    .split,
+    .comparison {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .audience-card {
+      background:
+        linear-gradient(145deg, rgba(82, 0, 255, 0.07), rgba(255, 255, 255, 0.92));
+    }
+
+    .bullet-list {
+      list-style: none;
+      margin: 24px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .bullet-list li {
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr);
+      gap: 10px;
+      color: var(--muted);
+    }
+
+    .bullet-list li::before {
+      content: "✓";
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--brand);
+      font-size: 0.82rem;
+      font-weight: 900;
+      margin-top: 1px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .stat {
+      padding: 22px;
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+      min-width: 0;
+    }
+
+    .stat-value {
+      font-size: clamp(1.8rem, 3vw, 2.45rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+      color: var(--brand);
+      overflow-wrap: anywhere;
+    }
+
+    .stat-label {
+      margin-top: 8px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .course-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .course-stats .stat {
+      padding: 18px;
+    }
+
+    .course-stats .stat-label {
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+      hyphens: auto;
+    }
+
+    .authoring {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.82fr);
+      gap: 20px;
+      align-items: stretch;
+      margin-top: 38px;
+    }
+
+    .path-box {
+      margin-top: 18px;
+      background: #17111f;
+      color: #efe8ff;
+      border-radius: 18px;
+      padding: 18px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.75;
+      max-width: 100%;
+    }
+
+    .path-box code { color: #efe8ff; }
+
+    .rubric {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .rubric span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      min-height: 42px;
+      background: var(--brand-softer);
+      color: var(--brand-dark);
+      border: 1px solid rgba(82, 0, 255, 0.13);
+      border-radius: 14px;
+      padding: 9px 11px;
+      text-align: center;
+      font-size: 0.88rem;
+      line-height: 1.2;
+      font-weight: 900;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      hyphens: auto;
+    }
+
+    .platform-table-wrap {
+      margin-top: 38px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow-card);
+    }
+
+    .platform-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    .platform-table th,
+    .platform-table td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .platform-table th:first-child,
+    .platform-table td:first-child {
+      text-align: left;
+    }
+
+    .platform-table thead th {
+      background: var(--brand-softer);
+      color: var(--brand-dark);
+      font-weight: 900;
+    }
+
+    .platform-table thead th:nth-child(2) {
+      background: rgba(82, 0, 255, 0.13);
+      color: var(--brand-dark);
+    }
+
+    .platform-table tbody th {
+      font-weight: 800;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .platform-table tbody td:nth-child(2) {
+      background: rgba(82, 0, 255, 0.055);
+    }
+
+    .platform-table tbody tr:last-child th,
+    .platform-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .mark {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 1rem;
+      margin-inline: auto;
+    }
+
+    .mark.yes {
+      background: rgba(22, 131, 74, 0.12);
+      color: var(--good);
+    }
+
+    .mark.no {
+      background: rgba(120, 113, 128, 0.13);
+      color: var(--neutral);
+    }
+
+    .mark.partial {
+      background: rgba(82, 0, 255, 0.12);
+      color: var(--brand);
+    }
+
+    .cell-note {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .comparison.platform-cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 24px;
+    }
+
+    .compare-card.featured {
+      background:
+        radial-gradient(circle at 92% 10%, rgba(3, 221, 239, 0.22), transparent 14rem),
+        linear-gradient(145deg, #ffffff, var(--brand-softer));
+    }
+
+    .compare-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .family-tree {
+      margin-top: 34px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow-card);
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .tree-root { display: flex; justify-content: center; margin-bottom: 24px; }
+
+    .tree-node {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+      transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fff;
+      padding: 18px;
+      box-shadow: 0 10px 28px rgba(82, 0, 255, 0.08);
+    }
+
+    .tree-node strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--brand-dark);
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .tree-node span { display: block; color: var(--muted); }
+
+    .tree-node.root {
+      width: min(560px, 100%);
+      text-align: center;
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .tree-node.root strong,
+    .tree-node.root span { color: #fff; }
+
+    .tree-node:hover,
+    .tree-node:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--brand);
+      box-shadow: 0 18px 38px rgba(82, 0, 255, 0.14);
+      outline: none;
+    }
+
+    .tree-branches {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .tree-branches::before {
+      content: "";
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      width: 2px;
+      height: 24px;
+      background: var(--brand);
+      opacity: 0.32;
+    }
+
+    .tree-branch {
+      position: relative;
+      border: 1.5px dashed rgba(82, 0, 255, 0.28);
+      border-radius: 24px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(247, 243, 255, 0.92), rgba(255, 255, 255, 0.94));
+    }
+
+    .tree-branch::before {
+      content: "";
+      position: absolute;
+      top: -17px;
+      width: 50%;
+      height: 17px;
+      border-top: 2px solid rgba(82, 0, 255, 0.32);
+    }
+
+    .tree-branch:first-child::before { right: 0; border-left: 2px solid rgba(82, 0, 255, 0.32); border-radius: 14px 0 0 0; }
+    .tree-branch:last-child::before { left: 0; border-right: 2px solid rgba(82, 0, 255, 0.32); border-radius: 0 14px 0 0; }
+
+    .branch-title {
+      display: inline-flex;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #0d2130;
+      padding: 8px 13px;
+      font-weight: 900;
+    }
+
+    .tree-stack { display: grid; gap: 12px; }
+
+    .tree-node.current {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 4px rgba(82, 0, 255, 0.08), 0 16px 32px rgba(82, 0, 255, 0.14);
+    }
+
+    .tree-node.bridge,
+    .tree-node.dodona {
+      background: linear-gradient(135deg, #ffffff, #dffff7);
+      border-color: rgba(3, 221, 239, 0.72);
+    }
+
+    .delphi-dodona-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .logic-note {
+      margin-top: 18px;
+      border-left: 6px solid var(--brand);
+      border-radius: 16px;
+      background: #fff;
+      padding: 16px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .cta-band {
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at 90% 10%, rgba(3, 221, 239, 0.27), transparent 16rem),
+        linear-gradient(135deg, var(--brand), var(--brand-dark));
+      color: #fff;
+      padding: clamp(28px, 5vw, 54px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 24px;
+      box-shadow: 0 20px 55px rgba(82, 0, 255, 0.24);
+    }
+
+    .cta-band h2 {
+      margin: 0;
+      font-size: clamp(1.9rem, 4vw, 3.05rem);
+      letter-spacing: 0;
+      line-height: 1.03;
+    }
+
+    .cta-band p {
+      margin: 12px 0 0;
+      max-width: 730px;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 1.08rem;
+    }
+
+    .cta-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .cta-actions .btn-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.30);
+    }
+
+    .cta-actions .btn-primary {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: none;
+    }
+
+    .site-footer {
+      background: #110b1c;
+      color: #efe8ff;
+      margin-top: 50px;
+    }
+
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 36px 22px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .footer-inner p {
+      margin: 0;
+      color: rgba(239, 232, 255, 0.72);
+    }
+
+    .footer-title {
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .footer-links a {
+      color: rgba(239, 232, 255, 0.82);
+      font-weight: 800;
+      padding: 8px 0;
+    }
+
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
+      color: #fff;
+      outline: none;
+    }
+
+    @media (max-width: 1100px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 42px;
+      }
+
+      .hero-panel {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .split,
+      .authoring,
+      .cta-band {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison,
+      .comparison.platform-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .tree-branches,
+      .delphi-dodona-pair { grid-template-columns: 1fr; }
+      .tree-branches::before,
+      .tree-branch::before { display: none; }
+
+      .hero-panel { min-height: 420px; }
+
+      .steps,
+      .feature-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stats { grid-template-columns: 1fr 1fr; }
+
+      .cta-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        justify-content: initial;
+        gap: 12px;
+      }
+
+      .menu-button { display: inline-flex; grid-column: 1; grid-row: 1; }
+      .brand-link { grid-column: 2; grid-row: 1; }
+      .brand-mark,
+      .brand-subtitle { display: none; }
+
+      .nav-panel {
+        display: none;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        padding: 12px;
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: var(--shadow-card);
+      }
+
+      .nav-panel.is-open { display: grid; gap: 12px; }
+
+      .nav-links { display: grid; gap: 2px; }
+
+      .nav-actions {
+        display: grid;
+        gap: 12px;
+        justify-items: stretch;
+      }
+
+      .nav-links a { border-radius: 14px; }
+
+      .nav-actions .language-toggle { justify-self: start; }
+      .nav-actions .btn { width: 100%; }
+
+      .brand-subtitle { max-width: 170px; }
+
+      .section {
+        padding-top: 58px;
+        padding-bottom: 58px;
+      }
+
+      .hero { padding-top: 46px; }
+
+      .hero-actions,
+      .cta-actions,
+      .compare-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn { width: 100%; }
+
+      .mock-body { grid-template-columns: 1fr; }
+
+      .result-pane { min-height: 220px; }
+
+      .floating-card {
+        left: 18px;
+        right: 18px;
+        bottom: 18px;
+        max-width: none;
+      }
+
+      .steps,
+      .feature-grid,
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .rubric { grid-template-columns: 1fr; }
+
+      .footer-inner { grid-template-columns: 1fr; }
+
+      .footer-links { justify-content: flex-start; }
+    }
+
+    @media (max-width: 480px) {
+      .brand-subtitle { display: none; }
+      .nav {
+        gap: 12px;
+        padding-inline: 16px;
+      }
+
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    h1, h2, h3, h4, h5, h6,
+    label, button, table, th, td,
+    .brand-title, .card-title, .section-kicker, .stat-value {
+      letter-spacing: 0;
+    }
+  </style>
+  <style id="language-toggle-styles">
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(82, 0, 255, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  padding: 4px;
+  box-shadow: 0 10px 24px rgba(82, 0, 255, 0.08);
+}
+.language-toggle a {
+  min-width: 44px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--muted, var(--delphi-muted, #625b70));
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+.language-toggle a.is-active {
+  background: var(--brand, var(--brand-purple, var(--delphi-blue, #5200FF)));
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(82, 0, 255, 0.20);
+}
+.language-toggle a:focus-visible {
+  outline: 3px solid rgba(61, 255, 208, 0.75);
+  outline-offset: 2px;
+}
+</style>
+<!-- generated:seo-head -->
+<title>JavaScript in the Classroom</title>
+<meta name="description" content="JavaScript in the Classroom is a browser environment where students write, run and test code alongside each exercise.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://robbew.github.io/jsindeklas/en.html">
+<link rel="alternate" hreflang="nl-BE" href="https://robbew.github.io/jsindeklas/">
+<link rel="alternate" hreflang="en" href="https://robbew.github.io/jsindeklas/en.html">
+<link rel="alternate" hreflang="x-default" href="https://robbew.github.io/jsindeklas/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="JavaScript in the Classroom">
+<meta property="og:description" content="JavaScript in the Classroom is a browser environment where students write, run and test code alongside each exercise.">
+<meta property="og:url" content="https://robbew.github.io/jsindeklas/en.html">
+<meta property="og:image" content="https://robbew.github.io/jsindeklas/media/Screenshot%202026-05-14%20103030.png">
+<meta property="og:image:alt" content="JavaScript in the Classroom — learning project">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="JavaScript in the Classroom">
+<meta name="twitter:description" content="JavaScript in the Classroom is a browser environment where students write, run and test code alongside each exercise.">
+<meta name="twitter:image" content="https://robbew.github.io/jsindeklas/media/Screenshot%202026-05-14%20103030.png">
+<meta name="twitter:image:alt" content="JavaScript in the Classroom — learning project">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://robbew.github.io/jsindeklas/en.html#webpage","url":"https://robbew.github.io/jsindeklas/en.html","name":"JavaScript in the Classroom","description":"JavaScript in the Classroom is a browser environment where students write, run and test code alongside each exercise.","inLanguage":"en","about":{"@id":"https://robbew.github.io/jsindeklas/#resource"},"mainEntity":{"@id":"https://robbew.github.io/jsindeklas/#resource"}},{"@type":"Person","@id":"https://robbew.github.io/aiindeklas/#robbe-wulgaert","name":"Robbe Wulgaert","url":"https://robbew.github.io/aiindeklas/"},{"@type":["WebApplication","LearningResource"],"@id":"https://robbew.github.io/jsindeklas/#resource","name":"JavaScript in the Classroom","description":"JavaScript in the Classroom is a browser environment where students write, run and test code alongside each exercise.","url":"https://robbew.github.io/jsindeklas/","creator":{"@id":"https://robbew.github.io/aiindeklas/#robbe-wulgaert"},"license":"https://robbew.github.io/jsindeklas/LICENSE.md","inLanguage":"en","teaches":["Selection and loops","Drawing patterns with turtle graphics"],"abstract":"Workspace: Exercise, editor and output on one screen; Output: Console, turtle and canvas; Export: PDF with code and output"}]}</script>
+<!-- /generated:seo-head -->
+<style id="seo-facts-styles">.seo-facts dl { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; } .seo-facts dl > div { min-width: 10rem; } .seo-facts dt { font-weight: 700; } .seo-facts dd { margin: 0; } .language-toggle a { text-decoration: none; }</style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navPanel" aria-label="Open navigation menu">
+        <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
+      <a class="brand-link" href="#top" aria-label="JavaScript in the Classroom">
+        <span class="brand-copy">
+          <span class="brand-title">JavaScript in the Classroom</span>
+          <span class="brand-subtitle">AI in de Klas · Robbe Wulgaert</span>
+        </span>
+      </a>
+
+      <div class="nav-panel" id="navPanel">
+        <div class="nav-links" id="navLinks">
+          <a href="#werking">Assignment</a>
+          <a href="#platformen">Learning path</a>
+          <a href="#leerkrachten">Teachers</a>
+        </div>
+        <div class="nav-actions">
+          <div class="language-toggle" role="group" aria-label="Language selection">
+            <a href="./" data-language-choice="nl">NL</a>
+            <a href="en.html" data-language-choice="en" class="is-active" aria-current="page">ENG</a>
+          </div>
+          <a class="btn btn-primary" href="https://robbew.github.io/jsindeklas/platform.html">
+            Start learning platform
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="section hero" id="top">
+      <div>
+        <h1>Learn computational thinking and programming in JavaScript</h1>
+
+        <p class="hero-lead">JavaScript in the Classroom is a browser environment where students write, run and test code alongside each exercise.</p>
+
+        <div class="hero-actions" aria-label="Key actions">
+          <a class="btn btn-primary" href="https://robbew.github.io/jsindeklas/platform.html">
+            Start learning platform
+          </a>
+          <a class="btn btn-secondary" href="https://robbew.github.io/jsindeklas/tools/exercise-author.html">
+            Open exercise builder
+          </a>
+        </div>
+      </div>
+
+      <aside class="hero-panel" aria-label="Visual representation of the learning environment">
+        <div class="mock-browser">
+          <div class="mock-top">
+            <div class="mock-dots" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="mock-label">Assignment · Editor · Canvas</div>
+          </div>
+
+          <div class="mock-body">
+            <div class="code-pane" aria-hidden="true">
+              <span class="purple">for</span> (<span class="cyan">let</span> i = 0; i &lt; 4; i++) {<br />
+                <span class="green">vooruit</span>(80);<br />
+                <span class="green">rechts</span>(90);<br />
+              }<br /><br />
+              <span class="purple">print</span>(<span class="green">&quot;Square complete&quot;</span>);
+            </div>
+
+            <div class="result-pane">
+              <div class="canvas-card" aria-hidden="true">
+                <svg viewBox="0 0 180 180" role="img" aria-label="Turtle graphics example">
+                  <polyline
+                    points="42,42 138,42 138,138 42,138 42,42"
+                    fill="none"
+                    stroke="#5200FF"
+                    stroke-width="10"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="42" cy="42" r="8" fill="#3dffd0" />
+                </svg>
+              </div>
+
+              <div class="feedback-card">
+                <div class="feedback-row">
+                  <span>Canvas-test</span>
+                  <span class="status">Correct</span>
+                </div>
+                <div class="feedback-row">
+                  <span>Console</span>
+                  <span class="status">OK</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="floating-card">
+          <strong>Deliberately light.</strong>
+          <p>Start quickly, practise locally and export easily.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="werking">
+      <p class="section-kicker">How does it work?</p>
+      <h2 class="section-title">Assignment, editor and output side by side.</h2>
+      <p class="section-lead">
+        Students write code, run it and immediately see what happens in the console or on the canvas. The environment is designed for short practice moments, study periods and lessons where programming takes up only part of the available time.
+      </p>
+
+      <div class="steps">
+        <article class="step-card">
+          <div class="step-number">1</div>
+          <h3 class="card-title">Read the assignment</h3>
+          <p class="card-copy">
+            Each exercise contains starter code and a clearly defined assignment. Students can begin directly in the browser.
+          </p>
+        </article>
+
+        <article class="step-card">
+          <div class="step-number">2</div>
+          <h3 class="card-title">Run the code</h3>
+          <p class="card-copy">
+            The output appears on the same page. It can be console output, a turtle graphics drawing or a simple canvas task.
+          </p>
+        </article>
+
+        <article class="step-card">
+          <div class="step-number">3</div>
+          <h3 class="card-title">Improve</h3>
+          <p class="card-copy">
+            Status icons, test cases and error messages help students improve their solution without syntax immediately taking all the attention.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <p class="section-kicker">Components</p>
+      <h2 class="section-title">Light and nimble</h2>
+
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">01</div>
+          <h3 class="card-title">Browser environment</h3>
+          <p class="card-copy">
+            The tool runs as a regular website. GitHub Pages or a simple local web server is sufficient. Opening it via <code>file://</code> is unsuitable because the app loads content files.
+          </p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">02</div>
+          <h3 class="card-title">Turtle and canvas</h3>
+          <p class="card-copy">
+            Students can make algorithms visible on a drawing grid. This especially helps with loops, order, angles and patterns.
+          </p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">03</div>
+          <h3 class="card-title">Reference sheet</h3>
+          <p class="card-copy">
+            A built-in reference sheet with commands and colour options makes syntax easier, leaving more room to focus on reasoning.
+          </p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">04</div>
+          <h3 class="card-title">Automatic checks</h3>
+          <p class="card-copy">
+            Exercises can check ordinary output, input via <code>ask()</code> and canvas results. Open-ended assignments can still be assessed manually.
+          </p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">05</div>
+          <h3 class="card-title">Storage in the browser</h3>
+          <p class="card-copy">
+            Progress is stored locally in the browser. That works well for separate practice moments and independent work.
+          </p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">06</div>
+          <h3 class="card-title">PDF export</h3>
+          <p class="card-copy">
+            Students can export their work with code, console output, canvas image, attempts and space for feedback.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="leerkrachten">
+      <div class="split">
+        <article class="audience-card">
+          <p class="section-kicker">For teachers</p>
+          <h2 class="section-title">For limited lesson time, extra practice and study.</h2>
+          <p class="section-lead">
+            This project is intended as a lightweight supplement for lessons, study periods and independent practice. Specialised platforms such as Dodona are better suited to extensive progress tracking, dashboards and class management.
+          </p>
+
+          <ul class="bullet-list">
+            <li>Suitable for programmes where programming is a small part of the curriculum.</li>
+            <li>Useful for extra practice outside lessons or during study periods.</li>
+            <li>Works on school devices without installation or student accounts.</li>
+            <li>Can be adapted by teachers comfortable working with files and GitHub.</li>
+          </ul>
+        </article>
+
+        <article class="authoring-card">
+          <h3 class="card-title">Evaluation in the PDF report</h3>
+          <p class="card-copy">
+            The PDF export combines code, output and a compact feedback rubric. This lets you assess whether the solution works, how readable the code is and which thinking concept the student uses.
+          </p>
+
+          <div class="rubric" aria-label="Assessment rubric">
+            <span>Functionality</span>
+            <span>Readability</span>
+            <span>Core programming concept</span>
+            <span>Subject knowledge / mathematics</span>
+            <span>Creativity</span>
+          </div>
+
+          <div class="stats course-stats" aria-label="Course content">
+            <div class="stat">
+              <div class="stat-value">7</div>
+              <div class="stat-label">chapters</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">81</div>
+              <div class="stat-label">exercises</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">5</div>
+              <div class="stat-label">concepts</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">2</div>
+              <div class="stat-label">plotting shapes</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="platformen">
+      <!-- generated:seo-facts -->
+<section class="seo-facts" aria-label="Project facts"><dl><div><dt>Workspace</dt><dd>Exercise, editor and output on one screen</dd></div><div><dt>Output</dt><dd>Console, turtle and canvas</dd></div><div><dt>Export</dt><dd>PDF with code and output</dd></div></dl></section>
+<!-- /generated:seo-facts -->
+      <!-- generated:heading -->
+      <p class="section-kicker">Place in the learning path</p>
+      <h2 class="section-title">From platforms to projects.</h2>
+      <p class="section-lead">The platforms build computational thinking. The projects use that thinking in a cross-curricular assignment in which students build, measure, test and conclude.</p>
+      <!-- /generated:heading -->
+
+      <!-- generated:tree -->
+      <div class="family-tree" aria-label="Learning path of platforms and projects">
+        <div class="tree-root">
+          <a class="tree-node root" href="https://www.aiindeklas.be" target="_blank" rel="noopener">
+            <strong>Learning computational thinking</strong>
+            <span>from blocks to code, from code to research</span>
+          </a>
+        </div>
+        <div class="tree-branches">
+          <div class="tree-branch">
+            <div class="branch-title">Platforms</div>
+            <div class="tree-stack">
+              <a class="tree-node" href="https://robbew.github.io/Blockly/" target="_blank" rel="noopener">
+                <strong>Blockly</strong>
+                <span>visual step-by-step thinking.</span>
+              </a>
+              <a class="tree-node current" href="https://robbew.github.io/jsindeklas/" target="_blank" rel="noopener" aria-current="page">
+                <strong>JavaScript</strong>
+                <span>logic in real code.</span>
+              </a>
+              <a class="tree-node" href="https://robbew.github.io/htmlindeklas/" target="_blank" rel="noopener">
+                <strong>HTML</strong>
+                <span>structuring webpages.</span>
+              </a>
+              <div class="delphi-dodona-pair" aria-label="Dodona and Delphi">
+                <a class="tree-node dodona" href="https://dodona.be/nl/courses/2641/" target="_blank" rel="noopener">
+                  <strong>Dodona</strong>
+                  <span>Python in the Classroom with tracking.</span>
+                </a>
+                <a class="tree-node" href="https://robbew.github.io/delphi/" target="_blank" rel="noopener">
+                  <strong>Delphi</strong>
+                  <span>Practice Python in the browser.</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="tree-branch">
+            <div class="branch-title">STEaM projects</div>
+            <div class="tree-stack">
+              <a class="tree-node" href="https://robbew.github.io/smartplants/" target="_blank" rel="noopener">
+                <strong>Smart Plants</strong>
+                <span>Arduino, soil moisture, calibration and data.</span>
+              </a>
+              <a class="tree-node" href="https://robbew.github.io/robothand/" target="_blank" rel="noopener">
+                <strong>Robotic hand</strong>
+                <span>Arduino, sensors, servos and movement.</span>
+              </a>
+              <a class="tree-node" href="https://robbew.github.io/projectwind/" target="_blank" rel="noopener">
+                <strong>Wind</strong>
+                <span>Micro:bit, energy, voltage and current.</span>
+              </a>
+              <a class="tree-node" href="https://robbew.github.io/slimme_vuilnisbak/" target="_blank" rel="noopener">
+                <strong>Smart bin</strong>
+                <span>AI, image recognition, data and microcontrollers.</span>
+              </a>
+              <a class="tree-node" href="https://robbew.github.io/aiindeklas/zelflerende-games/" target="_blank" rel="noopener">
+                <strong>Self-learning games</strong>
+                <span>Getting started with machine learning</span>
+              </a>
+              <a class="tree-node" href="https://robbew.github.io/projectfijnstof/" target="_blank" rel="noopener">
+                <strong>Particulate matter</strong>
+                <span>Arduino, air quality, data and poster session.</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /generated:tree -->
+    </section>
+
+    <section class="section" id="oefeningen">
+      <p class="section-kicker">Adapting exercises</p>
+      <h2 class="section-title">Comfortable with GitHub? Create your own exercises.</h2>
+      <p class="section-lead">
+        All exercises are stored as separate files in <code>content/</code>. This avoids working in one large exercise list. The exercise creator helps prepare new exercises in the right structure.
+      </p>
+
+      <div class="authoring">
+        <article class="authoring-card">
+          <h3 class="card-title">Content structure</h3>
+          <p class="card-copy">
+            Chapters, assignments, starter code and test cases follow a consistent folder structure, making them easier to adapt and extend.
+          </p>
+
+          <div class="path-box" aria-label="Content structure">
+            <code>
+content/catalog.json<br />
+content/chapters/chXX/chapter.json<br />
+content/chapters/chXX/exNN/exercise.json<br />
+content/chapters/chXX/exNN/starter.js<br />
+content/chapters/chXX/exNN/tests.json
+            </code>
+          </div>
+        </article>
+
+        <article class="authoring-card">
+          <h3 class="card-title">Exercise builder</h3>
+          <p class="card-copy">
+            The exercise creator lets you prepare and preview an assignment and download it as an upload package for your GitHub fork.
+          </p>
+
+          <ul class="bullet-list">
+            <li>Output tests for regular console output.</li>
+            <li>Input tests.</li>
+            <li>Canvas checks for drawing assignments.</li>
+            <li>Manual exercises for open-ended assignments.</li>
+          </ul>
+
+          <p style="margin-top: 22px;">
+            <a class="btn btn-secondary" href="https://robbew.github.io/jsindeklas/tools/exercise-author.html">
+              Open exercise builder
+            </a>
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Get started">
+      <div class="cta-band">
+        <div>
+          <h2>Test the web tool in your browser.</h2>
+          <p>
+            Start the learning environment or open the exercise creator to prepare your own assignments for your fork.
+          </p>
+        </div>
+
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="https://robbew.github.io/jsindeklas/platform.html">
+            Start learning platform
+          </a>
+          <a class="btn btn-secondary" href="https://robbew.github.io/jsindeklas/tools/exercise-author.html">
+            Exercise builder
+          </a>
+          <a class="btn btn-secondary" href="https://robbew.github.io/delphi/">
+            Delphi for Python
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="privacy-license" aria-labelledby="privacy-license-title">
+      <h2 class="section-title" id="privacy-license-title">Privacy and licence</h2>
+      <div class="privacy-license-list">
+        <details class="feature-card privacy-license-details">
+          <summary>Privacy</summary>
+          <div class="privacy-license-content">
+            <p class="card-copy">This project does not use its own analytics or advertising cookies. Input, progress and results are processed in the browser and may be stored locally on the device. A download or export occurs only when the user initiates it. GitHub Pages logs visitors’ IP addresses for security purposes; external services are governed by their provider’s privacy policy.</p>
+            <p class="card-copy"><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection">Read how GitHub Pages processes technical visitor data.</a></p>
+          </div>
+        </details>
+        <details class="feature-card privacy-license-details">
+          <summary>License</summary>
+          <div class="privacy-license-content">
+            <p class="card-copy">Original project material by Robbe Wulgaert may be used, copied and adapted free of charge for education, provided that ‘Robbe Wulgaert – AI in de Klas’ is clearly displayed, where reasonably practical with a link to the original project. Commercial sale, paid distribution, sublicensing or repackaging as a commercial product is not permitted without prior written permission. Other uses outside education also require prior written permission. Third-party components remain subject to their own licences.</p>
+            <p class="card-copy"><a href="LICENSE.md">Read the full licence terms.</a></p>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-title">JavaScript in the Classroom</div>
+        <p>
+          Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be<br />
+          © 2026 Robbe Wulgaert. Educational use with attribution; no commercial distribution.
+        </p>
+      </div>
+
+      <div class="footer-links" aria-label="Footer links">
+        <a href="#privacy-license">Privacy and licence</a>
+        <a href="https://www.robbewulgaert.be">robbewulgaert.be</a>
+        <a href="https://www.aiindeklas.be">AI in de Klas</a>
+        <a href="https://dodona.be/nl/courses/2641/">Dodona</a>
+        <a href="https://robbew.github.io/delphi/">Delphi</a>
+        <a href="https://robbew.github.io/jsindeklas/platform.html">Learning platform</a>
+        <a href="https://robbew.github.io/jsindeklas/tools/exercise-author.html">Exercise builder</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const menuButton = document.getElementById("menuButton");
+    const navPanel = document.getElementById("navPanel");
+
+    const setMenuState = (isOpen, { focusFirstLink = false } = {}) => {
+      if (!menuButton || !navPanel) return;
+      navPanel.classList.toggle("is-open", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      if (focusFirstLink && isOpen) navPanel.querySelector("a")?.focus();
+    };
+
+    menuButton?.addEventListener("click", () => {
+      const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+      setMenuState(!isOpen, { focusFirstLink: !isOpen });
+    });
+
+    navPanel?.addEventListener("click", (event) => {
+      if (event.target instanceof Element && event.target.closest("a")) {
+        setMenuState(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        const isOpen = menuButton?.getAttribute("aria-expanded") === "true";
+        if (!isOpen) return;
+        setMenuState(false);
+        menuButton?.focus();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (menuButton?.getAttribute("aria-expanded") !== "true") return;
+      if (event.target instanceof Node && !menuButton.contains(event.target) && !navPanel?.contains(event.target)) {
+        setMenuState(false);
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 760) setMenuState(false);
+    });
+  </script>
+<script id="language-toggle-script">
+(() => {
+  const LANGUAGE_KEY = "aiindeklas:index-language";
+  const TRANSLATIONS = {
+  "\"Vierkant klaar\"": "\"Square complete\"",
+  "Belangrijke acties": "Key actions",
+  "Hoe werkt het?": "How does it work?",
+  "Start": "Get started",
+  "Footerlinks": "Footer links",
+  "Navigatie openen": "Open navigation",
+  "Projectopstelling": "Project setup",
+  "PDF-export": "PDF export",
+  "Formularium": "Reference sheet",
+  "Visuele voorstelling van de leeromgeving": "Visual representation of the learning environment",
+  "Turtle graphics voorbeeld": "Turtle graphics example",
+  "De tool draait als gewone website. GitHub Pages of een eenvoudige lokale webserver volstaat. Openen via": "The tool runs as a regular website. GitHub Pages or a simple local web server is sufficient. Opening it via",
+  "is niet geschikt omdat de app contentbestanden inlaadt.": "is unsuitable because the app loads content files.",
+  "Een ingebouwde spiekkaart met commando’s en kleurmogelijkheden verlaagt de syntaxdrempel. De focus kan zo meer op redeneren blijven liggen.": "A built-in reference sheet with commands and colour options makes syntax easier, leaving more room to focus on reasoning.",
+  "Automatische checks": "Automatic checks",
+  "Oefeningen kunnen gewone output, input via": "Exercises can check ordinary output, input via",
+  "en canvasresultaten controleren. Open opdrachten kunnen manueel blijven.": "and canvas results. Open-ended assignments can still be assessed manually.",
+  "Leerlingen kunnen hun werk exporteren met code, console-uitvoer, canvasbeeld, pogingen en ruimte voor feedback.": "Students can export their work with code, console output, canvas image, attempts and space for feedback.",
+  "Dit project is bedoeld als lichte aanvulling voor lessen, studie-uren en zelfstandig oefenen. Voor uitgebreide opvolging, dashboards en klassenbeheer blijven gespecialiseerde platformen zoals Dodona geschikter.": "This project is intended as a lightweight supplement for lessons, study periods and independent practice. Specialised platforms such as Dodona are better suited to extensive progress tracking, dashboards and class management.",
+  "Geschikt voor richtingen waar programmeren een beperkt deel van het curriculum is.": "Suitable for programmes where programming is a small part of the curriculum.",
+  "Bruikbaar voor extra oefening naast de les of tijdens studie.": "Useful for extra practice outside lessons or during study periods.",
+  "Werkt op schooltoestellen zonder installatie of leerlingenaccounts.": "Works on school devices without installation or student accounts.",
+  "Aanpasbaar door leerkrachten die vlot met bestanden en GitHub kunnen werken.": "Can be adapted by teachers comfortable working with files and GitHub.",
+  "De PDF-export bundelt code, uitvoer en een compacte rubriek voor feedback. Zo beoordeel je niet alleen of de oplossing werkt, maar ook hoe leesbaar de code is en welk denkconcept de leerling gebruikt.": "The PDF export combines code, output and a compact feedback rubric. This lets you assess whether the solution works, how readable the code is and which thinking concept the student uses.",
+  "Beoordelingsrubriek": "Assessment rubric",
+  "Cursusinhoud": "Course content",
+  "Alle oefeningen staan als losse bestanden in de map": "All exercises are stored as separate files in",
+  ". Daardoor hoef je niet in één grote oefenlijst te werken. De oefeningmaker helpt om nieuwe oefeningen in de juiste structuur klaar te zetten.": ". This avoids working in one large exercise list. The exercise creator helps prepare new exercises in the right structure.",
+  "Hoofdstukken, opdrachten, startcode en testcases volgen een vaste mappenstructuur. Dat maakt aanpassen en uitbreiden overzichtelijker.": "Chapters, assignments, starter code and test cases follow a consistent folder structure, making them easier to adapt and extend.",
+  "Via de oefeningmaker kan je een opdracht voorbereiden, previewen en downloaden als uploadpakket voor je GitHub-fork.": "The exercise creator lets you prepare and preview an assignment and download it as an upload package for your GitHub fork.",
+  "Start de leeromgeving of open de oefeningmaker om eigen opdrachten voor je fork voor te bereiden.": "Start the learning environment or open the exercise creator to prepare your own assignments for your fork.",
+  "Licht en vlot": "Light and nimble",
+  // generated:translations
+  "Plaats in de leerlijn": "Place in the learning path",
+  "Van platformen naar projecten.": "From platforms to projects.",
+  "De platformen bouwen het computationeel denken op. De projecten gebruiken dat denken in een vakoverschrijdende opdracht waarin leerlingen bouwen, meten, testen en besluiten.": "The platforms build computational thinking. The projects use that thinking in a cross-curricular assignment in which students build, measure, test and conclude.",
+  "Leerlijn van platformen en projecten": "Learning path of platforms and projects",
+  "Leren computationeel denken": "Learning computational thinking",
+  "van blokken naar code, van code naar onderzoek": "from blocks to code, from code to research",
+  "Blockly": "Blockly",
+  "visueel denken in stappen.": "visual step-by-step thinking.",
+  "JavaScript": "JavaScript",
+  "logica in echte code.": "logic in real code.",
+  "HTML": "HTML",
+  "webpagina's structureren.": "structuring webpages.",
+  "Dodona": "Dodona",
+  "Python in de Klas met opvolging.": "Python in the Classroom with tracking.",
+  "Delphi": "Delphi",
+  "Python oefenen in de browser.": "Practice Python in the browser.",
+  "Smart Plants": "Smart Plants",
+  "Arduino, bodemvochtigheid, kalibratie en data.": "Arduino, soil moisture, calibration and data.",
+  "Robothand": "Robotic hand",
+  "Arduino, sensoren, servo's en beweging.": "Arduino, sensors, servos and movement.",
+  "Wind": "Wind",
+  "Micro:bit, energie, spanning en stroom.": "Micro:bit, energy, voltage and current.",
+  "Slimme vuilnisbak": "Smart bin",
+  "AI, beeldherkenning, data en microcontrollers.": "AI, image recognition, data and microcontrollers.",
+  "Zelflerende games": "Self-learning games",
+  "Aan de slag met machine learning": "Getting started with machine learning",
+  "Fijnstof": "Particulate matter",
+  "Arduino, luchtkwaliteit, data en postersessie.": "Arduino, air quality, data and poster session.",
+  "Platformen": "Platforms",
+  "STEaM-projecten": "STEaM projects",
+  "Dodona en Delphi": "Dodona and Delphi",
+  // /generated:translations
+  "Privacy en licentie": "Privacy and licence",
+  "Dit project gebruikt geen eigen analytics of advertentiecookies. Invoer, voortgang en resultaten worden in de browser verwerkt en kunnen lokaal op het toestel worden bewaard. Een download of export gebeurt alleen wanneer de gebruiker die zelf start. GitHub Pages registreert het IP-adres van bezoekers voor beveiligingsdoeleinden; externe diensten vallen onder het privacybeleid van hun aanbieder.": "This project does not use its own analytics or advertising cookies. Input, progress and results are processed in the browser and may be stored locally on the device. A download or export occurs only when the user initiates it. GitHub Pages logs visitors’ IP addresses for security purposes; external services are governed by their provider’s privacy policy.",
+  "Lees hoe GitHub Pages technische bezoekgegevens verwerkt.": "Read how GitHub Pages processes technical visitor data.",
+  "Educatief gebruik met naamsvermelding": "Educational use with attribution",
+  "Het oorspronkelijke projectmateriaal van Robbe Wulgaert mag gratis worden gebruikt, gekopieerd en aangepast voor onderwijs, op voorwaarde dat “Robbe Wulgaert – AI in de Klas” duidelijk zichtbaar wordt vermeld, waar redelijkerwijs mogelijk met een link naar het oorspronkelijke project. Commerciële verkoop, betaalde verspreiding, sublicentiëring of herverpakking als commercieel product is niet toegestaan zonder voorafgaande schriftelijke toestemming. Voor ander gebruik buiten onderwijs is ook voorafgaande schriftelijke toestemming nodig. Componenten van derden blijven onder hun eigen licenties vallen.": "Original project material by Robbe Wulgaert may be used, copied and adapted free of charge for education, provided that ‘Robbe Wulgaert – AI in de Klas’ is clearly displayed, where reasonably practical with a link to the original project. Commercial sale, paid distribution, sublicensing or repackaging as a commercial product is not permitted without prior written permission. Other uses outside education also require prior written permission. Third-party components remain subject to their own licences.",
+  "Lees de volledige licentievoorwaarden.": "Read the full licence terms.",
+  "© 2026 Robbe Wulgaert. Educatief gebruik met naamsvermelding; geen commerciële verspreiding.": "© 2026 Robbe Wulgaert. Educational use with attribution; no commercial distribution.",
+  "Spring naar inhoud": "Skip to content",
+  "Spring naar hoofdinhoud": "Skip to main content",
+  "Hoofdnavigatie": "Main navigation",
+  "Paginaonderdelen": "Page sections",
+  "Taalkeuze": "Language selection",
+  "Open navigatiemenu": "Open navigation menu",
+  "Opdracht": "Assignment",
+  "Werking": "How it works",
+  "Wat leer je?": "What will you learn?",
+  "Onderdelen": "Components",
+  "Familie": "Family",
+  "Voor leerkrachten": "For teachers",
+  "Leerkrachten": "Teachers",
+  "Leerlijn": "Learning path",
+  "Benodigdheden": "Materials",
+  "Privacy": "Privacy",
+  "Opstelling": "Setup",
+  "Gebruik": "Use",
+  "README": "README",
+  "Platform": "Platform",
+  "Pythia": "Pythia",
+  "Start leerplatform": "Start learning platform",
+  "Start platform": "Start platform",
+  "Menu": "Menu",
+  "Bekijk de opdracht": "View the assignment",
+  "Lees README": "Read README",
+  "Leerplatform": "Learning platform",
+  "Onderzoeksplatform": "Research platform",
+  "Oefeningmaker": "Exercise builder",
+  "Open oefeningmaker": "Open exercise builder",
+  "Slimme Vuilnisbak": "Smart Bin",
+  "Geen installatie of leerlingenaccount.": "No installation or student account.",
+  "Lokale bibliotheken voor grafieken en PDF-export.": "Local libraries for charts and PDF export.",
+  "Geschikt voor GitHub Pages.": "Suitable for GitHub Pages.",
+  "robbewulgaert.be": "robbewulgaert.be",
+  "AI in de Klas": "AI in de Klas",
+  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be",
+  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.",
+  "Robbe Wulgaert, AI in de Klas, robbewulgaert.be": "Robbe Wulgaert, AI in de Klas, robbewulgaert.be",
+  "Licentie": "License",
+  "Third-party notices": "Third-party notices",
+  "Contact": "Contact",
+  "JavaScript in de Klas": "JavaScript in the Classroom",
+  "Oefeningen maken": "Create exercises",
+  "Leer computationeel denken en programmeren in JavaScript": "Learn computational thinking and programming in JavaScript",
+  "JavaScript in de Klas is een kleine webomgeving voor leerlingen die computationeel denken en JavaScript willen oefenen. De focus ligt op snelle inzetbaarheid: opgave, editor en uitvoer in één scherm, met opdrachten rond selectie, herhaling, turtle graphics en eenvoudige grafieken.": "JavaScript in the Classroom is a small web environment for students practising computational thinking and JavaScript. It focuses on quick classroom use: assignment, editor and output in one screen, with exercises on selection, loops, turtle graphics and simple charts.",
+  "Opgave · Editor · Canvas": "Assignment · Editor · Canvas",
+  "Vierkant klaar": "Square done",
+  "Bewust light.": "Deliberately light.",
+  "Snel starten, lokaal oefenen en eenvoudig exporteren.": "Start quickly, practise locally and export easily.",
+  "Opgave, editor en uitvoer naast elkaar.": "Assignment, editor and output side by side.",
+  "Leerlingen schrijven code, voeren die uit en zien meteen wat er gebeurt in de console of op het canvas. De omgeving is bedoeld voor korte oefenmomenten, studie-uren en lessen waarin programmeren een beperkt deel van de beschikbare tijd inneemt.": "Students write code, run it and immediately see what happens in the console or on the canvas. The environment is designed for short practice moments, study periods and lessons where programming takes up only part of the available time.",
+  "Lees de opdracht": "Read the assignment",
+  "Elke oefening bevat startcode en een afgebakende opdracht. Leerlingen kunnen meteen in de browser beginnen.": "Each exercise contains starter code and a clearly defined assignment. Students can begin directly in the browser.",
+  "Voer de code uit": "Run the code",
+  "De uitvoer verschijnt in dezelfde pagina. Dat kan console-output zijn, een tekening met turtle graphics of een eenvoudige canvasopdracht.": "The output appears on the same page. It can be console output, a turtle graphics drawing or a simple canvas task.",
+  "Stuur bij": "Improve",
+  "Statusicoontjes, testcases en foutmeldingen helpen leerlingen hun oplossing te verbeteren zonder dat syntax meteen de volledige aandacht opeist.": "Status icons, test cases and error messages help students improve their solution without syntax immediately taking all the attention.",
+  "Browseromgeving": "Browser environment",
+  "Turtle en canvas": "Turtle and canvas",
+  "Leerlingen kunnen algoritmes zichtbaar maken via een tekenraster. Dat helpt vooral bij herhaling, volgorde, hoeken en patronen.": "Students can make algorithms visible on a drawing grid. This especially helps with loops, order, angles and patterns.",
+  "Opslag in de browser": "Storage in the browser",
+  "Voortgang wordt lokaal bewaard via de browser. Dat werkt vlot voor losse oefenmomenten en zelfstandig oefenen.": "Progress is stored locally in the browser. That works well for separate practice moments and independent work.",
+  "Voor beperkte lestijd, extra oefening en studie.": "For limited lesson time, extra practice and study.",
+  "Evaluatie in het PDF-rapport": "Evaluation in the PDF report",
+  "Functionaliteit": "Functionality",
+  "Leesbaarheid": "Readability",
+  "Programmeerkernconcept": "Core programming concept",
+  "Vakkennis / wiskunde": "Subject knowledge / mathematics",
+  "Creativiteit": "Creativity",
+  "hoofdstukken": "chapters",
+  "oefeningen": "exercises",
+  "concepten": "concepts",
+  "figuren plotten": "plotting shapes",
+  "Oefeningen aanpassen": "Adapting exercises",
+  "Ervaren met GitHub? Maak je eigen oefeningen.": "Comfortable with GitHub? Create your own exercises.",
+  "Contentstructuur": "Content structure",
+  "Outputtests voor gewone console-uitvoer.": "Output tests for regular console output.",
+  "Inputtests.": "Input tests.",
+  "Canvascontroles voor tekenopdrachten.": "Canvas checks for drawing assignments.",
+  "Manuele oefeningen voor open opdrachten.": "Manual exercises for open-ended assignments.",
+  "Test de webtool in je browser.": "Test the web tool in your browser.",
+  "Delphi voor Python": "Delphi for Python"
+};
+  const META = {
+  "title": "JavaScript in the Classroom",
+  "description": "JavaScript in the Classroom is a lightweight browser environment for computational thinking and JavaScript, without installation or accounts."
+};
+  const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT", "SELECT", "OPTION"]);
+  const TEXT_NODES = [];
+  const ATTR_NODES = [];
+  let originalTitle = document.title;
+  let originalDescription = null;
+  const normalize = (value) => String(value || "").replace(/\s+/g, " ").trim();
+  function preserveOuterWhitespace(original, translated) {
+    const start = original.match(/^\s*/)?.[0] || "";
+    const end = original.match(/\s*$/)?.[0] || "";
+    return start + translated + end;
+  }
+  function collectTextNodes() {
+    if (TEXT_NODES.length) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent || SKIP_TAGS.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        return normalize(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      TEXT_NODES.push({ node, original: node.nodeValue, key: normalize(node.nodeValue) });
+    }
+  }
+  function collectAttributes() {
+    if (ATTR_NODES.length) return;
+    document.querySelectorAll("[aria-label], [alt], [title], [placeholder]").forEach((element) => {
+      ["aria-label", "alt", "title", "placeholder"].forEach((attr) => {
+        if (element.hasAttribute(attr)) {
+          const original = element.getAttribute(attr);
+          ATTR_NODES.push({ element, attr, original, key: normalize(original) });
+        }
+      });
+    });
+  }
+  function setLanguage(language) {
+    const useEnglish = language === "en";
+    collectTextNodes();
+    collectAttributes();
+    TEXT_NODES.forEach((entry) => {
+      const translated = TRANSLATIONS[entry.key];
+      entry.node.nodeValue = useEnglish && translated ? preserveOuterWhitespace(entry.original, translated) : entry.original;
+    });
+    ATTR_NODES.forEach((entry) => {
+      const translated = TRANSLATIONS[entry.key];
+      entry.element.setAttribute(entry.attr, useEnglish && translated ? translated : entry.original);
+    });
+    document.documentElement.lang = useEnglish ? "en" : "nl-BE";
+    document.title = useEnglish && META.title ? META.title : originalTitle;
+    const description = document.querySelector('meta[name="description"]');
+    if (description) {
+      if (originalDescription === null) originalDescription = description.getAttribute("content") || "";
+      description.setAttribute("content", useEnglish && META.description ? META.description : originalDescription);
+    }
+    document.querySelectorAll("[data-language-choice]").forEach((button) => {
+      const isActive = button.dataset.languageChoice === (useEnglish ? "en" : "nl");
+      button.classList.toggle("is-active", isActive);
+      if (isActive) button.setAttribute("aria-current", "page"); else button.removeAttribute("aria-current");
+    });
+    try { localStorage.setItem(LANGUAGE_KEY, useEnglish ? "en" : "nl"); } catch (error) {}
+  }
+  function initLanguageToggle() {
+    try { localStorage.setItem(LANGUAGE_KEY, "en"); } catch (error) {}
+    document.dispatchEvent(new CustomEvent("landing:language-ready"));
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initLanguageToggle);
+  else initLanguageToggle();
+})();
+</script>
+</body>
+</html>
