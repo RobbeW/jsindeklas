@@ -17,6 +17,23 @@ body.split-workspace #main-layout {
   overflow: hidden;
 }
 
+.practice-storage-warning {
+  flex: 1 0 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: .55rem .75rem;
+  border-inline-start: 3px solid currentColor;
+  border-radius: 10px;
+  color: #902236;
+  background: #fff2f4;
+  font-size: .9rem;
+}
+
+body.dark .practice-storage-warning {
+  color: #ffd2d9;
+  background: #3c232b;
+}
+
 body.split-workspace :is(#editor-pane, #canvas-pane) {
   display: flex;
   flex-direction: column;
@@ -229,8 +246,10 @@ body.split-workspace #canvas-tab.is-canvas-pulsing {
   animation: canvas-output-pulse var(--motion-slow, 520ms) var(--ease-out, ease-out) 2;
 }
 
+body.dark.split-workspace #canvas-tab { --canvas-pulse-color: var(--brand-aqua); }
+
 @keyframes canvas-output-pulse {
-  50% { box-shadow: 0 0 0 4px var(--brand-purple); }
+  50% { box-shadow: 0 0 0 4px var(--canvas-pulse-color, var(--brand-purple)); }
 }
 
 @media (prefers-reduced-motion: reduce) {

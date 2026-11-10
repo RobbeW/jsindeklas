@@ -291,7 +291,7 @@ async function checkLifecycle(browser, baseUrl) {
           localStorage.setItem(key, JSON.stringify(legacy));
         }, key);
         await page.addInitScript(() => {
-          Storage.prototype.setItem = () => { throw new Error("synthetische opslagfout"); };
+          Storage.prototype.setItem = () => { throw new DOMException("synthetic quota", "QuotaExceededError"); };
         });
         await page.reload();
         await page.locator("#timed-complete[open]").waitFor({ state: "visible" });
@@ -328,6 +328,34 @@ async function checkLifecycle(browser, baseUrl) {
     assert(!Object.values(state.drafts).includes("niet opgeslagen concept") && Object.values(state.drafts).includes("tweede concept"), "Herstart wijzigde de verkeerde concepten");
   });
   console.log("[OK] opslagfout en herstart van één oefening");
+  await withSyntheticPage(browser, baseUrl, async page => {
+    const errors = [];
+    page.on("pageerror", error => errors.push(String(error)));
+    await page.addInitScript(() => {
+      window.syntheticRejections = [];
+      window.addEventListener("unhandledrejection", event => window.syntheticRejections.push(String(event.reason)));
+    });
+    await launchTimed(page, baseUrl, test);
+    const deadline = await page.evaluate(() => timedState.deadline);
+    await page.evaluate(() => {
+      editor.setValue('console.log("quota finalisatie");');
+      Storage.prototype.setItem = function () { throw new DOMException("synthetic quota", "QuotaExceededError"); };
+    });
+    await page.clock.setFixedTime(new Date(deadline));
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.locator("#timed-complete[open]").waitFor({ state: "visible" });
+    assert(await page.locator("#timed-download").isVisible(), "Download ontbreekt na finalisatie bij opslagquotum");
+    if (process.env.JSIK_JSPDF_PATH) {
+      const download = page.waitForEvent("download");
+      await page.locator("#timed-download").click();
+      const pdf = fs.readFileSync(await (await download).path());
+      assert(pdf.subarray(0, 5).toString() === "%PDF-" && pdf.includes(Buffer.from("quota finalisatie")),
+        "Tijd-PDF mist het concept bij opslagquotum");
+    }
+    const rejections = await page.evaluate(() => window.syntheticRejections);
+    assert(errors.length === 0 && rejections.length === 0, `Onverwerkte fouten bij tijdsfinalisatie: ${errors.concat(rejections).join(" | ")}`);
+  });
+  console.log("[OK] finalisatie bij opslagquotum");
   await withSyntheticPage(browser, baseUrl, async page => {
     let calls = 0;
     await page.route("**/jspdf.umd.min.js", route => {
@@ -412,6 +440,12 @@ async function checkPracticeMode(browser, baseUrl) {
     const canvasTab = page.getByRole("tab", { name: "Canvas" });
     assert(await consoleTab.getAttribute("aria-selected") === "true", "Oefenmodus start niet op de console");
     assert(await page.locator("#canvas-pane #console-output").isVisible(), "Oefenmodus mist de gedeelde console");
+    const menu = page.locator(".toolbar #menu-tab");
+    await menu.click();
+    assert(await menu.getAttribute("aria-expanded") === "true", "Menu opent niet vanuit de werkbalk");
+    await page.keyboard.press("Escape");
+    assert(await menu.getAttribute("aria-expanded") === "false" &&
+      await menu.evaluate(button => document.activeElement === button), "Menu sluit zonder focusherstel");
     await page.locator("#export-pdf").click();
     assert(await page.locator("#pdf-modal").isVisible(), "Oefenmodus opent de bestaande exportdialoog niet");
     await page.locator("#close-pdf-modal").click();
@@ -459,6 +493,59 @@ async function checkPracticeMode(browser, baseUrl) {
     }
   });
   console.log("[OK] gedeelde oefenmodus, rondleiding, canvassignaal en PDF-export");
+}
+
+async function checkPracticeQuota(browser, baseUrl) {
+  await withSyntheticPage(browser, baseUrl, async page => {
+    const errors = [];
+    page.on("pageerror", error => errors.push(String(error)));
+    await page.addInitScript(() => {
+      window.syntheticRejections = [];
+      window.addEventListener("unhandledrejection", event => window.syntheticRejections.push(String(event.reason)));
+    });
+    await page.goto(`${baseUrl}/platform.html`);
+    await page.waitForFunction(() => document.getElementById("course-loading").classList.contains("is-hidden"));
+    const code = await page.evaluate(() => {
+      isDirty = false;
+      switchChapter(chapters.findIndex(chapter => chapter.id === "ch01"));
+      const expected = chapters[currentChapterIdx].exercises[0].tests[0].stdout;
+      window.originalPracticeSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function () { throw new DOMException("synthetic quota", "QuotaExceededError"); };
+      const value = `// quota-snapshot-marker\nconsole.log(${JSON.stringify(expected)});`;
+      editor.setValue(value);
+      return value;
+    });
+    await page.locator("#run-code").click();
+    await page.locator("#eval-modal-pill.ok").waitFor({ state: "visible" });
+    await page.keyboard.press("Escape");
+    await page.locator("#eval-modal").waitFor({ state: "hidden" });
+    await page.locator("#practice-storage-warning").waitFor({ state: "visible" });
+    await page.evaluate(() => switchExercise(1));
+    await page.waitForFunction(() => currentExerciseIdx === 1);
+    await page.evaluate(() => switchExercise(0));
+    await page.waitForFunction(() => currentExerciseIdx === 0);
+    assert(await page.evaluate(() => editor.getValue()) === code, "Concept ontbreekt na wisselen bij opslagquotum");
+    assert(await page.locator("#practice-storage-warning").isVisible(), "Opslagwaarschuwing verdwijnt na wisselen");
+    if (process.env.JSIK_JSPDF_PATH) {
+      await page.locator("#export-pdf").click();
+      await page.locator("#modal-naam").fill("Demo Leerling");
+      await page.locator("#modal-klas").fill("TEST");
+      const download = page.waitForEvent("download");
+      await page.locator("#modal-ok").click();
+      const pdf = fs.readFileSync(await (await download).path());
+      assert(pdf.subarray(0, 5).toString() === "%PDF-", "PDF-reeks met vluchtige uitvoering ontbreekt");
+      assert(pdf.includes(Buffer.from("quota-snapshot-marker")), "PDF-reeks mist de vluchtig bewaarde uitvoering");
+    }
+    await page.evaluate(() => { Storage.prototype.setItem = window.originalPracticeSetItem; });
+    await page.locator("#run-code").click();
+    await page.locator("#eval-modal-pill.ok").waitFor({ state: "visible" });
+    assert(await page.evaluate(() => localStorage.getItem(`jsprog-${currentChapterIdx}-0`)) === code,
+      "Opgeslagen concept werd niet hersteld nadat opslagruimte vrijkwam");
+    assert(!await page.locator("#practice-storage-warning").isVisible(), "Opslagwaarschuwing blijft na herstel zichtbaar");
+    const rejections = await page.evaluate(() => window.syntheticRejections);
+    assert(errors.length === 0 && rejections.length === 0, `Onverwerkte fouten bij opslagquotum: ${errors.concat(rejections).join(" | ")}`);
+  });
+  console.log("[OK] oefenmodus blijft werken bij opslagquotum");
 }
 
 async function checkTimedWorkspace(browser, baseUrl) {
@@ -698,6 +785,7 @@ async function main() {
     await configurePage(page, baseUrl);
     await checkFallbacks(browser, baseUrl);
     await checkPracticeMode(browser, baseUrl);
+    await checkPracticeQuota(browser, baseUrl);
     await checkTimedWorkspace(browser, baseUrl);
     await checkLifecycle(browser, baseUrl);
     for (const assessment of ASSESSMENTS) {
