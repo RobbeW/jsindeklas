@@ -1,0 +1,186 @@
+.timed-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+
+.timed-controls[hidden],
+.timed-nudge[hidden],
+.topbar.learning-header .toolbar > [hidden] {
+  display: none;
+}
+
+.timed-clock,
+.timed-button,
+.timed-card {
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.timed-clock,
+.timed-button {
+  border-radius: 12px;
+  padding: .6rem .85rem;
+  font: inherit;
+}
+
+.timed-clock strong {
+  display: inline-block;
+  min-inline-size: 6ch;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.timed-clock[data-urgency] {
+  border-color: var(--timed-warning);
+  color: var(--timed-warning);
+}
+
+.timed-clock[data-urgency="5"] {
+  box-shadow: inset 0 0 0 1px var(--timed-warning);
+}
+
+.timed-clock.is-pulsing::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--timed-warning);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: timed-pulse var(--motion-slow) var(--ease-out) 2;
+  opacity: 0;
+}
+
+.timed-clock {
+  position: relative;
+}
+
+@keyframes timed-pulse {
+  from { opacity: .9; transform: scale(.98); }
+  to { opacity: 0; transform: scale(1.04); }
+}
+
+.timed-button {
+  min-height: 42px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.timed-button:hover:not(:disabled) { transform: translateY(-1px); }
+.timed-button:disabled { opacity: .6; cursor: default; }
+.timed-button:focus-visible,
+.timed-form input:focus-visible {
+  outline: 3px solid var(--timed-focus, var(--brand-purple));
+  outline-offset: 3px;
+}
+
+.timed-button-primary {
+  background: var(--brand-purple);
+  border-color: var(--brand-purple);
+  color: #fff;
+}
+
+.timed-button-primary:hover:not(:disabled) { background: var(--brand-purple-dark); }
+
+.timed-dialog,
+.timed-nudge,
+.timed-controls {
+  --timed-warning: #a02136;
+  --timed-focus: #5200ff;
+}
+
+.timed-dialog,
+.timed-nudge {
+  box-sizing: border-box;
+}
+
+.timed-dialog {
+  inline-size: min(32rem, calc(100% - 2rem));
+  max-block-size: calc(100% - 2rem);
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.timed-dialog::backdrop { background: rgb(22 0 51 / .5); }
+.timed-card { border-radius: 16px; padding: clamp(1rem, 4vw, 2rem); }
+.timed-card h1, .timed-card h2, .timed-nudge p { margin-block-start: 0; }
+.timed-card p, .timed-card li, .timed-nudge p { line-height: 1.45; }
+.timed-prompt-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+#timed-save-status { color: var(--timed-warning); }
+#timed-save-status:empty { display: none; }
+.timed-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+.timed-form { display: grid; gap: .5rem; }
+.timed-form input {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 42px;
+  padding: .55rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--card);
+}
+
+.timed-complete {
+  margin: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  max-block-size: none;
+  border-radius: 0;
+  padding: 1rem;
+}
+
+.timed-complete[open] { display: grid; place-items: center; }
+.timed-complete .timed-card { inline-size: min(100%, 32rem); box-sizing: border-box; }
+
+.timed-nudge {
+  position: fixed;
+  z-index: 4000;
+  inset-inline-end: 1rem;
+  inset-block-end: 4.25rem;
+  inline-size: min(23rem, calc(100% - 2rem));
+  padding: 1rem;
+  border: 1px solid var(--timed-warning);
+  border-radius: 14px;
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.timed-sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+body.dark :is(.timed-dialog, .timed-nudge, .timed-controls) {
+  --bg: #191526;
+  --card: #242031;
+  --ink: #f8f7f3;
+  --border: #70647f;
+  --timed-warning: #ffabb7;
+  --timed-focus: #3dffd0;
+}
+
+@media (max-width: 640px) {
+  .timed-controls :is(.timed-clock, .timed-button) {
+    padding-inline: .65rem;
+    font-size: .9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timed-clock.is-pulsing::after { animation: none; }
+  .timed-button:hover:not(:disabled) { transform: none; }
+}

@@ -13,6 +13,7 @@
 
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="evaluaties/timed.css">
   <title>JavaScript in de Klas</title>
   <!-- Externe bron: CodeMirror 5 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
@@ -125,7 +126,7 @@
 
   <!-- PDF export libs (een keer inladen) -->
   <!-- Externe bronnen: jsPDF en html2canvas -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script id="pdf-library" src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
@@ -1955,6 +1956,7 @@ label, button, table, th, td,
         <span id="course-loading-bar" class="course-loading-bar"></span>
       </div>
       <p id="course-loading-detail" class="course-loading-detail">Catalogus openen...</p>
+      <button type="button" id="timed-load-retry" class="timed-button" hidden>Opnieuw proberen</button>
     </div>
   </div>
 
@@ -1977,7 +1979,84 @@ label, button, table, th, td,
       <button class="brand-btn" id="export-pdf" title="Exporteer reeks naar PDF">PDF-reeks</button>
       <button class="brand-btn" id="reset-progress" title="Wis opgeslagen voortgang">Voortgang wissen</button>
     </div>
+    <div id="timed-controls" class="timed-controls" hidden>
+      <div id="timed-clock" class="timed-clock" role="timer" aria-live="off">
+        Resterende tijd <strong id="timed-clock-value">–</strong>
+      </div>
+      <button type="button" id="timed-submit" class="timed-button timed-button-primary">Indienen (PDF)</button>
+      <button type="button" id="timed-restart" class="timed-button">Deze oefening herstarten</button>
+      <button type="button" id="timed-reload-prompt" class="timed-button" hidden>Opdrachttekst opnieuw laden</button>
+      <span id="timed-save-status" role="status"></span>
+    </div>
   </header>
+
+  <p id="timed-announcement" class="timed-sr-only" role="status"></p>
+  <aside id="timed-nudge" class="timed-nudge" aria-label="Resterende tijd" hidden>
+    <p id="timed-nudge-message"></p>
+    <div class="timed-actions">
+      <button type="button" id="timed-nudge-dismiss" class="timed-button">Verder werken</button>
+      <button type="button" id="timed-nudge-submit" class="timed-button timed-button-primary">Indienen (PDF)</button>
+    </div>
+  </aside>
+
+  <dialog id="timed-start" class="timed-dialog" aria-labelledby="timed-start-title">
+    <div class="timed-card">
+      <h1 id="timed-start-title">Start evaluatie</h1>
+      <p id="timed-duration"></p>
+      <p id="timed-ready-message" role="status"></p>
+      <form id="timed-start-form" class="timed-form">
+        <label for="timed-name">Naam</label>
+        <input id="timed-name" name="student" type="text" maxlength="100" autocomplete="off" required autofocus>
+        <label for="timed-class">Klas</label>
+        <input id="timed-class" name="class" type="text" maxlength="40" autocomplete="off" required>
+        <div class="timed-actions">
+          <button type="submit" id="timed-start-button" class="timed-button timed-button-primary" disabled>Start evaluatie</button>
+          <button type="button" id="timed-retry" class="timed-button" hidden>Opnieuw proberen</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="timed-review" class="timed-dialog" aria-labelledby="timed-review-title">
+    <div class="timed-card">
+      <h2 id="timed-review-title">Klaar om in te dienen?</h2>
+      <p>Je krijgt een PDF van je huidige werk. Na bevestiging kan je je code niet meer wijzigen.</p>
+      <ol id="timed-review-exercises"></ol>
+      <form method="dialog" class="timed-actions">
+        <button value="continue" class="timed-button" autofocus>Verder werken</button>
+        <button type="button" id="timed-confirm-submit" class="timed-button timed-button-primary">Indienen (PDF)</button>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="timed-restart-dialog" class="timed-dialog" aria-labelledby="timed-restart-title">
+    <div class="timed-card">
+      <h2 id="timed-restart-title">Deze oefening herstarten?</h2>
+      <p>Je vervangt je code door de startcode en wist de uitvoeringen van deze oefening. De tijd blijft lopen.</p>
+      <form method="dialog" class="timed-actions">
+        <button value="cancel" class="timed-button" autofocus>Annuleren</button>
+        <button type="button" id="timed-confirm-restart" class="timed-button timed-button-primary">Herstart oefening</button>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="timed-prompt-dialog" class="timed-dialog" aria-labelledby="timed-prompt-title">
+    <div class="timed-card">
+      <h2 id="timed-prompt-title">Opdrachttekst</h2>
+      <p id="timed-prompt-text" class="timed-prompt-text"></p>
+      <form method="dialog"><button class="timed-button" autofocus>Sluiten</button></form>
+    </div>
+  </dialog>
+
+  <dialog id="timed-complete" class="timed-dialog timed-complete" aria-labelledby="timed-complete-title">
+    <div class="timed-card">
+      <h1 id="timed-complete-title" tabindex="-1">Tijd is om</h1>
+      <p id="timed-download-status" role="status"></p>
+      <p id="timed-interrupted" hidden>Een uitvoering was nog bezig toen de tijd verstreek. Je laatste code staat in de PDF.</p>
+      <p>Upload je PDF in het schoolplatform met je schoolaccount. Controleer samen met je leerkracht of het bestand is ontvangen vóór je vertrekt.</p>
+      <button type="button" id="timed-download" class="timed-button timed-button-primary">Download PDF</button>
+    </div>
+  </dialog>
 
   <!-- Slide-in Course Menu -->
   <div id="course-menu" class="course-menu" tabindex="-1" aria-label="Hoofdmenu">
@@ -2200,6 +2279,7 @@ fillCircle(20);</code></pre>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/mode/javascript/javascript.min.js"></script>
   <script src="rgbcolor.js"></script>
   <script src="library.js"></script>
+  <script src="evaluaties/timed-attempt.js"></script>
 
   <script>
   // Course content is loaded directly from source files in content/.
@@ -2235,6 +2315,9 @@ fillCircle(20);</code></pre>
     }
     if (typeof (exercise && exercise.theoryPath) === "string") {
       normalized.theoryPath = exercise.theoryPath;
+    }
+    if (typeof exercise?.starterSource === "string") {
+      normalized.starterSource = exercise.starterSource;
     }
 
     return normalized;
@@ -2297,12 +2380,12 @@ fillCircle(20);</code></pre>
 
   let chapters = [];
   window.JSIK_COURSE_CONTENT_SOURCE = "not-loaded";
-  const COURSE_CONTENT_ROOT = String(window.JSIK_CONTENT_ROOT || "content")
+  let COURSE_CONTENT_ROOT = String(window.JSIK_CONTENT_ROOT || "content")
     .trim()
     .replace(/\\/g, "/")
     .replace(/\/+/g, "/")
     .replace(/^\/+|\/+$/g, "") || "content";
-  const COURSE_FETCH_CACHE = ["default", "no-store", "reload", "no-cache", "force-cache"].includes(String(window.JSIK_COURSE_FETCH_CACHE || "").toLowerCase())
+  let COURSE_FETCH_CACHE = ["default", "no-store", "reload", "no-cache", "force-cache"].includes(String(window.JSIK_COURSE_FETCH_CACHE || "").toLowerCase())
     ? String(window.JSIK_COURSE_FETCH_CACHE).toLowerCase()
     : "default";
 
@@ -2397,6 +2480,7 @@ fillCircle(20);</code></pre>
       id: String(exerciseMeta.id || _dirnamePosix(exerciseJsonPath).split("/").pop() || ""),
       title: String(exerciseMeta.title || ""),
       starterCode,
+      starterSource: exerciseMeta.starterPath ? _joinPosix(exerciseDir, exerciseMeta.starterPath) : "",
     };
 
     if (typeof exerciseMeta.type === "string") {
@@ -2538,12 +2622,13 @@ fillCircle(20);</code></pre>
        2) TOETS-CONTEXT: eenmalige reset van localStorage per TEST_ID
        ========================================================= */
 
-    const TEST_MODE  = !!window.JSIK_TEST_MODE;
+    let TEST_MODE = !!window.JSIK_TEST_MODE;
+    const TIMED_REQUESTED = Boolean(window.JSIK_ACTIVE_ASSESSMENT_ID);
     const TEST_LABEL = window.JSIK_TEST_LABEL || "default";
     const TEST_ID    = TEST_MODE ? `jsik-test-${TEST_LABEL}` : `jsik-normal`;
     const TEST_INIT_KEY = `jsprog-test-init-${TEST_ID}`;
-    const REVEAL_EXPECTED_ON_FAIL = !!window.JSIK_REVEAL_EXPECTED_ON_FAIL;
-    const ASSIGNMENT_TEXT_MODE = String(window.JSIK_ASSIGNMENT_TEXT_MODE || "empty").trim().toLowerCase();
+    let REVEAL_EXPECTED_ON_FAIL = !!window.JSIK_REVEAL_EXPECTED_ON_FAIL;
+    let ASSIGNMENT_TEXT_MODE = String(window.JSIK_ASSIGNMENT_TEXT_MODE || "empty").trim().toLowerCase();
 
     /* =======================
        SNAPSHOT STORAGE (voor batch export)
@@ -2560,17 +2645,21 @@ fillCircle(20);</code></pre>
     const _SAVE_INDEX_KEY = `${_SAVE_PREFIX}-index`;
 
     // Downscale + JPEG to reduce localStorage bloat
-    function _canvasToJpegDataUrl(canvas, quality = 0.72, maxEdge = 420){
+    function _canvasToJpegDataUrl(canvas, quality = 0.72, maxEdge = 420, background = ""){
       try{
         const w = canvas.width, h = canvas.height;
         const scale = Math.min(1, maxEdge / Math.max(w, h));
-        if (scale >= 1){
+        if (scale >= 1 && !background){
           return canvas.toDataURL('image/jpeg', quality);
         }
         const tmp = document.createElement('canvas');
         tmp.width = Math.max(1, Math.round(w * scale));
         tmp.height = Math.max(1, Math.round(h * scale));
         const ctx = tmp.getContext('2d');
+        if (background) {
+          ctx.fillStyle = background;
+          ctx.fillRect(0, 0, tmp.width, tmp.height);
+        }
         ctx.drawImage(canvas, 0, 0, tmp.width, tmp.height);
         return tmp.toDataURL('image/jpeg', quality);
       } catch (e){
@@ -2825,7 +2914,7 @@ function saveCompletedExerciseSnapshot(status /* "success" | "fail" */, evalResu
 }
 
     (function firstLoadResetForThisTest(){
-      if (!TEST_MODE) return;
+      if (!TEST_MODE || TIMED_REQUESTED) return;
       try{
         if (localStorage.getItem(TEST_INIT_KEY)) return;
 
@@ -2884,6 +2973,7 @@ function saveCompletedExerciseSnapshot(status /* "success" | "fail" */, evalResu
     }
 
     function startWerkTimer(){
+      if (TIMED_REQUESTED) return;
       if (_workTimer.running) return;
       _workTimer.running = true;
       _workTimer.lastStart = Date.now();
@@ -2911,6 +3001,10 @@ function saveCompletedExerciseSnapshot(status /* "success" | "fail" */, evalResu
     function updateMetricsUI(){
       const el = document.getElementById("metrics");
       if (!el) return;
+      if (TIMED_REQUESTED) {
+        el.textContent = `Pogingen: ${timedRunForCurrentExercise()?.pogingen || 0}`;
+        return;
+      }
       const basisMs = getWerkTijdMs();
       const liveMs  = _workTimer.running ? (Date.now() - _workTimer.lastStart) : 0;
       el.textContent = `Pogingen: ${getPogingen()} | Tijd: ${formatDuur(basisMs + liveMs)}`;
@@ -2983,6 +3077,7 @@ document.addEventListener("visibilitychange", () => {
     }
 
     function renderExerciseProgress(){
+      const restoreFocus = TIMED_REQUESTED && progressBar.contains(document.activeElement);
       progressBar.innerHTML = "";
       if (!chapters[currentChapterIdx] || !Array.isArray(chapters[currentChapterIdx].exercises)) {
         return;
@@ -2995,9 +3090,15 @@ document.addEventListener("visibilitychange", () => {
         btn.textContent = idx + 1;
         btn.type = "button";
         btn.title = exercise.title || `Oefening ${idx + 1}`;
+        if (TIMED_REQUESTED) {
+          btn.setAttribute("aria-label", btn.title);
+          if (idx === currentExerciseIdx) btn.setAttribute("aria-current", "step");
+        }
 
         const evalKey = evalKeyFor(currentChapterIdx, idx);
-        const evalStatus = localStorage.getItem(evalKey);
+        const evalStatus = TIMED_REQUESTED
+          ? timedState?.runs?.[timedExerciseKey(currentChapterIdx, idx)]?.evalStatus
+          : localStorage.getItem(evalKey);
         if (evalStatus === "success") {
           btn.style.background = "#3dffd0";
           btn.style.color = "#23272e";
@@ -3007,8 +3108,10 @@ document.addEventListener("visibilitychange", () => {
         }
 
         btn.onclick = () => switchExercise(idx);
+        if (TIMED_REQUESTED && timedRunInFlight) btn.disabled = true;
         progressBar.appendChild(btn);
       });
+      if (restoreFocus) progressBar.querySelector("[aria-current=step]")?.focus();
     }
 
     function isTourExercise(exercise){
@@ -3417,6 +3520,364 @@ document.addEventListener("visibilitychange", () => {
 
     let editor = null;
     let isDirty = false;
+    let timedAssessment = null;
+    let timedStore = null;
+    let timedState = null;
+    let timedSaveFailed = false;
+    let timedLoadingExercise = false;
+    let timedRunInFlight = false;
+    let timedClockInterval = null;
+    let timedLastWarning = null;
+    let timedDownloadUrl = "";
+
+    async function configureTimedAssessment(){
+      const config = await window.JSIKTimedAttempt.loadConfig(window.JSIK_ACTIVE_ASSESSMENT_ID);
+      if (!/^evaluaties\/content\/[a-zA-Z0-9_-]+$/.test(config.contentRoot) || config.testMode !== true) {
+        throw new Error("De inhoud van deze evaluatie is niet juist ingesteld.");
+      }
+      timedAssessment = config;
+      COURSE_CONTENT_ROOT = window.JSIK_CONTENT_ROOT = config.contentRoot;
+      COURSE_FETCH_CACHE = window.JSIK_COURSE_FETCH_CACHE = "no-store";
+      TEST_MODE = window.JSIK_TEST_MODE = true;
+      REVEAL_EXPECTED_ON_FAIL = window.JSIK_REVEAL_EXPECTED_ON_FAIL = false;
+      ASSIGNMENT_TEXT_MODE = window.JSIK_ASSIGNMENT_TEXT_MODE = config.assignmentTextMode;
+      window.JSIK_ENABLE_MENU = Boolean(config.enableMenu);
+      window.JSIK_TEST_LABEL = config.testLabel;
+      window.JSIK_ACTIVE_ASSESSMENT_TITLE = document.title = config.title;
+    }
+
+    function timedExerciseKey(chapterIdx = currentChapterIdx, exerciseIdx = currentExerciseIdx){
+      return `${chapters[chapterIdx].id}/${chapters[chapterIdx].exercises[exerciseIdx].id}`;
+    }
+
+    function timedRunForCurrentExercise(){
+      if (!timedState?.runs || !chapters[currentChapterIdx]?.exercises?.[currentExerciseIdx]) return null;
+      return timedState.runs[timedExerciseKey()] || null;
+    }
+
+    function timedCanEdit(){
+      return Boolean(timedState && !timedState.final && Date.now() < timedState.deadline);
+    }
+
+    function saveTimedState(nextState){
+      timedState = nextState;
+      timedSaveFailed = !timedStore.commit(timedState);
+      document.getElementById("timed-save-status").textContent = timedSaveFailed
+        ? "Opslaan is niet gelukt. Laat dit tabblad open en vraag hulp aan je leerkracht."
+        : "";
+      return !timedSaveFailed;
+    }
+
+    function saveTimedDraft(){
+      if (!timedCanEdit()) {
+        updateTimedClock();
+        return false;
+      }
+      const key = timedExerciseKey();
+      const code = editor.getValue();
+      if (!timedSaveFailed && timedState.drafts[key] === code) return true;
+      return saveTimedState({ ...timedState, drafts: { ...timedState.drafts, [key]: code } });
+    }
+
+    function timedDisplayTime(ms){
+      const seconds = Math.max(0, Math.ceil(ms / 1000));
+      return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+    }
+
+    function updateTimedClock(){
+      if (!timedState || timedState.final) return;
+      const remaining = timedState.deadline - Date.now();
+      const time = timedDisplayTime(remaining);
+      const value = document.getElementById("timed-clock-value");
+      if (value.textContent !== time) value.textContent = time;
+      if (remaining <= 0) {
+        finalizeTimedAssessment("expiry");
+        return;
+      }
+      const ratio = remaining / (timedState.deadline - timedState.startedAt);
+      const warning = ratio <= .05 ? 5 : ratio <= .10 ? 10 : ratio <= .20 ? 20 : null;
+      if (warning === null || warning === timedLastWarning) return;
+      timedLastWarning = warning;
+      const clock = document.getElementById("timed-clock");
+      clock.dataset.urgency = String(warning);
+      clock.classList.remove("is-pulsing");
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        void clock.offsetWidth;
+        clock.classList.add("is-pulsing");
+      }
+      const message = `Nog ${time}.`;
+      document.getElementById("timed-announcement").textContent = message;
+      if (warning <= 10) {
+        document.getElementById("timed-nudge-message").textContent = warning === 5
+          ? `${message} Je werk wordt vastgezet zodra de tijd om is.`
+          : `${message} Wil je al indienen?`;
+        document.getElementById("timed-nudge").hidden = false;
+      }
+    }
+
+    function beginTimedWorkspace(){
+      const start = document.getElementById("timed-start");
+      if (start.open) start.close();
+      if (timedState.final) {
+        showTimedCompletion(false);
+        return;
+      }
+      updateTimedClock();
+      if (timedState.final) return;
+      editor.setOption("readOnly", false);
+      loadExercise();
+      renderExerciseProgress();
+      timedClockInterval = setInterval(updateTimedClock, 250);
+      editor.focus();
+    }
+
+    function timedPdfReady(){
+      return typeof window.jspdf?.jsPDF === "function";
+    }
+
+    function retryTimedPdfLibrary(){
+      const original = document.getElementById("pdf-library");
+      return new Promise((resolve, reject) => {
+        const retry = document.createElement("script");
+        retry.src = original.src;
+        retry.onload = () => { retry.remove(); resolve(); };
+        retry.onerror = () => { retry.remove(); reject(new Error("PDF-bibliotheek niet beschikbaar.")); };
+        document.head.append(retry);
+      });
+    }
+
+    async function prepareTimedStart(retryPdf = false){
+      const message = document.getElementById("timed-ready-message");
+      const button = document.getElementById("timed-start-button");
+      const retry = document.getElementById("timed-retry");
+      retry.disabled = true;
+      button.disabled = true;
+      try {
+        if (!timedStore) {
+          timedStore = await window.JSIKTimedAttempt.open(timedAssessment);
+          timedState = timedStore.state;
+        }
+        if (timedState) {
+          beginTimedWorkspace();
+          return;
+        }
+        if (!timedPdfReady() && retryPdf) await retryTimedPdfLibrary();
+        if (!timedPdfReady()) {
+          throw new Error("De PDF-bibliotheek kon niet laden. Probeer opnieuw vóór je start.");
+        }
+        message.textContent = "De oefeningen en PDF-export zijn klaar.";
+        button.disabled = false;
+        retry.hidden = true;
+      } catch (error) {
+        message.textContent = error.message;
+        retry.hidden = false;
+      } finally {
+        retry.disabled = false;
+      }
+    }
+
+    function setupTimedWorkspace(){
+      document.getElementById("export-pdf").hidden = true;
+      document.getElementById("reset-progress").hidden = true;
+      document.getElementById("timed-controls").hidden = false;
+      document.getElementById("timed-duration").textContent = `${timedAssessment.title} · ${timedAssessment.durationMinutes} minuten`;
+      const start = document.getElementById("timed-start");
+      start.addEventListener("cancel", event => event.preventDefault());
+      start.showModal();
+      document.getElementById("timed-retry").onclick = () => prepareTimedStart(true);
+      document.getElementById("timed-start-form").onsubmit = event => {
+        event.preventDefault();
+        const name = document.getElementById("timed-name").value.trim();
+        const className = document.getElementById("timed-class").value.trim();
+        const message = document.getElementById("timed-ready-message");
+        if (!name || !className) {
+          message.textContent = "Vul je naam en klas in.";
+          return;
+        }
+        if (timedState || !timedStore || !timedPdfReady()) return;
+        const startedAt = Date.now();
+        const attempt = {
+          attemptId: crypto.randomUUID(),
+          name, className, startedAt,
+          deadline: startedAt + timedAssessment.durationMinutes * 60000,
+          drafts: {}, runs: {}, final: null,
+        };
+        if (!timedStore.commit(attempt)) {
+          message.textContent = "Je poging kon niet worden opgeslagen. Probeer opnieuw of vraag hulp.";
+          return;
+        }
+        timedState = attempt;
+        beginTimedWorkspace();
+      };
+      document.getElementById("timed-submit").onclick = openTimedReview;
+      document.getElementById("timed-nudge-submit").onclick = openTimedReview;
+      document.getElementById("timed-nudge-dismiss").onclick = () => {
+        document.getElementById("timed-nudge").hidden = true;
+        editor.focus();
+      };
+      document.getElementById("timed-confirm-submit").onclick = () => finalizeTimedAssessment("manual");
+      document.getElementById("timed-download").onclick = () => downloadTimedPdf(true);
+      document.getElementById("timed-restart").onclick = () => {
+        if (timedCanEdit() && !timedRunInFlight) document.getElementById("timed-restart-dialog").showModal();
+      };
+      document.getElementById("timed-confirm-restart").onclick = restartTimedExercise;
+      document.getElementById("timed-reload-prompt").onclick = reloadTimedPrompt;
+      document.getElementById("timed-complete").addEventListener("cancel", event => event.preventDefault());
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) updateTimedClock(); });
+      window.addEventListener("focus", updateTimedClock);
+      window.addEventListener("beforeunload", event => {
+        if (!timedSaveFailed) return;
+        event.preventDefault();
+        event.returnValue = "";
+      });
+      prepareTimedStart();
+    }
+
+    function restartTimedExercise(){
+      const dialog = document.getElementById("timed-restart-dialog");
+      if (!timedCanEdit() || timedRunInFlight) return;
+      const previous = timedState;
+      const key = timedExerciseKey();
+      const drafts = { ...previous.drafts };
+      const runs = { ...previous.runs };
+      delete drafts[key];
+      delete runs[key];
+      if (!saveTimedState({ ...previous, drafts, runs })) {
+        timedState = previous;
+        dialog.close();
+        return;
+      }
+      dialog.close();
+      loadExercise();
+      renderExerciseProgress();
+      editor.focus();
+    }
+
+    async function reloadTimedPrompt(){
+      if (!timedCanEdit() || timedRunInFlight) return;
+      const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+      const key = timedExerciseKey();
+      const dialog = document.getElementById("timed-prompt-dialog");
+      const message = document.getElementById("timed-prompt-text");
+      message.textContent = "Opdrachttekst laden…";
+      dialog.showModal();
+      try {
+        const prompt = extractAssignmentTextFromStarterCode(await _fetchCourseText(exercise.starterSource), true);
+        if (timedCanEdit() && timedExerciseKey() === key && dialog.open) {
+          document.getElementById("opdracht-tekst").textContent = prompt;
+          message.textContent = prompt || "Geen opdrachttekst gevonden.";
+        }
+      } catch (_) {
+        message.textContent = "De opdrachttekst kon niet worden geladen. Sluit dit venster en probeer opnieuw.";
+      }
+    }
+
+    function timedExerciseRecords(){
+      const interruptedKey = timedRunInFlight ? timedExerciseKey() : null;
+      return chapters.flatMap((chapter, chapterIdx) => chapter.exercises.map((exercise, exerciseIdx) => {
+        const key = timedExerciseKey(chapterIdx, exerciseIdx);
+        const draft = timedState.drafts[key];
+        const run = timedState.runs[key];
+        const code = draft ?? exercise.starterCode;
+        const outputFromEarlierCode = Boolean(run && run.code !== code);
+        const status = outputFromEarlierCode ? "Bewerkt na laatste uitvoering" : run ? "Uitgevoerd" :
+          code !== exercise.starterCode ? "Bewerkt" : "Nog leeg";
+        const starter = exercise.starterCode.trimEnd();
+        const includePrompt = ASSIGNMENT_TEXT_MODE !== "empty" && !code.startsWith(starter);
+        return {
+          ...run,
+          exerciseTitle: exercise.title,
+          opdrachtText: includePrompt ? extractAssignmentTextFromStarterCode(exercise.starterCode, true) : "",
+          code, status, outputFromEarlierCode,
+          interrupted: key === interruptedKey,
+          runCode: outputFromEarlierCode ? run.code : undefined,
+        };
+      }));
+    }
+
+    function openTimedReview(){
+      if (!timedCanEdit()) { updateTimedClock(); return; }
+      if (timedRunInFlight) return;
+      const list = document.getElementById("timed-review-exercises");
+      list.replaceChildren(...timedExerciseRecords().map(record => {
+        const item = document.createElement("li");
+        item.textContent = `${record.exerciseTitle.replace(/^\d+\.\s*/, "")} · ${record.status}`;
+        return item;
+      }));
+      document.getElementById("timed-review").showModal();
+    }
+
+    function finalizeTimedAssessment(reason){
+      if (!timedState || timedState.final) return;
+      const now = Date.now();
+      const expired = now >= timedState.deadline;
+      if (reason === "expiry" && !expired) return;
+      if (!expired && timedRunInFlight) return;
+      const final = {
+        reason: expired ? "expiry" : "manual",
+        finishedAt: expired ? timedState.deadline : now,
+        title: timedAssessment.title,
+        revision: timedAssessment.contentRevision,
+        pageUrl: `${location.origin}${location.pathname}`,
+        userAgent: navigator.userAgent,
+        records: timedExerciseRecords(),
+      };
+      const { drafts, runs, ...attempt } = timedState;
+      saveTimedState({ ...attempt, final });
+      showTimedCompletion(expired);
+    }
+
+    function showTimedCompletion(autoDownload){
+      clearInterval(timedClockInterval);
+      editor.setOption("readOnly", "nocursor");
+      document.getElementById("timed-nudge").hidden = true;
+      for (const id of ["timed-review", "timed-restart-dialog", "timed-prompt-dialog"]) {
+        const dialog = document.getElementById(id);
+        if (dialog.open) dialog.close();
+      }
+      const complete = document.getElementById("timed-complete");
+      const title = document.getElementById("timed-complete-title");
+      title.textContent = timedState.final.reason === "expiry" ? "Tijd is om" : "Evaluatie afgerond";
+      document.getElementById("timed-interrupted").hidden = !timedState.final.records.some(record => record.interrupted);
+      complete.showModal();
+      title.focus();
+      if (autoDownload) downloadTimedPdf(false);
+      else document.getElementById("timed-download-status").textContent = timedSaveFailed
+        ? "Je werk staat vast in dit tabblad. Download je PDF vóór je dit venster sluit."
+        : "Je werk staat vast. Je kan je PDF downloaden.";
+    }
+
+    async function downloadTimedPdf(userInitiated){
+      const status = document.getElementById("timed-download-status");
+      const button = document.getElementById("timed-download");
+      const attempt = timedState;
+      if (!attempt?.final || button.disabled) return;
+      if (timedSaveFailed) saveTimedState(attempt);
+      button.disabled = true;
+      try {
+        if (!timedPdfReady()) {
+          if (!userInitiated) throw new Error("PDF-bibliotheek niet beschikbaar.");
+          await retryTimedPdfLibrary();
+          status.textContent = "PDF-export is opnieuw beschikbaar. Klik op Download PDF.";
+          return;
+        }
+        if (!timedDownloadUrl) {
+          const pdf = buildExerciseBatchPdf(attempt.name, attempt.className, attempt.final.records, attempt);
+          timedDownloadUrl = URL.createObjectURL(pdf.output("blob"));
+        }
+        const link = document.createElement("a");
+        link.href = timedDownloadUrl;
+        link.download = `${timedAssessment.id}-${attempt.attemptId}.pdf`;
+        link.click();
+        status.textContent = timedSaveFailed
+          ? "Je werk staat vast in dit tabblad. Controleer je downloads vóór je dit venster sluit."
+          : "Je PDF is klaar. Controleer je downloads. Gebruik Download PDF als het bestand ontbreekt.";
+      } catch (_) {
+        status.textContent = "Je PDF kon niet worden gedownload. Laat dit venster open, probeer opnieuw of vraag hulp.";
+      } finally {
+        button.disabled = false;
+      }
+    }
 
     function saveUserCode(){
       const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
@@ -3424,6 +3885,10 @@ document.addEventListener("visibilitychange", () => {
     }
 
     function confirmSwitch(callback){
+      if (TIMED_REQUESTED) {
+        if (!timedRunInFlight && timedCanEdit() && (!timedSaveFailed || saveTimedDraft())) callback();
+        return;
+      }
       if (!isDirty){
         callback();
         return;
@@ -5599,7 +6064,7 @@ document.addEventListener("visibilitychange", () => {
           }
         }
 
-        if (evalResult.success) {
+        if (evalResult.success && !TIMED_REQUESTED) {
           primary.textContent = "Exporteer oefening";
           secondary.textContent = "Bewaar en ga verder";
           secondary.style.display = "inline-flex";
@@ -5632,6 +6097,7 @@ document.addEventListener("visibilitychange", () => {
 
       const exercise = chapters[currentChapterIdx]?.exercises?.[currentExerciseIdx];
       const action = await openStructuredEvaluationModal(evalResult, exercise && exercise.title ? exercise.title : "");
+      if (TIMED_REQUESTED) return;
 
       if (evalResult.success) {
         if (action === "export") {
@@ -5647,13 +6113,17 @@ document.addEventListener("visibilitychange", () => {
        10) Oefeningen inladen
        ========================================================= */
 
-    function extractAssignmentTextFromStarterCode(starterCode){
+    function extractAssignmentTextFromStarterCode(starterCode, includeParagraphs = false){
   const src = String(starterCode || "");
   const lines = src.split(/\r?\n/);
   const out = [];
   for (const line of lines){
     const t = line.trim();
-    if (t === "") { if (out.length) break; else continue; }
+    if (t === "") {
+      if (out.length && !includeParagraphs) break;
+      if (out.length) out.push("");
+      continue;
+    }
     if (!t.startsWith("//")) break;
     const cleaned = t.replace(/^\/\/\s?/, "");
     out.push(cleaned);
@@ -5685,7 +6155,7 @@ document.addEventListener("visibilitychange", () => {
       const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
       const opdrachtTitleEl = document.getElementById("opdracht-titel");
       const opdrachtTextEl  = document.getElementById("opdracht-tekst");
-      const assignmentText = extractAssignmentTextFromStarterCode(exercise.starterCode);
+      const assignmentText = extractAssignmentTextFromStarterCode(exercise.starterCode, TIMED_REQUESTED);
       if (opdrachtTitleEl) opdrachtTitleEl.textContent = exercise.title || "(geen titel)";
       if (opdrachtTextEl) {
         if (ASSIGNMENT_TEXT_MODE === "comment" || ASSIGNMENT_TEXT_MODE === "visible-comment") {
@@ -5696,11 +6166,19 @@ document.addEventListener("visibilitychange", () => {
       }
 
       const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-      const savedCode = localStorage.getItem(key);
-
-      if (savedCode !== null) editor.setValue(savedCode);
-      else if (exercise.starterCode) editor.setValue(exercise.starterCode);
-      else editor.setValue("");
+      if (TIMED_REQUESTED) {
+        document.getElementById("timed-reload-prompt").hidden =
+          ASSIGNMENT_TEXT_MODE === "empty" || !exercise.starterSource || !assignmentText;
+        timedLoadingExercise = true;
+        try {
+          editor.setValue(timedState?.drafts?.[timedExerciseKey()] ?? exercise.starterCode ?? "");
+        } finally {
+          timedLoadingExercise = false;
+        }
+      } else {
+        const savedCode = localStorage.getItem(key);
+        editor.setValue(savedCode ?? exercise.starterCode ?? "");
+      }
 
       clearConsole();
       capturedOutput = "";
@@ -6046,8 +6524,22 @@ if (includeDetailedEval && currentEvalResult && currentEvalResult.firstFailCase)
         return;
       }
 
+      const pdf = buildExerciseBatchPdf(naam, klas, records);
+      const sanitize = value => String(value || "").replace(/[^a-zA-Z0-9_\-]/g, "_");
+      pdf.save(`${sanitize(naam)}-${sanitize(klas)}-${today}-ALLE_OEFENINGEN.pdf`);
+    }
+
+    function buildExerciseBatchPdf(naam, klas, records, attempt = null){
+      const final = attempt?.final;
+      const today = final ? new Date(final.finishedAt).toISOString().slice(0, 10) : _dateKeyLocal();
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      if (final) {
+        const stamp = new Date(final.finishedAt).toISOString();
+        const pdfDate = stamp.slice(0, 19).replace(/\D/g, "");
+        pdf.setCreationDate(`D:${pdfDate}+00'00'`);
+        pdf.setFileId(attempt.attemptId.replace(/-/g, ""));
+      }
       const pageHeight = pdf.internal.pageSize.height;
       const margin = 36, contentWidth = 520;
 
@@ -6096,13 +6588,18 @@ if (includeDetailedEval && currentEvalResult && currentEvalResult.firstFailCase)
       pdf.text(`Klas: ${klas}`, margin, y); y += 18;
       pdf.text(`Datum: ${today}`, margin, y); y += 26;
 
+      if (final) {
+        pdf.text(final.title, margin, y);
+        y += 26;
+      }
+
       pdf.setTextColor(82,0,255); setLabelFont();
       pdf.text("Inhoud:", margin, y); y += 16;
       pdf.setTextColor(0,0,0); setBodyFont();
 
       const tocLines = records.map((r, idx) => {
         const t = (r.exerciseTitle || r.opdrachtText || `Oefening ${r.exerciseIdx+1}`).trim();
-        return `${idx+1}. ${t}`;
+        return `${idx+1}. ${final ? t.replace(/^\d+\.\s*/, "") : t}`;
       });
       const toc = pdf.splitTextToSize(tocLines.join("\n"), contentWidth);
       pdf.text(toc, margin, y);
@@ -6120,20 +6617,32 @@ if (includeDetailedEval && currentEvalResult && currentEvalResult.firstFailCase)
         const title = (r.exerciseTitle || "").trim();
         if (title) { pdf.text(title, margin, y); y += 18; }
 
-        const status = r.evalStatus === "success" ? "Oefening correct" :
+        const status = final ? r.status : r.evalStatus === "success" ? "Oefening correct" :
                        r.evalStatus === "fail"    ? "Uitgevoerd, maar niet correct" :
                                                     "Onbekend";
         pdf.text(`Status: ${status}`, margin, y); y += 16;
         if (r.evalSummary) {
-          pdf.text(`Evaluatie: ${r.evalSummary}`, margin, y); y += 16;
+          const summaryLabel = r.outputFromEarlierCode ? "Evaluatie eerdere code" : "Evaluatie";
+          pdf.text(`${summaryLabel}: ${r.evalSummary}`, margin, y); y += 16;
         }
 
         const tijdLabel = (typeof formatDuur === 'function') ? formatDuur(r.tijdMs || 0) : `${Math.floor((r.tijdMs||0)/1000)}s`;
-        pdf.text(`Pogingen: ${r.pogingen ?? ""}  |  Tijd: ${tijdLabel}`, margin, y); y += 22;
+        const metrics = final ? `Pogingen: ${r.pogingen ?? 0}` : `Pogingen: ${r.pogingen ?? ""}  |  Tijd: ${tijdLabel}`;
+        pdf.text(metrics, margin, y); y += 22;
+        if (final && r.savedAt) {
+          pdf.text(`Laatste uitvoering (UTC): ${r.savedAt}`, margin, y); y += 18;
+        }
+        if (r.interrupted) {
+          pdf.text("Uitvoering nog bezig toen de tijd verstreek.", margin, y); y += 18;
+        }
 
-        y = addMultiline("Opdracht:", r.opdrachtText || "", y, false);
+        if (!final || r.opdrachtText) y = addMultiline("Opdracht:", r.opdrachtText || "", y, false);
         y = addMultiline("Code:", r.code || "", y, true);
-        y = addMultiline("Console-uitvoer:", r.console || "(geen uitvoer)", y, true);
+        if (r.outputFromEarlierCode) {
+          y = addMultiline("Code van de laatste uitvoering:", r.runCode, y, true);
+        }
+        y = addMultiline(r.outputFromEarlierCode ? "Console-uitvoer van eerdere code:" : "Console-uitvoer:",
+          r.console || "(geen uitvoer)", y, true);
 const includeExpected =
   ((!TEST_MODE) || REVEAL_EXPECTED_ON_FAIL) &&
   (r.expectedOutput && String(r.expectedOutput).length > 0);
@@ -6156,7 +6665,7 @@ if (includeExpected){
         if (r.canvasDataUrl){
           y = ensureRoom(y, 240);
           pdf.setTextColor(82,0,255); setLabelFont();
-          pdf.text("Canvas:", margin, y); y += 10;
+          pdf.text(r.outputFromEarlierCode ? "Canvas van eerdere code:" : "Canvas:", margin, y); y += 10;
           try{
             pdf.addImage(r.canvasDataUrl, 'JPEG', margin, y, 210, 210);
             y += 230;
@@ -6212,20 +6721,31 @@ for (let i=0;i<criteria.length;i++){
 
 y += headerH + 5 * rowH + 20;
         // Verification
-        y = ensureRoom(y, 80);
-        pdf.setTextColor(82,0,255); setLabelFont();
-        pdf.text("Verificatiegegevens:", margin, y); y += 16;
-        pdf.setTextColor(0,0,0); pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
-        pdf.text(`Bewaard op: ${r.savedAt || ""}`, margin, y); y += 12;
-        const bUrl = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${r.pageUrl || ""}`, 80), contentWidth);
-        pdf.text(bUrl, margin, y); y += bUrl.length * 12;
-        const bUa  = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${r.userAgent || ""}`, 80), contentWidth);
-        pdf.text(bUa, margin, y); y += bUa.length * 12;
+        if (!final) {
+          y = ensureRoom(y, 80);
+          pdf.setTextColor(82,0,255); setLabelFont();
+          pdf.text("Verificatiegegevens:", margin, y); y += 16;
+          pdf.setTextColor(0,0,0); pdf.setFont('helvetica','normal'); pdf.setFontSize(9);
+          pdf.text(`Bewaard op: ${r.savedAt || ""}`, margin, y); y += 12;
+          const bUrl = pdf.splitTextToSize(_breakLongTokensForPdf(`Pagina-URL: ${r.pageUrl || ""}`, 80), contentWidth);
+          pdf.text(bUrl, margin, y); y += bUrl.length * 12;
+          const bUa = pdf.splitTextToSize(_breakLongTokensForPdf(`Browser: ${r.userAgent || ""}`, 80), contentWidth);
+          pdf.text(bUa, margin, y); y += bUa.length * 12;
+        } else if (i === records.length - 1) {
+          const details = [
+            `Versie: ${final.revision}`,
+            `Poging: ${attempt.attemptId}`,
+            `Afgerond: ${final.reason === "expiry" ? "Tijd verstreken" : "Zelf ingediend"}`,
+            `Start (UTC): ${new Date(attempt.startedAt).toISOString()}`,
+            `Einde (UTC): ${new Date(final.finishedAt).toISOString()}`,
+            `Pagina-URL: ${final.pageUrl}`,
+            `Browser: ${final.userAgent}`,
+          ].join("\n");
+          addMultiline("Door de browser geregistreerd:", details, ensureRoom(y, 150));
+        }
       }
 
-      function sanitize(s){ return String(s||"").replace(/[^a-zA-Z0-9_\-]/g, "_"); }
-      const fname = `${sanitize(naam)}-${sanitize(klas)}-${today}-ALLE_OEFENINGEN.pdf`;
-      pdf.save(fname);
+      return pdf;
     }
 
     /* =========================================================
@@ -6257,7 +6777,80 @@ y += headerH + 5 * rowH + 20;
       }, 900);
     }
 
+    async function runTimedExercise(){
+      if (!timedCanEdit() || timedRunInFlight || !saveTimedDraft()) return;
+      const key = timedExerciseKey();
+      const exercise = chapters[currentChapterIdx].exercises[currentExerciseIdx];
+      const code = editor.getValue();
+      const pogingen = (timedState.runs[key]?.pogingen || 0) + 1;
+      const runButton = document.getElementById("run-code");
+      const runLabel = runButton.textContent;
+      const affectedButtons = ["timed-submit", "timed-nudge-submit", "timed-restart", "timed-reload-prompt"]
+        .map(id => document.getElementById(id));
+      timedRunInFlight = true;
+      runButton.disabled = true;
+      runButton.textContent = "Uitvoeren…";
+      affectedButtons.forEach(button => { button.disabled = true; });
+      renderExerciseProgress();
+      clearConsole();
+      capturedOutput = "";
+      if (window.resetTurtle) window.resetTurtle();
+      if (window.clearCanvas) window.clearCanvas();
+
+      let feedback = null;
+      try {
+        let evaluation;
+        let canvasDataUrl = "";
+        let consoleText;
+        const precheck = runJavascriptPrecheck(code);
+        if (!precheck.ok) {
+          const syntaxDetails = buildJavascriptSyntaxDebuggerData(precheck.details || {}, code);
+          consoleDiv.textContent = consoleText = syntaxDetails.consoleMessage;
+          evaluation = _rememberEvaluationResult({
+            applicable: _isExerciseEvaluable(exercise), success: false, mode: "syntax",
+            total: 0, passedCount: 0, failedCount: 0, caseResults: [], firstFailCase: null,
+            info: `Syntaxfout: ${syntaxDetails.issueTitle}`, errorMessage: syntaxDetails.summary, syntaxDetails,
+          });
+        } else {
+          let runtimeError = "";
+          try {
+            await runStudentCode(code);
+          } catch (error) {
+            runtimeError = translateError(error?.message || String(error));
+            appendToConsole(`Fout: ${runtimeError}`);
+          }
+          if (!timedCanEdit()) { updateTimedClock(); return; }
+          consoleText = consoleDiv.textContent;
+          canvasDataUrl = _canvasToJpegDataUrl(document.getElementById("turtlecanvas"), .65, 420, "#fff");
+          evaluation = await evaluateExercise(code, capturedOutput, runtimeError);
+        }
+        if (!timedCanEdit()) { updateTimedClock(); return; }
+        const run = {
+          code, console: consoleText, canvasDataUrl, pogingen,
+          evalStatus: evaluation?.applicable ? (evaluation.success ? "success" : "fail") : "run",
+          evalSummary: _summarizeEvaluationResult(evaluation),
+          savedAt: new Date().toISOString(),
+        };
+        saveTimedState({ ...timedState, runs: { ...timedState.runs, [key]: run } });
+        feedback = evaluation;
+      } catch (error) {
+        console.error(error);
+        if (timedCanEdit()) showToast("De uitvoering kon niet worden opgeslagen. Probeer opnieuw.", false);
+      } finally {
+        timedRunInFlight = false;
+        runButton.textContent = runLabel;
+        if (timedCanEdit()) {
+          runButton.disabled = false;
+          affectedButtons.forEach(button => { button.disabled = false; });
+          renderExerciseProgress();
+          updateMetricsUI();
+        }
+      }
+      if (feedback && timedCanEdit()) await handleStructuredEvaluationFeedback(feedback);
+    }
+
     document.getElementById("run-code").onclick = async function(){
+      if (TIMED_REQUESTED) return runTimedExercise();
       // Poging telt enkel als er effectief gewijzigd is
       incPogingen();
       stopWerkTimer();
@@ -6545,14 +7138,29 @@ y += headerH + 5 * rowH + 20;
        ========================================================= */
 
     document.addEventListener("DOMContentLoaded", async function(){
+      const retryLoad = document.getElementById("timed-load-retry");
+      retryLoad.onclick = () => location.reload();
       try {
         setCourseLoadingStatus("Catalogus laden.", "We zoeken de hoofdstukken en oefeningen.", 6);
+        if (TIMED_REQUESTED) await configureTimedAssessment();
         chapters = await loadCourseData();
+        if (TIMED_REQUESTED && (chapters.length !== 1 || chapters[0].id !== timedAssessment.chapterId ||
+          chapters[0].exercises.length !== timedAssessment.exerciseCount)) {
+          throw new Error("De geladen oefeningen komen niet overeen met de evaluatie-instellingen.");
+        }
         window.JSIK_LAST_COURSE_LOAD_ERROR = "";
       } catch (error) {
         console.error("Course content kon niet geladen worden.", error);
         window.JSIK_LAST_COURSE_LOAD_ERROR = error && error.message ? error.message : String(error);
         chapters = [];
+      }
+
+      if (TIMED_REQUESTED && (!chapters.length || typeof CodeMirror !== "function")) {
+        showCourseLoadingError("Evaluatie kon niet worden geladen.",
+          chapters.length ? "De code-editor is niet beschikbaar. Probeer opnieuw." : describeCourseLoadFailure());
+        retryLoad.hidden = false;
+        retryLoad.focus();
+        return;
       }
 
       // CodeMirror
@@ -6562,10 +7170,15 @@ y += headerH + 5 * rowH + 20;
         lineNumbers:true,
         theme:"default",
         tabSize:2,
-        autofocus:true
+        autofocus:!TIMED_REQUESTED,
+        readOnly:TIMED_REQUESTED
       });
 
       editor.on("change", function(){
+        if (TIMED_REQUESTED) {
+          if (!timedLoadingExercise) saveTimedDraft();
+          return;
+        }
         isDirty = true;
 
         // Autosave: main branch blijft compatibel met bestaande keys
@@ -6585,9 +7198,10 @@ y += headerH + 5 * rowH + 20;
 
       renderChapterMenu();
       renderExerciseProgress();
-      loadExercise();
+      if (!TIMED_REQUESTED) loadExercise();
       if (chapters.length > 0) {
         hideCourseLoading();
+        if (TIMED_REQUESTED) setupTimedWorkspace();
       } else {
         showCourseLoadingError("Oefeningen konden niet geladen worden.", describeCourseLoadFailure());
       }

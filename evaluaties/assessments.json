@@ -15,7 +15,10 @@
       "revealExpectedOnFail": false,
       "enableMenu": false,
       "assignmentTextMode": "empty",
-      "contentCache": "no-store"
+      "contentCache": "no-store",
+      "kind": "test",
+      "durationMinutes": 45,
+      "contentRevision": "toets-1-2025-11-24-v1"
     },
     {
       "id": "toets_2",
@@ -30,7 +33,10 @@
       "revealExpectedOnFail": false,
       "enableMenu": false,
       "assignmentTextMode": "empty",
-      "contentCache": "no-store"
+      "contentCache": "no-store",
+      "kind": "test",
+      "durationMinutes": 45,
+      "contentRevision": "toets-2-2025-12-01-v1"
     },
     {
       "id": "toets_3",
@@ -45,7 +51,10 @@
       "revealExpectedOnFail": false,
       "enableMenu": false,
       "assignmentTextMode": "comment",
-      "contentCache": "no-store"
+      "contentCache": "no-store",
+      "kind": "test",
+      "durationMinutes": 45,
+      "contentRevision": "toets-3-2026-01-09-v1"
     },
     {
       "id": "toets_3_inhaal",
@@ -60,11 +69,14 @@
       "revealExpectedOnFail": false,
       "enableMenu": false,
       "assignmentTextMode": "comment",
-      "contentCache": "no-store"
+      "contentCache": "no-store",
+      "kind": "test",
+      "durationMinutes": 45,
+      "contentRevision": "toets-3-inhaal-2026-01-09-v1"
     },
     {
       "id": "kerstexamen2025",
-      "title": "JavaScript: Toets - Variabelen & Berekeningen",
+      "title": "JavaScript: Kerstexamen 2025",
       "launchFile": "kerstexamen2025.html",
       "contentRoot": "evaluaties/content/kerstexamen2025",
       "chapterTitle": "JavaScript: Toets - Variabelen & Berekeningen",
@@ -75,7 +87,10 @@
       "revealExpectedOnFail": false,
       "enableMenu": false,
       "assignmentTextMode": "comment",
-      "contentCache": "no-store"
+      "contentCache": "no-store",
+      "kind": "exam",
+      "durationMinutes": 100,
+      "contentRevision": "kerstexamen-2025-12-18-v1"
     },
     {
       "id": "paasexamen2026",
@@ -90,7 +105,10 @@
       "revealExpectedOnFail": false,
       "enableMenu": false,
       "assignmentTextMode": "empty",
-      "contentCache": "no-store"
+      "contentCache": "no-store",
+      "kind": "exam",
+      "durationMinutes": 100,
+      "contentRevision": "paasexamen-2026-v1"
     }
   ]
 }

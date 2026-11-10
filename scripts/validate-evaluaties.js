@@ -20,7 +20,7 @@ function expect(condition, message) {
 }
 
 function launcherTargets(wrapperHtml) {
-  return Array.from(wrapperHtml.matchAll(/["'](\.\.\/index\.html\?[^"']+)["']/g))
+  return Array.from(wrapperHtml.matchAll(/["'](\.\.\/platform\.html\?[^"']+)["']/g))
     .map(match => match[1]);
 }
 
@@ -85,6 +85,9 @@ function main() {
 
   assessments.forEach((assessment) => {
     expect(assessment.id, "Elk assessment moet een id hebben.");
+    expect(assessment.kind === "test" || assessment.kind === "exam", `${assessment.id} heeft een ongeldig kind.`);
+    expect(Number.isInteger(assessment.durationMinutes) && assessment.durationMinutes > 0 && assessment.durationMinutes <= (assessment.kind === "exam" ? 100 : 45), `${assessment.id} heeft een ongeldige durationMinutes.`);
+    expect(typeof assessment.contentRevision === "string" && /^[A-Za-z0-9_-]+$/.test(assessment.contentRevision), `${assessment.id} heeft een ongeldige contentRevision.`);
     expect(assessment.launchFile, `${assessment.id} mist launchFile.`);
     expect(assessment.contentRoot, `${assessment.id} mist contentRoot.`);
     expect(Number.isInteger(assessment.exerciseCount) && assessment.exerciseCount > 0, `${assessment.id} mist een geldige exerciseCount.`);
@@ -104,6 +107,8 @@ function main() {
       const context = `${assessment.launchFile} target ${index + 1}`;
       const params = queryParamsFromTarget(target);
       expectQueryParam(params, "assessment", assessment.id, context);
+      expectQueryParam(params, "assessmentTitle", assessment.title, context);
+      expectQueryParam(params, "pageTitle", assessment.title, context);
       expectQueryParam(params, "contentRoot", assessment.contentRoot, context);
       expectQueryParam(params, "testLabel", assessment.testLabel, context);
       expectQueryParam(params, "assignmentTextMode", assessment.assignmentTextMode, context);
