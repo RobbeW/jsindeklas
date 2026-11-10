@@ -1,0 +1,51 @@
+{
+  "source_blob": "20460e8e58ab8c8643b3ea285cb4b9bd8d9354e1",
+  "source_commit": "741bede06ce817e4549443eaa352f6d6373d2d6e",
+  "questions": [
+    {
+      "id": "toets_3-ex01",
+      "title": "1. Korting vanaf ...",
+      "prompt": "// Gegeven:\n// Het aankoopbedrag is 64 euro.\n\n// Gevraagd:\n// ALS bedrag 60 of hoger is, print je exact:\n// Korting toegepast.\n// Anders print je niets.\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex02",
+      "title": "2. Gratis verzending",
+      "prompt": "// Gegeven:\n// Het aankoopbedrag is 46 euro.\n\n// Gevraagd:\n// ALS bedrag 50 of hoger is, print je exact:\n// Gratis verzending.\n// ANDERS print je exact:\n// Verzendkosten betalen.\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex03",
+      "title": "3. Kassa: pas bedrag aan",
+      "prompt": "// Gegeven:\n// Het aankoopbedrag is 64 euro.\n\n// Gevraagd:\n// ALS bedrag 60 of hoger is:\n//   verlaag bedrag met 10%.\n// ANDERS:\n//   verhoog bedrag met 5%.\n// Print daarna exact:\n// Nieuw bedrag: ...\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex04",
+      "title": "4. Weerbericht",
+      "prompt": "// Gegeven:\n// De buitentemperatuur is 28°C.\n\n// Gevraagd:\n// Gebruik de selectie om exact één zin te printen:\n// - temp < 18 : Koud.\n// - temp < 25 : Aangenaam.\n// - anders    : Warm.\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex05",
+      "title": "5. Batterijstatus",
+      "prompt": "// Gegeven:\n// De batterij is 9%.\n\n// Gevraagd:\n// Print exact één zin:\n// - batterij <= 5   : Batterij leeg.\n// - batterij <= 20  : Batterij laag.\n// - anders          : Batterij ok.\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex06",
+      "title": "6. Exact nul",
+      "prompt": "// Gegeven:\n// De snelheid is 0 km/u.\n\n// Gevraagd:\n// Controleer met === of snelheid exact 0 is.\n// ALS dat zo is, print je exact:\n// Stilstand.\n// ANDERS print je exact:\n// In beweging.\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex07",
+      "title": "7. Postcode",
+      "prompt": "// Gegeven:\n// De postcode is '9000'.\n\n// Gevraagd:\n// Print exact één zin:\n// - Postcode 9000 is voor Gent (stad).\n// - Postcode 9080 is voor Lochristi.\n// - Postcode 9940 is voor Evergem.\n// - anders         : Onbekende postcode.\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex08",
+      "title": "8. Attractiepark",
+      "prompt": "// Gegeven:\n// Lengte = 132 cm. Begeleider = false.\n\n// Gevraagd:\n// Je wil weten of iemand op de attractie mag.\n// Het park volgt deze regels:\n// 1) ALS lengte 140 cm of meer is: toegang toegestaan.\n// 2) ANDERS (dus kleiner dan 140):\n//    - ALS er een begeleider is: toegang toegestaan.\n//    - ANDERS: geen toegang.\n//\n// Print daarna exact één zin:\n// Toegang toegestaan.\n// of\n// Geen toegang.\n\n// Schrijf hieronder je code."
+    },
+    {
+      "id": "toets_3-ex09",
+      "title": "9. Beoordeling via percentage",
+      "prompt": "// Gegeven:\n// Een leerling heeft 37 punten op 50.\n\n// Gevraagd:\n// Bereken percentage als (punten * 100) / max.\n// Ken daarna de correcte letter toe via volgende regels\n// - percentage >= 85 : letter = \"A\"\n// - percentage >= 70 : letter = \"B\"\n// - percentage >= 50 : letter = \"C\"\n// - anders           : letter = \"D\"\n\n// Schrijf hieronder je code."
+    }
+  ]
+}

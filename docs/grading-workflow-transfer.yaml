@@ -1,0 +1,501 @@
+schema_version: "1.0"
+title: "Transfer plan for a PDF assessment grading workflow"
+source_project: Blockly
+source_review_date: "2026-11-06"
+status: synthetic_acceptance_complete
+purpose: >-
+  Rebuild the workflow in a different project using its own student PDFs,
+  assessment rules and visual identity. Use this file as the Director's task
+  queue and acceptance plan. Each worker task owns a small set of deliverables.
+use:
+  - Copy this YAML into the destination project.
+  - Run D00 to replace unknown destination settings and map the proposed paths to the repo.
+  - Run tasks in dependency order and record actual results at each Director gate.
+  - Keep the Blockly history below as evidence of how the approach evolved.
+
+source_evidence:
+  chats:
+    - id: C1
+      title: "Build automated PDF grading"
+      thread_id: "01a13fff-2ff0-7430-8f71-539695aec74e"
+      use: "Original Maze C brief, pilot, card wording and syllabus feedback, points breakdown, reviewer tasks and folder cleanup."
+    - id: C2
+      title: "Set up Director and review grading"
+      thread_id: "01a1557d-c539-7442-84a6-d61169e1e368"
+      use: "Blank handling, original-evidence review, coding weights, historical regrading and class runs."
+    - id: C3
+      title: "Prepare chapter 2 evaluation"
+      thread_id: "01a15e0c-040c-74b2-a93d-51173eef74bb"
+      use: "Separate assessment adapters, source-to-question mapping, rubric revision after a pilot."
+    - id: C4
+      title: "Update ABC evaluations and exemplars"
+      thread_id: "01a1aafc-b078-7c63-8b6e-15161f94ee2f"
+      use: "Match examples to taught syntax and difficulty, then retest exports against current grading."
+    - id: C5
+      title: "Onderzoek inzendproces"
+      thread_id: "01a158f8-3f5a-7713-ba6b-e9df9b594623"
+      use: "PDF download and Smartschool hand-in were upstream of local grading. The chat explored intake friction."
+  repository:
+    - id: R1
+      paths: ["grading/docs/CLI.md", "grading/docs/SCORING.md", "grading/docs/MAZE-AB.md"]
+    - id: R2
+      paths: ["grading/docs/geschiedenis/REVIEW-TASKS.md", "grading/docs/technisch/workflow-contract.md", "grading/docs/TAKEN.md"]
+    - id: R3
+      paths: ["grading/app/grade.py", "grading/app/native_export.py", "grading/app/verify-maze.cjs", "grading/app/syllabus-references.json"]
+    - id: R4
+      paths: ["grading/app/reviewer/approval.py", "grading/app/reviewer/reports.py", "grading/app/workflow/publication.py", "grading/README.md"]
+    - id: R5
+      paths: ["grading/app/chapter2.py", "evaluations/chapter-2/grading/C/README.md", ".harness/PROJECT.md", ".harness/DIRECTOR_PLAN.md"]
+  verification_scope: >-
+    Selected grading-related chat turns and current local code and guides.
+    Rendered the existing offline Maze C demo with synthetic data to inspect the
+    two feedback pages and the annotated copy. Historical class results come
+    from project records. No student submissions were needed for this transfer report.
+
+how_blockly_was_built:
+  - phase: "Start with one assessment"
+    evidence: [C1, R1, R3]
+    observation: >-
+      The teacher asked for a local crawler for class/student/PDF folders, initially
+      for Maze C. Students exported from a browser assessment and handed in the PDF.
+      The assistant drafted the private key against the paper's /20 budget at the
+      teacher's request. The first build produced a criterion proposal, a short
+      feedback card and an annotated copy. A supervised one-class pilot checked
+      original PDFs, native text and visual answers and refined the marking rules.
+  - phase: "Improve feedback from concrete teacher comments"
+    evidence: [C1, R1, R3]
+    observation: >-
+      The teacher requested plain Dutch wording, the actual favicon, syllabus pages
+      for practice and an explanation of where points were lost. The card gained
+      a separate per-question breakdown and a detailed loss list. The full annotated
+      test retained evidence locations and the full findings ledger.
+  - phase: "Build the reviewer in slices"
+    evidence: [C1, R2, R4]
+    observation: >-
+      P0 fixed the data contracts and synthetic fixtures. L01-L10 loaded existing
+      assessments and made original answers, PDF positions and scores navigable.
+      L11-L15 added teacher decisions, mutations, priorities, approval and reports.
+      L16-L20 added report controls, acceptance, pilot checks and handover.
+      Workers owned named modules and checks. The Director owned shared contracts,
+      integration and final review. The historical plan allowed several workers
+      concurrently. The later project agreement limits work to one at a time.
+  - phase: "Connect intake to saved decisions and current reports"
+    evidence: [C1, R2, R4]
+    observation: >-
+      W01-W08 added discovery, a resumable queue, proposal registration,
+      editable teacher feedback, managed local output and end-to-end acceptance.
+      The initial two-class workflow reused 20 matching proposals and reviewed
+      23 new ones in chat. The latest report set moved next to each submission,
+      with old revisions kept centrally and generated PDFs excluded on rescan.
+      The optional standalone API route was tested with simulated transport.
+  - phase: "Calibrate and preserve prior work"
+    evidence: [C2, R1, R5]
+    observation: >-
+      A blank-answer audit distinguished verified blanks from ambiguous evidence.
+      The teacher corrected the coding weights so working behavior, readability
+      and required concepts could earn points independently. The migration
+      preserved sources and prior evidence and decisions, archived the old
+      rubric and outputs, and invalidated affected approvals. The four-class
+      v3 pass covered 84 supplied submissions.
+  - phase: "Add assessment adapters and version changes"
+    evidence: [C3, C4, R5]
+    observation: >-
+      Maze A/B received separate routes, answer keys and maps. Turtle C got its
+      own offline intake, teacher review and renderer. New Turtle revisions
+      retained exact old rubrics and denominators when questions changed.
+      Browser export through grading was rechecked after changes. The practice
+      examples were aligned to the syntax and complexity taught in class.
+
+original_workflow:
+  inputs:
+    - "Private class/student folders or an explicitly selected PDF batch."
+    - "Original student PDF with identity, visible prompts and submitted answer choices, text, code, blocks, markings or drawings."
+    - "Question paper or test configuration, private answer key, stable criterion IDs and point levels, syllabus references and visual assets."
+    - "Teacher decisions with evidence, actor, reason and approval on a saved revision."
+  routes:
+    maze_abc:
+      intake: >-
+        Read native text and prompt/layout signatures for the selected variant.
+        Extract exact code and indentation, answer mode, images and normalized
+        page boxes. Verify visible marks and block images manually where needed.
+        Older Maze exports lack embedded revision hashes.
+      scoring: >-
+        The proposal covers all 23 criteria. A restricted interpreter checks
+        whether literal code reaches the right goal and stops, with a bounded
+        step count. A/B/C use separate maps and keys. For Maze 1 and 3 the rubric
+        gives 0.5 function, 0.5 readability and 2 learned concepts. Maze 2 has its
+        own budgets. Apply the 0.5 blocks factor once to all affected dimensions.
+        Keep the paper denominator /20. Open marks produce a range.
+      reports: >-
+        Feedback PDF, annotated PDF and Markdown summary per learner.
+        Teacher-facing assessment/evidence records, class CSV or overview,
+        and class bundles for managed distribution where requested.
+    turtle_c:
+      intake: >-
+        Decode and validate the PDF Subject payload against exact exam,
+        variant, question-paper, configuration and revision bindings.
+        The visible PDF remains the source for teacher attestation.
+      scoring: >-
+        Proven blank cells start at zero. Nonblank criteria start pending and
+        require the teacher's numerical decisions and reasons. Restricted
+        Turtle execution supplies diagnostics. Approval requires resolved
+        criteria and source attestation. V1/V2 use /25 and later revisions use /23.
+      reports: >-
+        Versioned criterion-table feedback PDF, original-page copy with appended
+        teacher notes, offline HTML evidence, Markdown summary and class CSV.
+        The annotation appendix and technical summaries can contain private paths
+        or hashes. Keep those out of the destination learner bundle.
+  card_layout:
+    reference: "The compact Maze card is the layout model. Turtle C uses a longer criterion table and teacher comments."
+    page_1:
+      format: "A4 portrait, white background, Noto Sans, generous margins, thin purple top band and page footer."
+      palette_example: {accent: "#5200FF", panel: "#F7F3FF", text: "#160033", secondary: "#625B70"}
+      reading_order:
+        - "Favicon and project wordmark, small assessment and variant label, then the title."
+        - "Learner identity line with name, class and number as applicable."
+        - "Wide rounded score panel with large score or range, denominator, relevant ceiling and approved status."
+        - "Brief evidenced strength."
+        - "Dit zijn jouw werkpunten, followed by zero to three numbered rounded cards."
+        - "Each card gives a short title, what happened, how to correct it and one practice step with a checked syllabus page when available."
+        - "Short pointer to the detail page or annotated copy, then footer and page number."
+    page_2_and_continuation:
+      when: "Maze includes this section when there are deductions, answer-mode caps or pending marks."
+      reading_order:
+        - "Question table with earned or range, paper maximum, actual deductions and a separate cap column when applicable."
+        - "Lost-point criteria with earned/effective maximum and deduction. List pending items separately."
+        - "Reconciliation line explaining how the totals produce the grade."
+      wording_example: "Op deze onderdelen behaalde je het leerdoel nog niet. Herhaal je dit eens?"
+    annotated_copy: >-
+      Maze uses PDF highlights for confirmed text, outlines for estimated image
+      regions, numbered margin labels and an appendix with all recorded findings
+      and criterion scores. Keep the unmodified original separate. Use an
+      appendix-only note for evidence that cannot be anchored safely.
+    layout_transfer_decisions: >-
+      Adopt the destination's branding and language. The historical Maze card
+      omits the blanket concept label and only prints the teacher-checked badge
+      after approval. In the destination, make draft versus final status clear
+      wherever scores may circulate, using wording agreed at D00. In the demo
+      render, the PDF note icon partially covered numbered margin markers.
+      Check marker placement with annotations visible and in print preview.
+
+destination_config:
+  root: "."
+  assessment_family: "toets_3 — Toets Hoofdstuk 3: De Selectie"
+  supported_formats_and_revisions:
+    - format: "JavaScript in de Klas bundled jsPDF export with native text"
+      variant: regular
+      revision: legacy-toets-4-741bede
+      adapter_version: bundled-jspdf-v1
+      prompt_source: "741bede06ce817e4549443eaa352f6d6373d2d6e:evaluaties/toets_4.html"
+      prompt_source_blob: "20460e8e58ab8c8643b3ea285cb4b9bd8d9354e1"
+      route_evidence: >-
+        Cover, contents, ordered section titles, complete starter comments and
+        legacy verification paths. The Q9 starter omits the console example
+        introduced in e041029. The PDF has no embedded revision binding.
+  private_input_root: grading/private/submissions/
+  private_output_root: grading/private/reports/
+  submission_identity_and_attempt_rule: >-
+    Use a teacher-supplied roster/attempt manifest and cross-check the visible
+    name and class. Register by source hash and opaque ID. Hold distinct
+    competing hand-ins for the teacher to select one authoritative attempt.
+  question_sources_and_prompt_maps:
+    - evaluaties/assessments.json
+    - evaluaties/content/toets_3/chapters/toets_3/chapter.json
+    - .harness/tasks/D00.md
+  teacher_rubrics_and_syllabus:
+    - rubric_id: toets_3-legacy-741bede-v1
+      private_path: grading/private/rubrics/toets_3-legacy-741bede-v1.yaml
+      status: director_baseline
+      teacher_calibration_gate: D02
+      calibration_status: accepted
+  scoring_scale_and_precision:
+    question_max: 5
+    total_max: 45
+    score_step: 0.5
+    display: "At most one decimal, using a Dutch decimal comma."
+  special_weights_or_caps: []
+  supported_answer_modalities: ["native JavaScript code", "native console output", "supporting canvas image"]
+  approval_actor_and_policy: >-
+    Authorized assessment teacher reviews each active criterion and attests to
+    identity, attempt and original source. Approval binds the current effective
+    revision, source and approved rubric. Release is explicit and local.
+  language_and_brand_assets:
+    language: nl-BE
+    wordmark: JavaScript in de Klas
+    favicon: favicon.png
+    token_sources: [platform.html, brand_motion.md]
+    practice_source_to_verify: content/chapters/ch03/
+  required_teacher_interface: "Offline teacher entry and review with original evidence and explicit approval. Start with a local CLI."
+  learner_artifacts_and_local_release_paths:
+    draft_root: grading/private/reports/preview/
+    learner_root: grading/private/reports/learner/
+    learner_files: [puntenoverzicht.pdf, feedbackkaart.pdf, toets-met-feedback.pdf]
+    teacher_root: grading/private/reports/teacher/
+    teacher_files: [leerkrachtoverzicht.csv]
+  sample_and_calibration_acceptance: >-
+    Historical prompt content and layout verified. Synthetic cases and pilot
+    acceptance are recorded in .harness/tasks/D00.md. The Director key and
+    synthetic reference marks use the teacher's scoring instructions.
+    At D02 all eight reference cases reconciled and the three teacher-reviewed
+    cases matched criterion by criterion. The real-submission grading pilot
+    remains unrun.
+  external_processing_authorization: false
+  defaults:
+    processing: "Offline intake, teacher entry, validation and rendering."
+    external_calls_enabled: false
+    automatic_approval: false
+    external_delivery_enabled: false
+
+destination_gate:
+  task: D00
+  packet: .harness/tasks/D00.md
+  status: complete
+  next: "Implemented under the user-authorized grading run order."
+
+destination_implementation:
+  packet: .harness/tasks/GRADING-IMPLEMENTATION.md
+  completed: [D00, W01, W02, D01, W03, W04, D02, W05, W06, W07, D03, W08, D04]
+  acceptance_scope: synthetic_only
+  handover: grading/README.md
+  real_submission_pilot: not_run
+
+destination_pipeline:
+  inventory: >-
+    Register exactly one accepted attempt per configured identity/assessment
+    unit. Route by validated content and revision. Record source SHA-256,
+    opaque submission ID and disposition. Report missing, corrupt, mismatched,
+    duplicate or unsupported inputs for triage. Exclude managed outputs on rescan.
+  extraction: >-
+    Use an adapter per supported layout. Extract the native text layer, form
+    fields or embedded payload when available. Keep the visible original and
+    capture page references, quotes, crops and geometry. Mark OCR as a separate
+    evidence source where the format needs it. Escalate conflicting layers,
+    unclear handwriting and uncertain question boundaries. Normalize coordinates
+    and rotation before making overlay annotations.
+  criterion_evidence: >-
+    Distinguish present, proven_blank, unreadable, ambiguous and unavailable.
+    Record 1-based page, exact quote or region, location quality, extraction
+    method and conflict notes. If the source confirms a blank, zero only the
+    affected criteria under the approved policy. Leave unresolved evidence open.
+  proposal_and_validation: >-
+    Apply exact-answer rules and permitted bounded diagnostics where justified.
+    For subjective answers use teacher entry or a supervised structured
+    proposal. Require each criterion exactly once and bind each deduction to
+    evidence or hold it open. Preserve raw proposal and provider receipt
+    privately before validation when applicable. Use a stable finding ID
+    with one primary criterion and any related criteria. Link repeated
+    deductions to one finding when one issue explains them.
+  totals: >-
+    Validate discrete raw levels. Apply criterion weights and caps once in the
+    scoring core. Preserve raw score, effective score, raw and effective maxima,
+    and pending reason. For a cap-based rubric, reconcile paper maximum =
+    known earned + confirmed error loss + cap reduction + pending effective
+    maximum. Range minimum is known earned and range maximum adds pending
+    effective maximum. Format the grade using the binding's true denominator.
+  review: >-
+    Keep an immutable baseline and separate versioned decisions and history.
+    Expose each criterion, including full marks, with its source and rationale.
+    Recompute from the same saved effective state. Validate allowed overrides
+    and require their actor, reason and source. Save atomically with an
+    expected revision. Stale edits fail cleanly and material edits invalidate
+    affected review coverage and approval.
+  report_and_release: >-
+    Build the score breakdown, summary, card, annotated copy and class exports
+    from one bound effective snapshot. Group verified learner findings by
+    underlying issue, rank by severity, points lost and recurrence, and
+    show at most three useful priorities. Accept teacher edits to priorities
+    and strength. Use a checked syllabus map and omit unavailable references.
+    Preview can show pending results. Final local release requires current
+    teacher approval and valid source/rubric bindings. Keep reports versioned
+    and retain the last complete set through render or promotion failures.
+  privacy_and_recovery: >-
+    Keep sources, private keys, decisions, crops, logs and outputs in approved
+    private storage. Separate learner and teacher exports. Use synthetic tests
+    and redact approved calibration material before sharing with workers.
+    Use idempotent registration and output ownership markers. Flag stale
+    output after a change. Refuse to overwrite unowned files. If a permitted
+    provider run has ambiguous status, keep its receipt and require inspection
+    before retrying. Approve any external processing or sending separately.
+
+handoff_contract:
+  required_records:
+    submission: [submission_id, source_sha256, assessment_id, variant, revision, adapter_version, disposition]
+    evidence: [evidence_id, criterion_id, answer_state, method, page, location_quality, quote_or_region]
+    binding: [source_sha256, assessment_id, variant, revision, config_fingerprint, rubric_id, rubric_sha256]
+    criterion: [criterion_id, raw_max, raw_points, effective_max, effective_points, rationale, evidence_ids, pending_reason]
+    finding: [finding_id, criterion_id, related_criteria, evidence_ids, category, severity, description, correction, practice]
+    review_event: [submission_id, expected_revision, actor, timestamp, reason, changed_fields]
+    report_manifest: [submission_id, source_sha256, rubric_sha256, effective_revision, kind, artifact_checksums]
+  notes: >-
+    These are destination interface fields. Adapt the exact schema at D00.
+    For inputs with no embedded revision, document the independently verified
+    routing evidence and its limits. Bind the configured assessment and rubric
+    without claiming the PDF carries that binding.
+    Keep file paths, source hashes, raw responses and internal checks in the
+    teacher-side records. Use stable IDs in persisted decisions and separate
+    display numbering for the annotations.
+
+execution:
+  director_policy:
+    - "Read the destination project instructions first and verify the locally agreed worker setup."
+    - "Use one bounded worker at a time under the Blockly agreement. Use the current Director directly until the destination's model and cost agreement is recorded."
+    - "Give each worker this task's contract version, dependencies, allowed paths, fixtures, checks and stop conditions. Workers do not delegate."
+    - "Workers report changed paths, actual checks and open issues in up to 400 words. Pause the task on a missing contract, unsupported evidence or an out-of-scope edit. A narrowed retry requires a Director decision."
+    - "Director owns shared schemas, orchestration, approval policy, integration and final release review. Protected sources, prior decisions and real grades remain outside worker write scope."
+  historical_model_agreement:
+    director: {model: "gpt-6.1-sol", reasoning: high}
+    worker: {model: "gpt-6-luna", reasoning: low}
+    scope: "Recorded Blockly preferences. Confirm destination preferences and host availability."
+  proposed_paths: >-
+    The task-owned modules are under grading/ and tests/grading/. Store real
+    rubrics, evidence, reviews and reports only under grading/private/ or an
+    explicitly selected separate private workspace. The local implementation
+    packet records the acceptance checks, and grading/README.md documents use.
+
+tasks:
+  - id: D00
+    owner: director
+    kind: contract_review
+    depends_on: []
+    outcome: "Freeze a small first release for one assessment and one representative PDF layout."
+    work:
+      - "Read the target assessment, rubric and representative redacted or synthetic PDFs. Inventory question types, answer regions, expected revisions, modality conflicts and known unsupported cases."
+      - "Confirm identity matching, the chosen attempt, permissible score levels and caps, what counts as blank, teacher authority, output audience and the private storage/release boundaries."
+      - "Select teacher entry or supervised proposals. Record authorization and data handling before adding provider access."
+      - "Map repo paths, runtime and commands. Freeze record and adapter contracts with fixture examples and Director reference scores under the teacher's scoring instructions. Confirm the reference judgments with the teacher at D02. Define pilot sample coverage and when differences must be adjudicated."
+    accept:
+      - "The teacher can reconcile criterion maxima to the assessment total and identify policy choices requiring their judgment."
+      - "A source-to-question map, review contract, release policy and synthetic test matrix are available to all workers."
+
+  - id: W01
+    owner: worker
+    kind: build
+    depends_on: [D00]
+    owns: ["grading/intake/", "tests/grading/intake/"]
+    outcome: "Read-only inventory with source hashes and explicit assessment routing."
+    accept:
+      - "Recognize a correct input, reject a wrong or unsupported revision, and explain corrupt, missing, duplicate and mismatched submissions separately."
+      - "Repeated scans yield stable registrations and ignore verified generated outputs. Existing sources keep the same hashes."
+
+  - id: W02
+    owner: worker
+    kind: build
+    depends_on: [W01]
+    owns: ["grading/adapters/", "tests/grading/evidence/"]
+    outcome: "Native evidence adapter plus any approved OCR or visual fallback for the first layout."
+    accept:
+      - "Align extracted answers with question IDs, original page and quote or region. Keep prompt text separate from learner evidence."
+      - "Demonstrate separate states for genuine blank, unreadable, ambiguous and missing extraction. Verify image, duplicate-text and rotated-page behavior where relevant."
+      - "Flag any unresolved text/image/payload conflict for source review."
+
+  - id: D01
+    owner: director
+    kind: source_review
+    depends_on: [W02]
+    outcome: "Approve intake and evidence before building the scoring path."
+    accept:
+      - "Compare sample extracted answers and boxes with the visible originals, including a blank, a partially answered question and an ambiguous or unsupported case."
+      - "Reproduce duplicate and wrong-revision handling. Freeze evidence fixtures for score calibration."
+
+  - id: W03
+    owner: worker
+    kind: build
+    depends_on: [D01]
+    owns: ["grading/rubrics/", "grading/scoring/", "tests/grading/scoring/"]
+    outcome: "Private revision-bound rubric and deterministic validation/scoring core."
+    accept:
+      - "Correct, partial, blank, open and capped fixtures produce exact raw/effective values and reconcile to the expected maximum."
+      - "Wrong revision, missing or duplicate criterion, disallowed increment and unsupported deduction fail validation or produce a named pending state."
+      - "Keep submitted JavaScript inert. Use the pinned case probes for teacher inspection and validate each rubric dimension independently. Refuse caps for this assessment revision."
+
+  - id: W04
+    owner: worker
+    kind: build
+    depends_on: [W03]
+    owns: ["grading/proposals/", "tests/grading/proposals/"]
+    outcome: "Teacher-entry or supervised proposal intake feeding the same strict scoring core."
+    accept:
+      - "Persist raw proposal plus receipt when applicable, validated baseline and pending reasons separately."
+      - "Return actionable feedback fields with actual evidence. Unanchored deductions and contradictions with deterministic checks stay open."
+      - "Same bindings reuse an existing valid baseline. Simulate provider failure only if a provider is in scope. Preserve the last good state and avoid silent paid retries."
+
+  - id: D02
+    owner: director
+    kind: scoring_review
+    depends_on: [W04]
+    outcome: "Calibrate the rubric and proposal path before using scores in reports."
+    accept:
+      - "Hand-check full, partial, proven-blank, unsupported and cap cases against the rubric and compare criterion-by-criterion with teacher reference judgments."
+      - "Resolve disagreements with the teacher or preserve explicit open items. Verify that a model/provider result cannot approve a grade or bypass validation."
+      - "If any score policy changes, issue a new version and record whether old assessments keep their old key or require an approved migration."
+
+  - id: W05
+    owner: worker
+    kind: build
+    depends_on: [D02]
+    owns: ["grading/review_store/", "tests/grading/review_store/"]
+    outcome: "Versioned teacher decisions, review coverage, approval and audit history."
+    accept:
+      - "Stale saves are rejected and failed saves preserve the last complete state. Reload restores decisions without touching the baseline."
+      - "Enforce checked and resolved criteria and required source attestation. Record actor, reason and revision for overrides and approval."
+      - "An edit after approval produces a new effective revision and invalidates the old approval for current output."
+
+  - id: W06
+    owner: worker
+    kind: build
+    depends_on: [W05]
+    owns: ["grading/reviewer/", "tests/grading/reviewer/"]
+    outcome: "Small teacher review interface using the agreed CLI or local studio."
+    accept:
+      - "Show original answer next to proposal or decision, allowed point levels, evidence location, diagnostics and pending reasons."
+      - "Support all criteria, saving edits, strength and priority changes where applicable, explicit approval and preview generation."
+      - "Report stale revisions and unavailable evidence clearly. For a UI, verify keyboard navigation, small-screen readability and safe PDF access by registered ID."
+
+  - id: W07
+    owner: worker
+    kind: build
+    depends_on: [W05]
+    owns: ["grading/reports/", "tests/grading/reports/"]
+    outcome: "Learner card, score details, annotated PDF and summary from one snapshot."
+    accept:
+      - "Use the approved layout and plain learner language. Link each actionable correction to confirmed evidence and use only verified study references."
+      - "Render zero, one and three priorities, long text and names, mixed question lengths, ranges, pagination and draft/final states. The loss table reconciles to the same score as the card."
+      - "Check all rendered pages for clipping, overlaps, font coverage, contrast, annotation alignment and readability at print size. The learner files exclude internal provenance and teacher-only notes."
+
+  - id: D03
+    owner: director
+    kind: review_and_layout_gate
+    depends_on: [W06, W07]
+    outcome: "Approve the integrated review and learner feedback experience."
+    accept:
+      - "Walk through a grade correction, reload, approval and subsequent edit. Confirm the status, score and evidence update together."
+      - "Inspect card and annotation output visually for representative cases. Read a priority and follow its evidence and practice reference end to end."
+      - "Compare score, actual denominator and loss categories across the preview files. Confirm pending evidence is clear to the learner."
+
+  - id: W08
+    owner: worker
+    kind: build
+    depends_on: [D03]
+    owns: ["grading/release/", "tests/grading/release/"]
+    outcome: "Managed local promotion and teacher class overview."
+    accept:
+      - "Generate a consistent set with manifest and checksums. Recheck revision and approval at promotion. Refuse stale, partial or unowned output."
+      - "Simulate a write failure, rescan, rerun and changed source. Preserve the prior complete report set and registration, and mark stale current output."
+      - "Class export includes status, score or range and actual maximum. Keep internal fields private and neutralize spreadsheet formula injection. If a bundle is needed, verify its contents against the approved roster and report revisions."
+
+  - id: D04
+    owner: director
+    kind: pilot_and_handover
+    depends_on: [W08]
+    outcome: "Accept the full workflow and hand over instructions to the teacher."
+    work:
+      - "Run the normal entry point on synthetic fixtures first, from PDF intake to approved local reports."
+      - "If authorized, run one representative real submission privately. The teacher compares evidence, scoring and feedback. Expand to an agreed small pilot after adjudication before a class run."
+      - "Reopen an older supported revision, simulate an unrecognized revision and verify source and prior record preservation. Treat a revision of question content as a new binding. For an intentional regrade, archive the prior snapshot and verify any migrated decisions."
+      - "Document intake, review, approval, report locations, known unsupported inputs, recovery and rerender steps, and what needs to be backed up."
+    accept:
+      - "Record fixture results, pilot scope, discrepancies, dispositions, output checks and protected-file hashes. Label any unrun pilot or untested provider explicitly."
+      - "Every current release is bound to the saved approved revision. Preview and rejected/ambiguous submissions are visible to the teacher. Sources and historical decisions are recoverable."
+      - "Copyable run instructions and a clean, reviewable implementation are ready in the destination project."
+
+run_order: [D00, W01, W02, D01, W03, W04, D02, W05, W06, W07, D03, W08, D04]
