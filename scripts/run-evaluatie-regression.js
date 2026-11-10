@@ -502,19 +502,30 @@ async function checkPracticeQuota(browser, baseUrl) {
     await page.addInitScript(() => {
       window.syntheticRejections = [];
       window.addEventListener("unhandledrejection", event => window.syntheticRejections.push(String(event.reason)));
+      window.originalPracticeGetItem = Storage.prototype.getItem;
+      window.originalPracticeSetItem = Storage.prototype.setItem;
+      window.syntheticMetricWrites = 0;
+      Storage.prototype.getItem = () => { throw new DOMException("synthetic denied read", "SecurityError"); };
+      Storage.prototype.setItem = function (key) {
+        if (key.endsWith("-werkTijdMs")) window.syntheticMetricWrites += 1;
+        throw new DOMException("synthetic quota", "QuotaExceededError");
+      };
     });
     await page.goto(`${baseUrl}/platform.html`);
     await page.waitForFunction(() => document.getElementById("course-loading").classList.contains("is-hidden"));
+    assert(!await page.locator("#practice-storage-warning").isVisible(), "Opslagwaarschuwing verschijnt bij openen");
+    await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    assert(await page.evaluate(() => window.syntheticMetricWrites) > 0, "Test heeft geen mislukte tijdregistratie uitgevoerd");
+    assert(!await page.locator("#practice-storage-warning").isVisible(), "Tijdregistratie toont een opslagwaarschuwing");
     const code = await page.evaluate(() => {
       isDirty = false;
       switchChapter(chapters.findIndex(chapter => chapter.id === "ch01"));
       const expected = chapters[currentChapterIdx].exercises[0].tests[0].stdout;
-      window.originalPracticeSetItem = Storage.prototype.setItem;
-      Storage.prototype.setItem = function () { throw new DOMException("synthetic quota", "QuotaExceededError"); };
       const value = `// quota-snapshot-marker\nconsole.log(${JSON.stringify(expected)});`;
       editor.setValue(value);
       return value;
     });
+    await page.locator("#practice-storage-warning").waitFor({ state: "visible" });
     await page.locator("#run-code").click();
     await page.locator("#eval-modal-pill.ok").waitFor({ state: "visible" });
     await page.keyboard.press("Escape");
@@ -536,7 +547,10 @@ async function checkPracticeQuota(browser, baseUrl) {
       assert(pdf.subarray(0, 5).toString() === "%PDF-", "PDF-reeks met vluchtige uitvoering ontbreekt");
       assert(pdf.includes(Buffer.from("quota-snapshot-marker")), "PDF-reeks mist de vluchtig bewaarde uitvoering");
     }
-    await page.evaluate(() => { Storage.prototype.setItem = window.originalPracticeSetItem; });
+    await page.evaluate(() => {
+      Storage.prototype.getItem = window.originalPracticeGetItem;
+      Storage.prototype.setItem = window.originalPracticeSetItem;
+    });
     await page.locator("#run-code").click();
     await page.locator("#eval-modal-pill.ok").waitFor({ state: "visible" });
     assert(await page.evaluate(() => localStorage.getItem(`jsprog-${currentChapterIdx}-0`)) === code,

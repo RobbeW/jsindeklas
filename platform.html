@@ -1531,9 +1531,6 @@
 .app-actions .language-toggle {
   flex: 0 0 auto;
 }
-@media (max-width: 760px) {
-  .language-toggle { order: 2; }
-}
 </style>
 <style id="platform-header-style">
 :root {
@@ -1767,10 +1764,6 @@ body > header.topbar.learning-header {
   flex-wrap: wrap;
 }
 
-.topbar.learning-header .language-toggle {
-  order: 0 !important;
-}
-
 .topbar.learning-header .toolbar > button,
 .topbar.learning-header .app-actions > button,
 .topbar.learning-header .app-actions > .btn {
@@ -1947,15 +1940,14 @@ label, button, table, th, td,
 </div>
 
     <div class="toolbar">
-      
+      <button class="brand-btn" id="menu-tab" title="Toon menu" type="button" aria-controls="course-menu" aria-expanded="false">Menu</button>
+      <button class="brand-btn" id="export-pdf" title="Exporteer reeks naar PDF">PDF-reeks</button>
+      <button class="brand-btn" id="reset-progress" title="Wis opgeslagen voortgang">Voortgang wissen</button>
+      <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">Thema</button>
       <div class="language-toggle" role="group" aria-label="Taalkeuze">
         <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
         <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
       </div>
-      <button class="brand-btn" id="toggle-theme" title="Donkere/lichte modus">Thema</button>
-      <button class="brand-btn" id="menu-tab" title="Toon menu" type="button" aria-controls="course-menu" aria-expanded="false">Menu</button>
-      <button class="brand-btn" id="export-pdf" title="Exporteer reeks naar PDF">PDF-reeks</button>
-      <button class="brand-btn" id="reset-progress" title="Wis opgeslagen voortgang">Voortgang wissen</button>
     </div>
     <div id="timed-controls" class="timed-controls" hidden>
       <div id="timed-clock" class="timed-clock" role="timer" aria-live="off">
@@ -2620,12 +2612,11 @@ fillCircle(20);</code></pre>
 
     const practiceStorage = (() => {
       const values = new Map();
-      const pending = new Set();
+      const pending = new Map();
       const warning = document.getElementById("practice-storage-warning");
-      let readFailed = false;
 
       function updateWarning(){
-        const hide = !readFailed && pending.size === 0;
+        const hide = ![...pending.values()].includes(true);
         if (warning.hidden !== hide) warning.hidden = hide;
       }
 
@@ -2635,19 +2626,13 @@ fillCircle(20);</code></pre>
           const value = localStorage.getItem(key);
           if (value === null) values.delete(key);
           else values.set(key, value);
-          if (readFailed) {
-            readFailed = false;
-            updateWarning();
-          }
           return value;
         } catch (_) {
-          readFailed = true;
-          updateWarning();
           return values.get(key) ?? null;
         }
       }
 
-      function set(key, value){
+      function set(key, value, warnOnFailure = false){
         values.set(key, value);
         try {
           if (value === null) localStorage.removeItem(key);
@@ -2657,7 +2642,7 @@ fillCircle(20);</code></pre>
           updateWarning();
           return true;
         } catch (_) {
-          pending.add(key);
+          pending.set(key, warnOnFailure);
           updateWarning();
           return false;
         }
@@ -2667,15 +2652,12 @@ fillCircle(20);</code></pre>
         const known = new Set(values.keys());
         try {
           for (const key of Object.keys(localStorage)) known.add(key);
-        } catch (_) {
-          readFailed = true;
-          updateWarning();
-        }
+        } catch (_) {}
         return [...known].filter(key => !pending.has(key) || values.get(key) !== null);
       }
 
       function retry(){
-        for (const key of pending) set(key, values.get(key));
+        for (const [key, warnOnFailure] of pending) set(key, values.get(key), warnOnFailure);
       }
 
       return { get, set, keys, retry, remove: key => set(key, null), hasPending: () => pending.size > 0 };
@@ -2884,7 +2866,7 @@ function saveCompletedExerciseSnapshot(status /* "success" | "fail" */, evalResu
     fingerprint
   };
 
-  practiceStorage.set(storageKey, JSON.stringify(rec));
+  practiceStorage.set(storageKey, JSON.stringify(rec), true);
 }
 
     function getSavedSnapshotsForDate(dateKey){
@@ -3920,7 +3902,7 @@ document.addEventListener("visibilitychange", () => {
 
     function saveUserCode(){
       const key = `jsprog-${currentChapterIdx}-${currentExerciseIdx}`;
-      practiceStorage.set(key, editor.getValue());
+      practiceStorage.set(key, editor.getValue(), true);
     }
 
     function confirmSwitch(callback){
@@ -6208,6 +6190,15 @@ document.addEventListener("visibilitychange", () => {
     function applyAssignmentTextModeToBody(){
       document.body.classList.toggle("jsik-show-assignment-text", ASSIGNMENT_TEXT_MODE === "visible-comment");
     }
+
+    function loadEditorCode(code){
+      loadingExercise = true;
+      try {
+        editor.setValue(code);
+      } finally {
+        loadingExercise = false;
+      }
+    }
     
     function loadExercise(){
       exerciseVisit += 1;
@@ -6220,7 +6211,7 @@ document.addEventListener("visibilitychange", () => {
         const opdrachtTextEl  = document.getElementById("opdracht-tekst");
         if (opdrachtTitleEl) opdrachtTitleEl.textContent = "Geen oefeningen geladen";
         if (opdrachtTextEl) opdrachtTextEl.textContent = "";
-        if (editor && editor.setValue) editor.setValue("");
+        if (editor) loadEditorCode("");
         clearConsole();
         appendToConsole(describeCourseLoadFailure());
         return;
@@ -6244,12 +6235,7 @@ document.addEventListener("visibilitychange", () => {
           ASSIGNMENT_TEXT_MODE === "empty" || !exercise.starterSource || !assignmentText;
       }
       const savedCode = TIMED_REQUESTED ? timedState?.drafts?.[timedExerciseKey()] : practiceStorage.get(key);
-      loadingExercise = true;
-      try {
-        editor.setValue(savedCode ?? exercise.starterCode ?? "");
-      } finally {
-        loadingExercise = false;
-      }
+      loadEditorCode(savedCode ?? exercise.starterCode ?? "");
 
       clearConsole();
       capturedOutput = "";
