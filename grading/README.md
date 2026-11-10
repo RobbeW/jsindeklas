@@ -1,6 +1,15 @@
 # Lokaal nakijken · JavaScript in de Klas
 
-Deze workflow ondersteunt één gebundelde pdf-versie van **Toets Hoofdstuk 3: De Selectie**. De versie is gekoppeld aan de negen opdrachten uit de historische `toets_4.html` vóór de toevoeging van het uitvoervoorbeeld bij oefening 9. De correctiesleutel gebruikt **45 punten**. De leerkracht beoordeelt de zichtbare antwoorden en bevestigt de punten. De workflow voert geen ingezonden JavaScript uit.
+Deze workflow ondersteunt twee gebundelde pdf-versies van **Toets Hoofdstuk 3: De Selectie**. Elke versie heeft een eigen correctiesleutel met een maximum van **45 punten**. De leerkracht beoordeelt de zichtbare antwoorden en bevestigt de punten. De workflow voert geen ingezonden JavaScript uit.
+
+| PDF-versie | Revisie voor de correctiesleutel |
+| --- | --- |
+| Historische `toets_4.html`, vóór het uitvoervoorbeeld bij oefening 9 | `legacy-toets-4-741bede` |
+| Huidige getimede toets, met het uitvoervoorbeeld bij oefening 9 | `toets-3-2026-01-09-v1` |
+
+Gebruik voor de getimede versie een eigen correctiesleutel in de privémap `rubrics/`. Zet `revision` op `toets-3-2026-01-09-v1` en neem `prompt_source_blob` over uit `intake/timed-prompts.json` binnen de map `grading/`. Controleer de criteria voor het uitvoervoorbeeld bij oefening 9 en kalibreer de nieuwe sleutel volgens D02. Geef de bestandsnaam van de gekalibreerde sleutel mee vóór elke nakijkopdracht, bijvoorbeeld `python -m grading --rubric toets_3-getimed-v1.yaml prepare "$SUBMISSION"`. De historische sleutel blijft de standaardkeuze. Andere toetsen en examens hebben een eigen route en gekalibreerde sleutel nodig.
+
+De getimede pdf gebruikt de laatste code als antwoordbewijs, ook als die versie nooit werd uitgevoerd. Uitvoer en canvas van eerdere code zijn als zodanig gelabeld en blijven raadpleegbaar in het origineel. De browsergegevens onderaan dienen als context voor de intake en worden uit de leerlingkopie verwijderd. Controleer de indiening met het schoolplatform en het originele bestand.
 
 ## Installatie
 

@@ -45,7 +45,7 @@ function createStaticServer(rootDir) {
     const relPath = decodeURIComponent(url.pathname).replace(/^\/+/, "") || "index.html";
     const filePath = path.resolve(rootDir, relPath);
 
-    const allowedFiles = new Set(["platform.html", "favicon.png", "rgbcolor.js", "library.js"]);
+    const allowedFiles = new Set(["platform.html", "workspace.css", "favicon.png", "rgbcolor.js", "library.js"]);
     const allowed = allowedFiles.has(relPath) || /^evaluaties\/(?:[a-z0-9_]+\.html|launcher\.css|timed\.css|timed-attempt\.js|assessments\.json|content\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(?:json|js))$/.test(relPath) || /^content\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(?:json|js)$/.test(relPath);
     if (!allowed || !filePath.startsWith(rootDir + path.sep)) {
       res.writeHead(403);
@@ -408,10 +408,125 @@ async function checkPracticeMode(browser, baseUrl) {
     await page.waitForFunction(() => document.getElementById("course-loading").classList.contains("is-hidden"));
     assert(await page.locator("#export-pdf").isVisible(), "Oefenmodus mist PDF-reeks");
     assert(!await page.locator("#timed-controls").isVisible(), "Oefenmodus toont een evaluatieklok");
+    const consoleTab = page.getByRole("tab", { name: "Console-uitvoer" });
+    const canvasTab = page.getByRole("tab", { name: "Canvas" });
+    assert(await consoleTab.getAttribute("aria-selected") === "true", "Oefenmodus start niet op de console");
+    assert(await page.locator("#canvas-pane #console-output").isVisible(), "Oefenmodus mist de gedeelde console");
     await page.locator("#export-pdf").click();
     assert(await page.locator("#pdf-modal").isVisible(), "Oefenmodus opent de bestaande exportdialoog niet");
+    await page.locator("#close-pdf-modal").click();
+
+    await page.locator(".tour-start-button").click();
+    for (let step = 0; step < 5; step += 1) await page.getByRole("button", { name: "Volgende", exact: true }).click();
+    assert(await canvasTab.getAttribute("aria-selected") === "true", "Rondleiding opent het canvas niet");
+    await page.getByRole("button", { name: "Overslaan", exact: true }).click();
+    assert(await consoleTab.getAttribute("aria-selected") === "true", "Rondleiding herstelt het uitvoertabblad niet");
+
+    await page.evaluate(() => {
+      isDirty = false;
+      switchChapter(chapters.findIndex(chapter => chapter.id === "ch01"));
+      const expected = chapters[currentChapterIdx].exercises[0].tests[0].stdout;
+      editor.setValue(`console.log(${JSON.stringify(expected)});`);
+      window.originalSyntheticRun = window.runStudentCode;
+      window.runStudentCode = (code, options) => {
+        if (options?.captureGlobal === false) moveForward(10);
+        return window.originalSyntheticRun(code, options);
+      };
+    });
+    await page.locator("#run-code").click();
+    await page.locator("#eval-modal-pill.ok").waitFor({ state: "visible" });
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.getElementById("run-code").disabled);
+    assert(!await canvasTab.evaluate(tab => tab.classList.contains("has-canvas-output")),
+      "Consolecode signaleert canvasgebruik uit een verborgen test");
+
+    await page.evaluate(() => {
+      window.runStudentCode = window.originalSyntheticRun;
+      editor.setValue(editor.getValue() + "\nmoveForward(80);");
+    });
+    await page.locator("#run-code").click();
+    await page.locator("#eval-modal-pill.ok").waitFor({ state: "visible" });
+    await page.locator("#eval-modal-primary").click();
+    assert(await canvasTab.evaluate(tab => tab.classList.contains("has-canvas-output")), "Canvasuitvoer mist de statische markering");
+    assert(await canvasTab.evaluate(tab => getComputedStyle(tab).animationName) === "none", "Canvas pulseert bij beperkte beweging");
+    if (process.env.JSIK_JSPDF_PATH) {
+      await page.locator("#modal-naam").fill("Demo Leerling");
+      await page.locator("#modal-klas").fill("TEST");
+      const download = page.waitForEvent("download");
+      await page.locator("#modal-ok").click();
+      const pdf = fs.readFileSync(await (await download).path());
+      assert(pdf.includes(Buffer.from("/Subtype /Image")), "Oefen-PDF mist de tekening van het verborgen canvas");
+    }
   });
-  console.log("[OK] bestaande export in oefenmodus");
+  console.log("[OK] gedeelde oefenmodus, rondleiding, canvassignaal en PDF-export");
+}
+
+async function checkTimedWorkspace(browser, baseUrl) {
+  await withSyntheticPage(browser, baseUrl, async page => {
+    await page.setViewportSize({ width: 1366, height: 820 });
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await launchTimed(page, baseUrl, ASSESSMENTS[0]);
+    const editorPane = page.locator("#editor-pane");
+    const outputPane = page.locator("#canvas-pane");
+    const splitter = page.getByRole("separator", { name: "Verdeling werkruimte" });
+    const consoleTab = page.getByRole("tab", { name: "Console-uitvoer" });
+    const canvasTab = page.getByRole("tab", { name: "Canvas" });
+    const turtleCanvas = page.locator("#turtlecanvas");
+    const noPageScroll = () => page.evaluate(() => document.scrollingElement.scrollHeight <= innerHeight);
+
+    assert(await consoleTab.getAttribute("aria-selected") === "true", "Console is niet standaard actief");
+    assert(!await turtleCanvas.isVisible(), "Canvas neemt ruimte in bij de consoletab");
+    const left = await editorPane.boundingBox();
+    const right = await outputPane.boundingBox();
+    assert(Math.abs(left.width - right.width) <= 1 && right.x > left.x, "Desktop start zonder gelijke zijpanelen");
+
+    const divider = await splitter.boundingBox();
+    const x = divider.x + divider.width / 2;
+    const y = divider.y + divider.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 125, y, { steps: 5 });
+    await page.mouse.up();
+    assert((await editorPane.boundingBox()).width > left.width + 100, "Slepen verandert de paneelbreedte niet");
+
+    await page.evaluate(() => editor.setValue('console.log("synthetische uitvoer"); moveForward(80);'));
+    await page.locator("#run-code").click();
+    await page.locator("#eval-modal-primary").click();
+    assert((await page.locator("#console-output").textContent()).includes("synthetische uitvoer"), "Console mist de uitvoer");
+    assert(await page.evaluate(() => window.__getCanvasEvaluationData().trace.some(entry => entry.type === "moveForward")),
+      "Canvas ontvangt geen tekenopdrachten terwijl de console actief is");
+    assert(await canvasTab.evaluate(tab => getComputedStyle(tab).animationName) === "canvas-output-pulse",
+      "Canvasuitvoer laat het tabblad niet pulseren");
+    const drawing = await turtleCanvas.evaluate(canvas => canvas.toDataURL());
+    await consoleTab.focus();
+    await page.keyboard.press("ArrowRight");
+    assert(await canvasTab.getAttribute("aria-selected") === "true", "Pijltoets opent canvas niet");
+    assert(!await canvasTab.evaluate(tab => tab.classList.contains("has-canvas-output")), "Bekeken canvas blijft als nieuw gemarkeerd");
+    assert(await turtleCanvas.isVisible(), "Canvas blijft verborgen");
+    await page.keyboard.press("ArrowLeft");
+    assert((await page.locator("#console-output").textContent()).includes("synthetische uitvoer"), "Tabwisseling wist console-uitvoer");
+    assert(await turtleCanvas.evaluate(canvas => canvas.toDataURL()) === drawing, "Tabwisseling wijzigt de tekening");
+    assert(await noPageScroll(), "Desktopwerkruimte laat de pagina scrollen");
+
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.waitForFunction(() => document.getElementById("splitter").getAttribute("aria-orientation") === "horizontal");
+    const upper = await editorPane.boundingBox();
+    const lower = await outputPane.boundingBox();
+    assert(lower.y > upper.y && Math.abs(upper.width - lower.width) <= 1, "Smalle werkruimte stapelt de panelen niet");
+    await splitter.focus();
+    await page.keyboard.press("ArrowUp");
+    assert((await editorPane.boundingBox()).height < upper.height, "Toetsenbord wijzigt de paneelhoogte niet");
+    await page.locator("#console-output").evaluate(el => { el.textContent = "lange uitvoer\n".repeat(100); });
+    assert(await page.locator("#console-panel").evaluate(el => el.scrollHeight > el.clientHeight),
+      "Lange uitvoer kan niet binnen het consolepaneel scrollen");
+    assert(await noPageScroll(), "Smalle werkruimte laat de pagina scrollen");
+    await canvasTab.click();
+    const canvas = await turtleCanvas.boundingBox();
+    const stage = await page.locator(".canvas-stage").boundingBox();
+    assert(canvas.width > 10 && Math.abs(canvas.width - canvas.height) <= 1 &&
+      canvas.width <= stage.width + 1 && canvas.height <= stage.height + 1, "Canvas past niet vierkant in het paneel");
+  });
+  console.log("[OK] 50/50-werkruimte, uitvoertabs en paneelverdeling op desktop en mobiel");
 }
 
 async function inspectAssessment(page, baseUrl, assessment) {
@@ -583,6 +698,7 @@ async function main() {
     await configurePage(page, baseUrl);
     await checkFallbacks(browser, baseUrl);
     await checkPracticeMode(browser, baseUrl);
+    await checkTimedWorkspace(browser, baseUrl);
     await checkLifecycle(browser, baseUrl);
     for (const assessment of ASSESSMENTS) {
       const cap = assessment.kind === "exam" ? 100 : 45;

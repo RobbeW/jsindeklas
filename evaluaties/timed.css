@@ -184,3 +184,8 @@ body.dark :is(.timed-dialog, .timed-nudge, .timed-controls) {
   .timed-clock.is-pulsing::after { animation: none; }
   .timed-button:hover:not(:disabled) { transform: none; }
 }
+
+@media (max-width: 700px) {
+  body.timed-assessment .timed-controls { gap: .3rem; }
+  body.timed-assessment .timed-controls :is(.timed-clock, .timed-button) { min-height: 36px; padding: .35rem .5rem; }
+}

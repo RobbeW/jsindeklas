@@ -14,6 +14,7 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="evaluaties/timed.css">
+  <link rel="stylesheet" href="workspace.css">
   <title>JavaScript in de Klas</title>
   <!-- Externe bron: CodeMirror 5 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.14/lib/codemirror.min.css">
@@ -124,10 +125,8 @@
     })();
   </script>
 
-  <!-- PDF export libs (een keer inladen) -->
-  <!-- Externe bronnen: jsPDF en html2canvas -->
+  <!-- Externe bron voor PDF-export: jsPDF -->
   <script id="pdf-library" src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root{
@@ -1944,7 +1943,7 @@ label, button, table, th, td,
 </style>
 </head>
 
-<body>
+<body class="split-workspace">
   <div id="course-loading" class="course-loading" role="status" aria-live="polite" aria-busy="true">
     <div class="course-loading-card">
       <div class="course-loading-mark" aria-hidden="true">
@@ -1991,6 +1990,7 @@ label, button, table, th, td,
   </header>
 
   <p id="timed-announcement" class="timed-sr-only" role="status"></p>
+  <p id="canvas-announcement" class="timed-sr-only" role="status"></p>
   <aside id="timed-nudge" class="timed-nudge" aria-label="Resterende tijd" hidden>
     <p id="timed-nudge-message"></p>
     <div class="timed-actions">
@@ -2083,33 +2083,41 @@ label, button, table, th, td,
       <section id="tour-intro" class="tour-intro" hidden></section>
       <div class="editor-label">Code-editor</div>
       <div id="code-editor"></div>
-      <br><br>
-      <button id="run-code" class="brand-btn run-btn">Uitvoeren</button>
-      <br><br>
-      <div class="console-label">Console-uitvoer</div>
-      <br>
-      <div id="console-output" class="console-output"></div>
+      <div class="editor-actions">
+        <button id="run-code" class="brand-btn run-btn">Uitvoeren</button>
+        <button id="help-btn" class="help-btn" aria-label="Toon commando's en uitleg" title="Toon commando's en uitleg">?</button>
+      </div>
     </section>
 
     <div class="splitter" id="splitter"></div>
 
-    <!-- Canvas -->
+    <!-- Output -->
     <section class="canvas-pane" id="canvas-pane">
-      <div class="canvas-header">
-        <span class="canvas-label">Canvas</span>
-        <span id="coords" class="coords"></span>
-        <span id="metrics"></span>
+      <div id="output-tabs" class="output-tabs" role="tablist" aria-label="Uitvoer">
+        <button type="button" class="output-tab" id="console-tab" role="tab"
+          aria-controls="console-panel" aria-selected="true">Console-uitvoer</button>
+        <button type="button" class="output-tab" id="canvas-tab" role="tab"
+          aria-controls="canvas-panel" aria-selected="false" tabindex="-1">Canvas</button>
       </div>
-      <canvas id="turtlecanvas" width="500" height="500"></canvas>
-      <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
-
-      <div class="zoom-controls">
-        <button class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
-        <button class="zoom-btn" id="zoom-out" aria-label="Zoom out">-</button>
+      <div id="console-panel" role="tabpanel" aria-labelledby="console-tab" tabindex="0">
+        <div id="console-output" class="console-output"></div>
+      </div>
+      <div id="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab" tabindex="0" hidden>
+        <div class="canvas-header">
+          <span id="coords" class="coords"></span>
+          <span id="metrics"></span>
+          <div class="zoom-controls">
+            <button class="zoom-btn" id="zoom-in" aria-label="Zoom in">+</button>
+            <button class="zoom-btn" id="zoom-out" aria-label="Zoom out">-</button>
+          </div>
+        </div>
+        <div class="canvas-stage">
+          <canvas id="turtlecanvas" width="500" height="500"></canvas>
+          <canvas id="imagecanvas" width="500" height="500" style="display:none;"></canvas>
+        </div>
       </div>
     </section>
 
-    <button id="help-btn" class="help-btn" title="Toon commando's en uitleg">?</button>
   </main>
 
   <!-- Help modal -->
@@ -3230,6 +3238,8 @@ document.addEventListener("visibilitychange", () => {
 
       function getStepTarget(step){
         const target = step && step.selector ? document.querySelector(step.selector) : null;
+        const panel = target?.closest('[role="tabpanel"]');
+        if (panel?.hidden) selectOutputTab(document.getElementById(panel.getAttribute("aria-labelledby")));
         if (usableTarget(target)) return target;
         return document.querySelector("#opdracht") || document.querySelector("#editor-pane") || document.body;
       }
@@ -3345,6 +3355,7 @@ document.addEventListener("visibilitychange", () => {
       async function startTour(){
         clearActiveTour();
         await prepareTourBackground();
+        const previousTab = document.querySelector('#output-tabs [aria-selected="true"]');
         document.body.appendChild(overlay);
         document.body.classList.add("tour-active");
         activeTourCleanup = () => {
@@ -3353,6 +3364,7 @@ document.addEventListener("visibilitychange", () => {
           document.removeEventListener("keydown", onKeyDown);
           overlay.remove();
           document.body.classList.remove("tour-active");
+          selectOutputTab(previousTab);
         };
         window.addEventListener("resize", positionTour);
         window.addEventListener("scroll", positionTour, true);
@@ -4036,10 +4048,42 @@ document.addEventListener("visibilitychange", () => {
        ========================================================= */
 
     const consoleDiv = document.getElementById("console-output");
+    const canvasTab = document.getElementById("canvas-tab");
+    const canvasAnnouncement = document.getElementById("canvas-announcement");
     let capturedOutput = "";
+    let exerciseVisit = 0;
+    let canvasOutputReady = false;
 
     function clearConsole(){ consoleDiv.textContent = ""; }
     function appendToConsole(msg){ consoleDiv.textContent += msg + "\n"; }
+
+    function clearCanvasOutputCue(){
+      canvasOutputReady = false;
+      canvasTab.classList.remove("has-canvas-output", "is-canvas-pulsing");
+      canvasAnnouncement.textContent = "";
+    }
+
+    function pulseCanvasOutput(){
+      if (!canvasOutputReady) return;
+      canvasOutputReady = false;
+      canvasTab.classList.add("is-canvas-pulsing");
+    }
+
+    async function runVisibleStudentCode(code){
+      const visit = exerciseVisit;
+      const activity = window.__getCanvasActivity?.();
+      try {
+        await runStudentCode(code);
+      } finally {
+        if (activity !== undefined && visit === exerciseVisit && window.__getCanvasActivity() !== activity) {
+          canvasOutputReady = true;
+          if (canvasTab.getAttribute("aria-selected") === "false") {
+            canvasTab.classList.add("has-canvas-output");
+            canvasAnnouncement.textContent = "Nieuwe uitvoer op het tabblad Canvas.";
+          }
+        }
+      }
+    }
 
     function createSafeConsole(options = {}){
       const realConsole = window.console;
@@ -6166,6 +6210,8 @@ document.addEventListener("visibilitychange", () => {
     }
     
     function loadExercise(){
+      exerciseVisit += 1;
+      clearCanvasOutputCue();
       clearActiveTour();
       resetTourIntro();
 
@@ -6324,8 +6370,7 @@ document.addEventListener("visibilitychange", () => {
       const includeDetailedEval = !TEST_MODE || REVEAL_EXPECTED_ON_FAIL;
 
       const canvas = document.getElementById("turtlecanvas");
-      const canvasImg = await html2canvas(canvas, { backgroundColor:null, scale:2 })
-        .then(cnv => cnv.toDataURL("image/png"));
+      const canvasImg = canvas.toDataURL("image/png");
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation:"portrait", unit:"pt", format:"a4" });
@@ -6821,6 +6866,7 @@ y += headerH + 5 * rowH + 20;
       runButton.textContent = "Uitvoeren…";
       affectedButtons.forEach(button => { button.disabled = true; });
       renderExerciseProgress();
+      clearCanvasOutputCue();
       clearConsole();
       capturedOutput = "";
       if (window.resetTurtle) window.resetTurtle();
@@ -6843,7 +6889,7 @@ y += headerH + 5 * rowH + 20;
         } else {
           let runtimeError = "";
           try {
-            await runStudentCode(code);
+            await runVisibleStudentCode(code);
           } catch (error) {
             runtimeError = translateError(error?.message || String(error));
             appendToConsole(`Fout: ${runtimeError}`);
@@ -6876,15 +6922,19 @@ y += headerH + 5 * rowH + 20;
         }
       }
       if (feedback && timedCanEdit()) await handleStructuredEvaluationFeedback(feedback);
+      if (timedCanEdit()) pulseCanvasOutput();
     }
 
     document.getElementById("run-code").onclick = async function(){
       if (TIMED_REQUESTED) return runTimedExercise();
+      if (this.disabled) return;
       // Poging telt enkel als er effectief gewijzigd is
       incPogingen();
       stopWerkTimer();
       updateMetricsUI();
 
+      this.disabled = true;
+      clearCanvasOutputCue();
       clearConsole();
       capturedOutput = "";
 
@@ -6941,7 +6991,7 @@ y += headerH + 5 * rowH + 20;
 
         let runtimeError = "";
         try{
-          await runStudentCode(code);
+          await runVisibleStudentCode(code);
         }catch(e){
           const msg = e && e.message ? e.message : String(e);
           runtimeError = translateError(msg);
@@ -6973,6 +7023,8 @@ y += headerH + 5 * rowH + 20;
           }
         }
       }finally{
+        this.disabled = false;
+        pulseCanvasOutput();
         updateMetricsUI();
       }
     };
@@ -7106,60 +7158,83 @@ y += headerH + 5 * rowH + 20;
       });
     }
 
-    // Splitter (resizable panes)
-    function setupSplitter(){
+    function selectOutputTab(selectedTab){
+      for (const tab of document.querySelectorAll('#output-tabs [role="tab"]')) {
+        const selected = tab === selectedTab;
+        tab.setAttribute("aria-selected", String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        document.getElementById(tab.getAttribute("aria-controls")).hidden = !selected;
+      }
+      if (selectedTab === canvasTab) clearCanvasOutputCue();
+    }
+
+    function setupExerciseLayout(){
+      const workspace = document.getElementById("main-layout");
       const splitter = document.getElementById("splitter");
-      const editorPane = document.getElementById("editor-pane");
-      const canvasPane = document.getElementById("canvas-pane");
-      const mainLayout = document.getElementById("main-layout");
-      if (!splitter || !editorPane || !canvasPane || !mainLayout) return;
+      const tabs = [...document.querySelectorAll('#output-tabs [role="tab"]')];
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => selectOutputTab(tab));
+        tab.addEventListener("keydown", event => {
+          const target = { ArrowRight: (index + 1) % tabs.length,
+            ArrowLeft: (index + tabs.length - 1) % tabs.length, Home: 0, End: tabs.length - 1 };
+          if (!Object.hasOwn(target, event.key)) return;
+          event.preventDefault();
+          const nextTab = tabs[target[event.key]];
+          selectOutputTab(nextTab);
+          nextTab.focus();
+        });
+      });
 
-      let dragging = false;
-
-      splitter.addEventListener("mousedown", function(){
-        if (window.innerWidth < 980) return;
-        dragging = true;
+      const stacked = matchMedia("(max-width: 700px)");
+      const minShare = 25;
+      const maxShare = 75;
+      let editorShare = 50;
+      function setEditorShare(value){
+        editorShare = Math.round(Math.max(minShare, Math.min(maxShare, value)));
+        workspace.style.setProperty("--editor-share", `${editorShare}fr`);
+        workspace.style.setProperty("--output-share", `${100 - editorShare}fr`);
+        splitter.setAttribute("aria-valuenow", editorShare);
+      }
+      function setOrientation(){
+        splitter.setAttribute("aria-orientation", stacked.matches ? "horizontal" : "vertical");
+      }
+      splitter.tabIndex = 0;
+      splitter.setAttribute("role", "separator");
+      splitter.setAttribute("aria-label", "Verdeling werkruimte");
+      splitter.setAttribute("aria-controls", "editor-pane");
+      splitter.setAttribute("aria-valuemin", minShare);
+      splitter.setAttribute("aria-valuemax", maxShare);
+      setEditorShare(50);
+      setOrientation();
+      stacked.addEventListener("change", setOrientation);
+      splitter.addEventListener("keydown", event => {
+        const [decrease, increase] = stacked.matches ? ["ArrowUp", "ArrowDown"] : ["ArrowLeft", "ArrowRight"];
+        if (event.key === decrease) setEditorShare(editorShare - 5);
+        else if (event.key === increase) setEditorShare(editorShare + 5);
+        else if (event.key === "Home") setEditorShare(minShare);
+        else if (event.key === "End") setEditorShare(maxShare);
+        else return;
+        event.preventDefault();
+      });
+      splitter.addEventListener("pointerdown", event => {
+        if (event.button !== 0 || !event.isPrimary) return;
+        event.preventDefault();
+        splitter.focus({ preventScroll: true });
+        splitter.setPointerCapture(event.pointerId);
         splitter.classList.add("dragging");
-        document.body.style.userSelect = "none";
       });
-
-      document.addEventListener("mousemove", function(e){
-        if (!dragging || window.innerWidth < 980) return;
-
-        const rect = mainLayout.getBoundingClientRect();
-        const minEditorWidth = 220;
-        const minCanvasWidth = Math.max(0, parseFloat(getComputedStyle(canvasPane).minWidth) || 0);
-        const splitterWidth = splitter.offsetWidth;
-        const totalWidth = rect.width;
-
-        let newEditorWidth = e.clientX - rect.left;
-        const maxEditorWidth = totalWidth - splitterWidth - minCanvasWidth;
-        newEditorWidth = Math.max(minEditorWidth, Math.min(maxEditorWidth, newEditorWidth));
-
-        editorPane.style.flex = `0 0 ${newEditorWidth}px`;
-        editorPane.style.width = `${newEditorWidth}px`;
-        canvasPane.style.flex = "1 1 0";
-        canvasPane.style.width = "";
+      splitter.addEventListener("pointermove", event => {
+        if (!splitter.hasPointerCapture(event.pointerId)) return;
+        const bounds = workspace.getBoundingClientRect();
+        const vertical = stacked.matches;
+        const handle = vertical ? splitter.offsetHeight : splitter.offsetWidth;
+        const size = (vertical ? bounds.height : bounds.width) - handle;
+        const position = vertical ? event.clientY - bounds.top : event.clientX - bounds.left;
+        if (size > 0) setEditorShare((position - handle / 2) / size * 100);
       });
-
-      document.addEventListener("mouseup", function(){
-        if (!dragging) return;
-        dragging = false;
-        splitter.classList.remove("dragging");
-        document.body.style.userSelect = "";
-      });
-
-      window.addEventListener("resize", function(){
-        if (window.innerWidth < 980){
-          editorPane.style.flex = "";
-          editorPane.style.width = "";
-          canvasPane.style.flex = "";
-          canvasPane.style.width = "";
-          splitter.style.display = "none";
-        } else {
-          splitter.style.display = "block";
-        }
-      });
+      splitter.addEventListener("lostpointercapture", () => splitter.classList.remove("dragging"));
+      new ResizeObserver(() => editor.refresh()).observe(document.getElementById("code-editor"));
+      document.fonts?.ready.then(() => editor.refresh());
     }
 
     /* =========================================================
@@ -7197,6 +7272,7 @@ y += headerH + 5 * rowH + 20;
         value: (chapters[0] && chapters[0].exercises[0] && chapters[0].exercises[0].starterCode) ? chapters[0].exercises[0].starterCode : "",
         mode:"javascript",
         lineNumbers:true,
+        lineWrapping:true,
         theme:"default",
         tabSize:2,
         autofocus:!TIMED_REQUESTED,
@@ -7223,7 +7299,7 @@ y += headerH + 5 * rowH + 20;
       applyAssignmentTextModeToBody();
       renderSwatches();
       setupMenu();
-      setupSplitter();
+      setupExerciseLayout();
 
       renderChapterMenu();
       renderExerciseProgress();
@@ -7280,7 +7356,10 @@ y += headerH + 5 * rowH + 20;
   "Editor": "Editor",
   "Uitvoeren": "Run",
   "Uitvoer": "Output",
+  "Nieuwe uitvoer op het tabblad Canvas.": "New output in the Canvas tab.",
   "Console-uitvoer": "Console output",
+  "Uitvoer": "Output",
+  "Verdeling werkruimte": "Workspace split",
   "Feedback": "Feedback",
   "Status": "Status",
   "Data": "Data",

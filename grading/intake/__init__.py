@@ -16,13 +16,32 @@ import hashlib
 import json
 import re
 import unicodedata
+from io import BytesIO
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 from pypdf import PdfReader
 
+from grading.intake.timed import TIMED_BINDING, TIMED_CONFIG, has_timed_footer, inspect_timed
+
 CONFIG = json.loads(Path(__file__).with_name('prompts.json').read_text(encoding='utf-8'))
 BINDING = {'assessment_id': 'toets_3', 'variant': 'regular', 'revision': 'legacy-toets-4-741bede', 'adapter_version': 'bundled-jspdf-v1'}
-FINGERPRINT = hashlib.sha256(json.dumps({'binding': BINDING, 'config': CONFIG}, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def _fingerprint(binding, config):
+    return hashlib.sha256(json.dumps({'binding': binding, 'config': config}, ensure_ascii=False,
+                                     sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+FINGERPRINT = _fingerprint(BINDING, CONFIG)
+TIMED_FINGERPRINT = _fingerprint(TIMED_BINDING, TIMED_CONFIG)
+
+
+def route_config(binding, fingerprint):
+    if binding == BINDING and fingerprint == FINGERPRINT:
+        return CONFIG
+    if binding == TIMED_BINDING and fingerprint == TIMED_FINGERPRINT:
+        return TIMED_CONFIG
+    return None
 
 
 def _norm(s):
@@ -103,6 +122,20 @@ def _route(pages):
     return 'accepted', ['matched_legacy_prompt_and_route'], bounds
 
 
+def _route_source(data, page_text):
+    if any('Door de browser geregistreerd:' in text for text in page_text):
+        import pdfplumber
+        from grading.pdf_text import positioned_pages
+
+        with pdfplumber.open(BytesIO(data)) as pdf:
+            pages = positioned_pages(pdf)
+            if has_timed_footer(pages):
+                layout = inspect_timed(pages)
+                return (layout['disposition'], layout['reasons'], layout['sections'],
+                        TIMED_BINDING, TIMED_FINGERPRINT)
+    return (*_route(page_text), BINDING, FINGERPRINT)
+
+
 def scan(root, manifest):
     root = Path(root).resolve(strict=True)
     if not root.is_dir():
@@ -149,15 +182,15 @@ def scan(root, manifest):
         digest = hashlib.sha256(data).hexdigest()
         r.update(sha256=digest, submission_id='sub_' + hashlib.sha256(('jsik-intake-v1:' + digest).encode()).hexdigest())
         try:
-            from io import BytesIO
             reader = PdfReader(BytesIO(data), strict=True)
             pages = [p.extract_text() or '' for p in reader.pages]
             if not pages:
                 raise ValueError('empty PDF')
+            disposition, reasons, sections, binding, fingerprint = _route_source(data, pages)
         except Exception:
             r.update(disposition='corrupt', reasons=['pdf_unreadable']); continue
-        disposition, reasons, sections = _route(pages)
-        r.update(disposition=disposition, reasons=reasons, sections=sections)
+        r.update(disposition=disposition, reasons=reasons, sections=sections,
+                 binding=dict(binding), route_fingerprint=fingerprint)
         if disposition == 'accepted':
             name = re.search(r'^Naam:\s*(.*?)\s*$', pages[0], re.M)
             klass = re.search(r'^Klas:\s*(.*?)\s*$', pages[0], re.M)

@@ -15,29 +15,8 @@ import re
 import pdfplumber
 from pypdf import PdfReader
 
-from grading.intake import BINDING, FINGERPRINT, _route
-
-
-def _box(chars, page):
-    return {'page': page, 'box': [min(c['x0'] for c in chars), min(c['top'] for c in chars),
-                                  max(c['x1'] for c in chars), max(c['bottom'] for c in chars)]}
-
-
-def _lines(page, number):
-    # Preserve spaces and indentation from positioned characters, not normalised words.
-    chars = sorted(page.chars, key=lambda c: (round(c['top'], 1), c['x0']))
-    rows = []
-    for c in chars:
-        if not rows or abs(rows[-1][0]['top'] - c['top']) > 2:
-            rows.append([c])
-        else:
-            rows[-1].append(c)
-    result = []
-    for row in rows:
-        row.sort(key=lambda c: c['x0'])
-        text = ''.join(c['text'] for c in row)
-        result.append({'text': text, 'region': _box(row, number), 'chars': row})
-    return result
+from grading.intake import TIMED_BINDING, _route, route_config
+from grading.pdf_text import positioned_pages
 
 
 def extract(pdf_path, registration):
@@ -45,21 +24,26 @@ def extract(pdf_path, registration):
 
     Raises ValueError on stale/unaccepted registration or unsafe footer location.
     """
+    binding = registration.get('binding')
     if (registration.get('disposition') != 'accepted' or
-        registration.get('binding') != BINDING or registration.get('route_fingerprint') != FINGERPRINT or
+        route_config(binding, registration.get('route_fingerprint')) is None or
         not registration.get('submission_id')):
         raise ValueError('accepted W01 registration required')
     data = Path(pdf_path).read_bytes()
     digest = sha256(data).hexdigest()
     if digest != registration.get('sha256'):
         raise ValueError('source hash mismatch')
+    if binding == TIMED_BINDING:
+        from grading.adapters.timed import extract_timed
+
+        return extract_timed(data, registration)
     reader = PdfReader(BytesIO(data), strict=True)
     disposition, _, sections = _route([p.extract_text() or '' for p in reader.pages])
     if disposition != 'accepted' or sections != registration.get('sections'):
         raise ValueError('registration route mismatch')
     evidence, verification, verification_safe = [], [], True
     with pdfplumber.open(BytesIO(data)) as pdf:
-        pages = [(_lines(p, i + 1), p) for i, p in enumerate(pdf.pages)]
+        pages = positioned_pages(pdf)
         for section in sections:
             qid = section['question_id']
             lines = []

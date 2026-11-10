@@ -29,6 +29,7 @@
   initialized: false
   };
   let canvasTrace = [];
+  let canvasActivity = 0;
 
   // --- Turtle State ---
   let turtle = {
@@ -81,6 +82,7 @@
     canvasTrace = [];
   }
   function recordCanvasTrace(entry) {
+    canvasActivity += 1;
     canvasTrace.push(entry);
     if (canvasTrace.length > 4000) {
       canvasTrace.shift();
@@ -232,6 +234,7 @@ window.runStudentCode = async function(studentCode) {
 
   // Reset turtle and clear drawing
   window.resetTurtle = function() {
+    canvasActivity += 1;
     turtle.x = 0;
     turtle.y = 0;
     turtle.angle = 0;
@@ -511,6 +514,8 @@ window.writeText = function(text) {
   ].forEach(fn=>{
     if (!window[fn]) window[fn]=function(){};
   });
+
+  window.__getCanvasActivity = () => canvasActivity;
 
   window.__getCanvasEvaluationData = function() {
     return {

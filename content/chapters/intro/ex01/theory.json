@@ -20,7 +20,7 @@
     {
       "selector": "#run-code",
       "title": "Uitvoeren",
-      "text": "Met deze knop voer je je code uit. Foutmeldingen en feedback verschijnen daarna onder de editor."
+      "text": "Met deze knop voer je je code uit. Je uitvoer en foutmeldingen verschijnen op het tabblad Console-uitvoer."
     },
     {
       "selector": "#console-output",
@@ -30,7 +30,7 @@
     {
       "selector": "#turtlecanvas",
       "title": "Canvas",
-      "text": "Veel oefeningen tekenen op het canvas. Dit voorbeeld tekent een blauw vierkant van 50 pixels."
+      "text": "Op het tabblad Canvas zie je je tekening. Na een uitvoering met tekencommando's krijgt dit tabblad een signaal. Dit voorbeeld tekent een blauw vierkant van 50 pixels."
     },
     {
       "selector": "#menu-tab",

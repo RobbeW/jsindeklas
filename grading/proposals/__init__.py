@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from grading.common import file_lock, read_json, write_json
-from grading.intake import BINDING, FINGERPRINT
+from grading.intake import BINDING, route_config
 from grading.scoring import score
 
 FORMAT = 'jsik-baseline-v1'
@@ -27,7 +27,8 @@ def register_baseline(path, binding, rubric, extracted, marks=None):
         raise ValueError('invalid binding keys')
     if any(not isinstance(v, str) or not v.strip() for v in binding.values()):
         raise ValueError('invalid binding values')
-    if (any(binding[k] != v for k, v in BINDING.items()) or binding['config_fingerprint'] != FINGERPRINT
+    route = {k: binding[k] for k in BINDING}
+    if (route_config(route, binding['config_fingerprint']) is None
             or not isinstance(rubric, dict) or not isinstance(extracted, dict)
             or any(binding[k] != rubric.get(k) for k in ('assessment_id', 'variant', 'revision', 'rubric_id', 'rubric_sha256'))
             or any(binding[k] != extracted.get(k) for k in ('submission_id', 'source_sha256'))):

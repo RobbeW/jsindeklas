@@ -3,7 +3,7 @@ import hashlib
 import math
 from pathlib import Path
 
-from grading.intake import BINDING, CONFIG, FINGERPRINT
+from grading.intake import route_config
 
 
 def _number(value):
@@ -12,8 +12,11 @@ def _number(value):
 
 def load_rubric(path, registration):
     """Return a validated rubric and the SHA-256 of its exact YAML bytes."""
-    if (not isinstance(registration, dict) or registration.get('disposition') != 'accepted'
-            or registration.get('binding') != BINDING or registration.get('route_fingerprint') != FINGERPRINT):
+    if not isinstance(registration, dict) or registration.get('disposition') != 'accepted':
+        raise ValueError('accepted matching registration required')
+    binding = registration.get('binding')
+    config = route_config(binding, registration.get('route_fingerprint'))
+    if config is None:
         raise ValueError('accepted matching registration required')
     import yaml  # Optional until a rubric is actually loaded.
     data = Path(path).read_bytes()
@@ -30,7 +33,7 @@ def load_rubric(path, registration):
             raise ValueError('missing rubric field: ' + key)
     if rubric['schema_version'] != '1.0' or any(not isinstance(rubric[k], str) or not rubric[k].strip() for k in ('rubric_id', 'status')):
         raise ValueError('invalid rubric identity')
-    if any(rubric[k] != BINDING[k] for k in ('assessment_id', 'variant', 'revision')) or rubric['prompt_source_blob'] != CONFIG['source_blob']:
+    if any(rubric[k] != binding[k] for k in ('assessment_id', 'variant', 'revision')) or rubric['prompt_source_blob'] != config['source_blob']:
         raise ValueError('rubric binding mismatch')
     if rubric['caps'] not in ([], {}):
         raise ValueError('caps are out of scope')
@@ -54,7 +57,7 @@ def load_rubric(path, registration):
     if {k: (v.get('max'), tuple(v['levels'])) for k, v in criteria.items()} != required_levels:
         raise ValueError('invalid criterion maxima or levels')
     questions = rubric['questions']
-    if not isinstance(questions, dict) or set(questions) != {q['id'] for q in CONFIG['questions']}:
+    if not isinstance(questions, dict) or set(questions) != {q['id'] for q in config['questions']}:
         raise ValueError('question IDs mismatch')
     for question in questions.values():
         if not isinstance(question, dict) or any(k not in question for k in ('functioneel', 'programmeerankers', 'wiskundeconcept', 'probes')) or not isinstance(question['programmeerankers'], list) or len(question['programmeerankers']) != 2:
