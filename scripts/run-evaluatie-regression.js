@@ -156,8 +156,9 @@ async function configurePage(page, baseUrl) {
 
 async function startAssessment(page) {
   await page.locator("#timed-start[open]").waitFor({ state: "visible", timeout: 30000 });
-  await page.locator("#timed-name").fill("Test Leerling");
-  await page.locator("#timed-class").fill("Testklas");
+  await page.getByLabel("Voornaam", { exact: true }).fill("Zoë");
+  await page.getByLabel("Achternaam", { exact: true }).fill("Van den Berg");
+  await page.getByLabel("Klas", { exact: true }).fill("2A");
   await page.locator("#timed-start-button").click();
   await page.locator("#timed-start").waitFor({ state: "hidden", timeout: 30000 });
 }
@@ -253,7 +254,10 @@ async function checkLifecycle(browser, baseUrl) {
         const originalClick = HTMLAnchorElement.prototype.click;
         window.blockDownload = true;
         HTMLAnchorElement.prototype.click = function () {
-          if (this.download && window.blockDownload) return;
+          if (this.download && window.blockDownload) {
+            window.attemptedFilename = this.download;
+            return;
+          }
           originalClick.call(this);
         };
       });
@@ -271,10 +275,21 @@ async function checkLifecycle(browser, baseUrl) {
       await page.evaluate(() => { window.finishExpiryRun(); });
       await page.waitForFunction(() => !timedRunInFlight);
       if (process.env.JSIK_JSPDF_PATH) {
+        const expectedFilename = "Zoë_Van_den_Berg_2A_2026-01-01_Toets_1.pdf";
+        assert(await page.evaluate(() => window.attemptedFilename) === expectedFilename, "Automatische PDF-bestandsnaam onjuist");
         await page.evaluate(() => { window.blockDownload = false; });
         const firstDownload = page.waitForEvent("download");
         await page.locator("#timed-download").click();
-        const original = fs.readFileSync(await (await firstDownload).path());
+        const first = await firstDownload;
+        assert(first.suggestedFilename() === expectedFilename, "Handmatige PDF-bestandsnaam onjuist");
+        const original = fs.readFileSync(await first.path());
+        await page.evaluate(key => {
+          const legacy = JSON.parse(localStorage.getItem(key));
+          delete legacy.firstName;
+          delete legacy.lastName;
+          delete legacy.final.dateKey;
+          localStorage.setItem(key, JSON.stringify(legacy));
+        }, key);
         await page.addInitScript(() => {
           Storage.prototype.setItem = () => { throw new Error("synthetische opslagfout"); };
         });
@@ -282,7 +297,9 @@ async function checkLifecycle(browser, baseUrl) {
         await page.locator("#timed-complete[open]").waitFor({ state: "visible" });
         const repeatDownload = page.waitForEvent("download");
         await page.locator("#timed-download").click();
-        const recovered = fs.readFileSync(await (await repeatDownload).path());
+        const repeat = await repeatDownload;
+        assert(repeat.suggestedFilename() === expectedFilename, "Opgeslagen poging heeft een afwijkende PDF-bestandsnaam");
+        const recovered = fs.readFileSync(await repeat.path());
         assert(original.subarray(0, 5).toString() === "%PDF-" && recovered.equals(original), "PDF-herstel wijkt af van de eerste download");
       }
     }, { id: assessment.id, duration: duration === 2 ? 2 : undefined });
@@ -356,6 +373,32 @@ async function checkLifecycle(browser, baseUrl) {
     assert(record.code === 'console.log("latere versie")' && record.runCode === 'console.log("eerste versie")' && record.outputFromEarlierCode, "Uitvoering en laatste concept niet afzonderlijk vastgezet");
   });
   console.log("[OK] vertraagde uitvoering en vroeg indienen");
+  await withSyntheticPage(browser, baseUrl, async page => {
+    await launchTimed(page, baseUrl, test);
+    const runCorrectExercise = async () => {
+      await page.evaluate(() => {
+        const expected = chapters[currentChapterIdx].exercises[currentExerciseIdx].tests[0].stdout;
+        editor.setValue(`console.log(${JSON.stringify(expected)});`);
+      });
+      await page.locator("#run-code").click();
+      await page.locator("#eval-modal-pill.ok").waitFor({ state: "visible" });
+    };
+    const deadline = await page.evaluate(() => timedState.deadline);
+    await runCorrectExercise();
+    const next = page.getByRole("button", { name: "Volgende oefening" });
+    assert(await next.evaluate(el => document.activeElement === el), "Volgende oefening krijgt geen toetsenbordfocus");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => currentExerciseIdx === 1);
+    assert(await page.evaluate(() => timedState.deadline) === deadline, "Volgende oefening wijzigt de deadline");
+
+    await page.locator(".exercise-btn").last().click();
+    await runCorrectExercise();
+    assert(!await next.isVisible(), "Laatste oefening heeft een knop voor de volgende oefening");
+    assert(await page.locator("#eval-modal-primary").textContent() === "Sluiten", "Laatste oefening mist Sluiten");
+    await page.keyboard.press("Escape");
+    await page.locator("#eval-modal").waitFor({ state: "hidden" });
+  });
+  console.log("[OK] volgende oefening na een geslaagde uitvoering");
   console.log("[OK] tijdslimieten, herladen, tweede tabblad en vervallen");
 }
 

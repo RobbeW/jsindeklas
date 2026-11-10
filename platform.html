@@ -2005,8 +2005,10 @@ label, button, table, th, td,
       <p id="timed-duration"></p>
       <p id="timed-ready-message" role="status"></p>
       <form id="timed-start-form" class="timed-form">
-        <label for="timed-name">Naam</label>
-        <input id="timed-name" name="student" type="text" maxlength="100" autocomplete="off" required autofocus>
+        <label for="timed-first-name">Voornaam</label>
+        <input id="timed-first-name" name="firstName" type="text" maxlength="100" autocomplete="off" required autofocus>
+        <label for="timed-last-name">Achternaam</label>
+        <input id="timed-last-name" name="lastName" type="text" maxlength="100" autocomplete="off" required>
         <label for="timed-class">Klas</label>
         <input id="timed-class" name="class" type="text" maxlength="40" autocomplete="off" required>
         <div class="timed-actions">
@@ -3687,18 +3689,19 @@ document.addEventListener("visibilitychange", () => {
       document.getElementById("timed-retry").onclick = () => prepareTimedStart(true);
       document.getElementById("timed-start-form").onsubmit = event => {
         event.preventDefault();
-        const name = document.getElementById("timed-name").value.trim();
+        const firstName = document.getElementById("timed-first-name").value.trim();
+        const lastName = document.getElementById("timed-last-name").value.trim();
         const className = document.getElementById("timed-class").value.trim();
         const message = document.getElementById("timed-ready-message");
-        if (!name || !className) {
-          message.textContent = "Vul je naam en klas in.";
+        if (!firstName || !lastName || !className) {
+          message.textContent = "Vul je voornaam, achternaam en klas in.";
           return;
         }
         if (timedState || !timedStore || !timedPdfReady()) return;
         const startedAt = Date.now();
         const attempt = {
           attemptId: crypto.randomUUID(),
-          name, className, startedAt,
+          firstName, lastName, name: `${firstName} ${lastName}`, className, startedAt,
           deadline: startedAt + timedAssessment.durationMinutes * 60000,
           drafts: {}, runs: {}, final: null,
         };
@@ -3813,9 +3816,11 @@ document.addEventListener("visibilitychange", () => {
       const expired = now >= timedState.deadline;
       if (reason === "expiry" && !expired) return;
       if (!expired && timedRunInFlight) return;
+      const finishedAt = expired ? timedState.deadline : now;
       const final = {
         reason: expired ? "expiry" : "manual",
-        finishedAt: expired ? timedState.deadline : now,
+        finishedAt,
+        dateKey: _dateKeyLocal(new Date(finishedAt)),
         title: timedAssessment.title,
         revision: timedAssessment.contentRevision,
         pageUrl: `${location.origin}${location.pathname}`,
@@ -3847,6 +3852,30 @@ document.addEventListener("visibilitychange", () => {
         : "Je werk staat vast. Je kan je PDF downloaden.";
     }
 
+    function timedPdfFilename(attempt){
+      const encoder = new TextEncoder();
+      function filenamePart(value, fallback, maxBytes){
+        const safe = value.normalize("NFC").replace(/[^\p{L}\p{M}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
+        let result = "";
+        let bytes = 0;
+        for (const character of safe) {
+          bytes += encoder.encode(character).length;
+          if (bytes > maxBytes) break;
+          result += character;
+        }
+        return result.replace(/_+$/, "") || fallback;
+      }
+
+      const names = attempt.firstName && attempt.lastName
+        ? [filenamePart(attempt.firstName, "Voornaam", 60), filenamePart(attempt.lastName, "Achternaam", 80)]
+        : [filenamePart(attempt.name, "Leerling", 140)];
+      const className = filenamePart(attempt.className, "Klas", 24);
+      const date = attempt.final.dateKey || _dateKeyLocal(new Date(attempt.final.finishedAt));
+      const title = attempt.final.title.replace(/^JavaScript:\s*/i, "");
+      const assessment = filenamePart(title, timedAssessment.id, 64);
+      return `${[...names, className, date, assessment].join("_")}.pdf`;
+    }
+
     async function downloadTimedPdf(userInitiated){
       const status = document.getElementById("timed-download-status");
       const button = document.getElementById("timed-download");
@@ -3867,7 +3896,7 @@ document.addEventListener("visibilitychange", () => {
         }
         const link = document.createElement("a");
         link.href = timedDownloadUrl;
-        link.download = `${timedAssessment.id}-${attempt.attemptId}.pdf`;
+        link.download = timedPdfFilename(attempt);
         link.click();
         status.textContent = timedSaveFailed
           ? "Je werk staat vast in dit tabblad. Controleer je downloads vóór je dit venster sluit."
@@ -5964,6 +5993,9 @@ document.addEventListener("visibilitychange", () => {
         const primary = document.getElementById("eval-modal-primary");
         const secondary = document.getElementById("eval-modal-secondary");
         const closeBtn = document.getElementById("eval-modal-close");
+        const canExport = evalResult.success && !TIMED_REQUESTED;
+        const hasTimedNext = evalResult.success && TIMED_REQUESTED &&
+          currentExerciseIdx + 1 < (chapters[currentChapterIdx]?.exercises?.length ?? 0);
 
         const total = Number.isFinite(evalResult.total) ? evalResult.total : 0;
         const passedCount = Number.isFinite(evalResult.passedCount) ? evalResult.passedCount : 0;
@@ -6047,7 +6079,7 @@ document.addEventListener("visibilitychange", () => {
         }
 
         function onPrimary(){
-          cleanup(evalResult.success ? "export" : "close");
+          cleanup(canExport ? "export" : "close");
         }
 
         function onSecondary(){
@@ -6064,16 +6096,10 @@ document.addEventListener("visibilitychange", () => {
           }
         }
 
-        if (evalResult.success && !TIMED_REQUESTED) {
-          primary.textContent = "Exporteer oefening";
-          secondary.textContent = "Bewaar en ga verder";
-          secondary.style.display = "inline-flex";
-          closeBtn.style.display = "inline-flex";
-        } else {
-          primary.textContent = "Sluiten";
-          secondary.style.display = "none";
-          closeBtn.style.display = "none";
-        }
+        primary.textContent = canExport ? "Exporteer oefening" : "Sluiten";
+        secondary.textContent = hasTimedNext ? "Volgende oefening" : "Bewaar en ga verder";
+        secondary.style.display = canExport || hasTimedNext ? "inline-flex" : "none";
+        closeBtn.style.display = canExport ? "inline-flex" : "none";
 
         primary.addEventListener("click", onPrimary);
         secondary.addEventListener("click", onSecondary);
@@ -6086,6 +6112,7 @@ document.addEventListener("visibilitychange", () => {
         };
 
         modal.style.display = "flex";
+        if (hasTimedNext) secondary.focus();
       });
     }
 
@@ -6097,13 +6124,13 @@ document.addEventListener("visibilitychange", () => {
 
       const exercise = chapters[currentChapterIdx]?.exercises?.[currentExerciseIdx];
       const action = await openStructuredEvaluationModal(evalResult, exercise && exercise.title ? exercise.title : "");
-      if (TIMED_REQUESTED) return;
 
       if (evalResult.success) {
         if (action === "export") {
           openPdfModal("single");
         } else if (action === "next") {
           goToNextExercise();
+          if (TIMED_REQUESTED && timedCanEdit()) editor.focus();
         }
       }
     }
@@ -6531,7 +6558,9 @@ if (includeDetailedEval && currentEvalResult && currentEvalResult.firstFailCase)
 
     function buildExerciseBatchPdf(naam, klas, records, attempt = null){
       const final = attempt?.final;
-      const today = final ? new Date(final.finishedAt).toISOString().slice(0, 10) : _dateKeyLocal();
+      const today = final
+        ? final.dateKey || new Date(final.finishedAt).toISOString().slice(0, 10)
+        : _dateKeyLocal();
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
       if (final) {
@@ -7263,10 +7292,13 @@ y += headerH + 5 * rowH + 20;
   "Rapportinstellingen": "Report settings",
   "Wie maakt dit rapport?": "Who is making this report?",
   "Naam": "Name",
+  "Voornaam": "First name",
+  "Achternaam": "Last name",
   "Naam:": "Name:",
   "Naam of namen": "Name or names",
   "Klas": "Class",
   "Klas:": "Class:",
+  "Vul je voornaam, achternaam en klas in.": "Enter your first name, last name, and class.",
   "Annuleren": "Cancel",
   "Annuleer": "Cancel",
   "OK": "OK",
